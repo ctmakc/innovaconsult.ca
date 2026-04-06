@@ -1,0 +1,183 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const faq = [
+  {
+    question: 'Do I need to report every crypto transaction to the CRA?',
+    answer:
+      'Yes. Canadian taxpayers should maintain complete records of buys, sells, swaps, and transfers because the CRA can request a full audit trail.'
+  },
+  {
+    question: 'Is staking income taxable in Canada?',
+    answer:
+      'Generally yes. Staking rewards are commonly treated as business or investment income depending on your activity profile.'
+  },
+  {
+    question: 'How are NFTs taxed for Canadian residents?',
+    answer:
+      'NFT disposals can trigger capital gains or business income tax, and NFT creators may also have GST/HST considerations.'
+  },
+  {
+    question: 'Can I use an offshore company while living in Canada?',
+    answer:
+      'Possibly, but structures must be designed to comply with Canadian tax residency, foreign reporting, and anti-avoidance rules.'
+  }
+];
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faq.map((item) => ({
+    '@type': 'Question',
+    name: item.question,
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: item.answer
+    }
+  }))
+};
+
+const businessSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'ProfessionalService',
+  name: 'InnovaConsult Canada',
+  url: 'https://innovaconsult.ca',
+  telephone: '+1-613-867-7767',
+  email: 'canada@innovaconsult.ca',
+  areaServed: 'Canada',
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: 'Ottawa',
+    addressRegion: 'ON',
+    addressCountry: 'CA'
+  }
+};
+---
+
+<BaseLayout
+  title="InnovaConsult.ca | Crypto Tax & International Compliance for Canadians"
+  description="Ottawa-based specialists in crypto tax Canada, CRA crypto reporting, international structures, and business immigration."
+>
+  <header class="sticky top-0 z-20 border-b border-slate-200 bg-white/95 backdrop-blur">
+    <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+      <a href="#" class="text-xl font-extrabold text-navy">InnovaConsult<span class="text-red">.ca</span></a>
+      <nav class="hidden gap-6 text-sm font-medium text-slate-700 md:flex">
+        <a href="#services" class="hover:text-red">Services</a>
+        <a href="#why-us" class="hover:text-red">Why Us</a>
+        <a href="#faq" class="hover:text-red">FAQ</a>
+        <a href="#contact" class="hover:text-red">Contact</a>
+      </nav>
+      <a
+        href="#contact"
+        class="hidden rounded-full bg-red px-5 py-2 text-sm font-bold text-white transition hover:bg-navy md:inline-block"
+      >
+        Free Consultation
+      </a>
+    </div>
+  </header>
+
+  <main>
+    <section class="relative isolate overflow-hidden bg-navy text-white">
+      <div class="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.18),transparent_42%),linear-gradient(180deg,rgba(30,58,95,0.84),rgba(30,58,95,0.93))]"></div>
+      <div class="relative mx-auto max-w-6xl px-6 pb-28 pt-24 md:pt-32">
+        <p class="mb-5 inline-block rounded-full border border-white/30 px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em]">
+          Ottawa • Canadian Corporate Advisory
+        </p>
+        <h1 class="max-w-3xl text-4xl font-extrabold leading-tight md:text-6xl">International Expertise. Canadian Compliance.</h1>
+        <p class="mt-6 max-w-2xl text-lg text-slate-100">
+          Crypto tax, international structures, and business immigration strategy for Canadians.
+        </p>
+        <a href="#contact" class="mt-10 inline-block rounded-full bg-red px-8 py-3 text-base font-bold text-white shadow-card transition hover:bg-white hover:text-navy">Book a Free Call</a>
+      </div>
+    </section>
+
+    <section id="services" class="mx-auto max-w-6xl px-6 py-20">
+      <h2 class="section-title">Core Services</h2>
+      <p class="section-subtitle">Cross-border strategy built for Canadian regulation and practical execution.</p>
+      <div class="mt-10 grid gap-6 md:grid-cols-3">
+        <article class="rounded-2xl border border-slate-200 p-7 shadow-card">
+          <h3 class="text-2xl font-bold text-navy">Crypto Tax Canada</h3>
+          <p class="mt-3 text-slate-600">CRA reporting support across DeFi activity, staking, mining, NFTs, and year-end filing readiness.</p>
+        </article>
+        <article class="rounded-2xl border border-slate-200 p-7 shadow-card">
+          <h3 class="text-2xl font-bold text-navy">International Structures</h3>
+          <p class="mt-3 text-slate-600">Compliant international company and holding structures for Canadian residents and founders.</p>
+        </article>
+        <article class="rounded-2xl border border-slate-200 p-7 shadow-card">
+          <h3 class="text-2xl font-bold text-navy">Business Immigration</h3>
+          <p class="mt-3 text-slate-600">Planning for Start-up Visa, founder relocation, and cross-border expansion into Canada.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="why-us" class="bg-snow py-20">
+      <div class="mx-auto max-w-6xl px-6">
+        <h2 class="section-title">Why InnovaConsult Canada</h2>
+        <div class="mt-8 grid gap-4 md:grid-cols-4">
+          <p class="rounded-xl bg-white p-5 text-center font-semibold text-navy">Ottawa-based</p>
+          <p class="rounded-xl bg-white p-5 text-center font-semibold text-navy">Cross-border experience</p>
+          <p class="rounded-xl bg-white p-5 text-center font-semibold text-navy">CRA-aware advisory</p>
+          <p class="rounded-xl bg-white p-5 text-center font-semibold text-navy">Founder-friendly execution</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="mx-auto max-w-6xl px-6 py-20">
+      <div class="rounded-3xl bg-navy p-10 text-white">
+        <p class="text-sm font-bold uppercase tracking-[0.2em] text-red">What We Solve</p>
+        <h2 class="mt-3 text-3xl font-extrabold">From reporting risk to international structure clarity</h2>
+        <ul class="mt-6 grid gap-3 text-slate-100 md:grid-cols-3">
+          <li>Crypto records and reporting discipline for CRA-facing years.</li>
+          <li>International entity planning without casual compliance mistakes.</li>
+          <li>Advisory that connects tax, structure, immigration, and execution.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="faq" class="mx-auto max-w-6xl px-6 py-20">
+      <h2 class="section-title">Frequently Asked Questions</h2>
+      <div class="mt-8 space-y-4">
+        {faq.map((item) => (
+          <details class="rounded-xl border border-slate-200 p-5">
+            <summary class="cursor-pointer text-lg font-bold text-navy">{item.question}</summary>
+            <p class="mt-3 text-slate-600">{item.answer}</p>
+          </details>
+        ))}
+      </div>
+    </section>
+
+    <section id="contact" class="bg-navy py-20 text-white">
+      <div class="mx-auto max-w-6xl px-6">
+        <h2 class="text-3xl font-extrabold md:text-4xl">Contact InnovaConsult Canada</h2>
+        <div class="mt-8 grid gap-6 md:grid-cols-2">
+          <div class="rounded-2xl border border-white/20 p-6">
+            <p class="font-semibold">Email</p>
+            <a href="mailto:canada@innovaconsult.ca" class="mt-2 block text-xl text-white hover:text-red">canada@innovaconsult.ca</a>
+            <p class="mt-5 font-semibold">Phone</p>
+            <a href="tel:+16138677767" class="mt-2 block text-xl text-white hover:text-red">+1 (613) 867-7767</a>
+            <p class="mt-5 font-semibold">Location</p>
+            <p class="mt-2 text-lg">Ottawa, ON</p>
+          </div>
+          <div class="rounded-2xl border border-white/20 p-6">
+            <p class="font-semibold">Messenger</p>
+            <div class="mt-4 flex flex-wrap gap-3">
+              <a href="https://t.me/mmixua" class="rounded-full bg-white px-4 py-2 font-bold text-navy">Telegram</a>
+              <a href="https://wa.me/16138677767" class="rounded-full bg-white px-4 py-2 font-bold text-navy">WhatsApp</a>
+            </div>
+            <a href="mailto:canada@innovaconsult.ca" class="mt-8 inline-block rounded-full bg-red px-6 py-3 font-bold text-white">Free Consultation Request</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="border-t border-slate-200 bg-white py-8">
+    <div class="mx-auto flex max-w-6xl flex-col items-start justify-between gap-3 px-6 text-sm text-slate-600 md:flex-row md:items-center">
+      <p>© {new Date().getFullYear()} InnovaConsult.ca. All rights reserved.</p>
+      <a href="https://innovaconsult.ai" class="font-semibold text-navy hover:text-red">Visit the global AI consulting brand</a>
+    </div>
+  </footer>
+
+  <script type="application/ld+json" set:html={JSON.stringify(faqSchema)}></script>
+  <script type="application/ld+json" set:html={JSON.stringify(businessSchema)}></script>
+</BaseLayout>
