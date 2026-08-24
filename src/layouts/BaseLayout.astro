@@ -5,20 +5,28 @@ interface Props {
   title: string;
   description: string;
   canonicalURL?: string;
+  keywords?: string;
+  lang?: string;
 }
 
-const { title, description, canonicalURL } = Astro.props;
+const {
+  title,
+  description,
+  canonicalURL,
+  keywords = 'crypto tax Canada, CRA crypto reporting, international tax consultant Ottawa',
+  lang = 'en'
+} = Astro.props;
 const canonical = canonicalURL || 'https://innovaconsult.ca';
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={lang}>
   <head>
     <meta charset="UTF-8" />
     <meta name="description" content={description} />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
-    <meta name="keywords" content="crypto tax Canada, CRA crypto reporting, international tax consultant Ottawa" />
+    <meta name="keywords" content={keywords} />
     <link rel="canonical" href={canonical} />
     <meta property="og:type" content="website" />
     <meta property="og:url" content={canonical} />
