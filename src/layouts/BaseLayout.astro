@@ -26,6 +26,12 @@ const org = {
   '@id': `${SITE.url}/#org`,
   name: 'INNOVA',
   legalName: SITE.legalName,
+  identifier: [
+    { '@type': 'PropertyValue', propertyID: 'Corporations Canada corporation number (CBCA)', value: SITE.corporationNumber },
+    { '@type': 'PropertyValue', propertyID: 'NCAGE', value: SITE.ncage },
+    { '@type': 'PropertyValue', propertyID: 'DUNS', value: SITE.duns }
+  ],
+  duns: SITE.duns,
   url: SITE.url,
   logo: `${SITE.url}/innova-mark-512.png`,
   email: SITE.email,

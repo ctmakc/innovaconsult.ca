@@ -4,6 +4,9 @@ export const SITE = {
   legalName: 'INNOVA CONSULT LTD.',
   descriptor: 'Applied Innovation & Technology',
   corporationNumber: '1522612-1',
+  /** NATO Commercial and Government Entity code, assigned by DND on 2026-10-01. */
+  ncage: 'L15L3',
+  duns: '241954189',
   incorporated: '2023',
   experienceSince: '2012',
   city: 'Ottawa',
