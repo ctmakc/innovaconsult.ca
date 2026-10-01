@@ -1,0 +1,12 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
+<BaseLayout title="Page not found — INNOVA" description="The requested INNOVA page could not be found." canonicalURL="https://innovaconsult.ca/404">
+  <Header />
+  <main class="page-hero" style="min-height:70vh;display:grid;align-items:center">
+    <div class="shell"><p class="eyebrow">404 / Signal lost</p><h1 class="display">This path does not <span class="gradient-text">exist.</span></h1><p class="kicker">The useful part of the system is still one click away.</p><div class="hero-actions"><a class="button button-primary" href="/">Return to INNOVA</a><a class="button button-ghost" href="/#projects">Explore projects</a></div></div>
+  </main>
+  <Footer />
+</BaseLayout>

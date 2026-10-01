@@ -5,29 +5,59 @@ interface Props {
   title: string;
   description: string;
   canonicalURL?: string;
+  image?: string;
 }
 
-const { title, description, canonicalURL } = Astro.props;
-const canonical = canonicalURL || 'https://innovaconsult.ca';
+const {
+  title,
+  description,
+  canonicalURL = 'https://innovaconsult.ca',
+  image = 'https://innovaconsult.ca/og.svg'
+} = Astro.props;
+
+const organizationSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'INNOVA CONSULT LTD.',
+  alternateName: 'INNOVA',
+  url: 'https://innovaconsult.ca',
+  email: 'canada@innovaconsult.ca',
+  telephone: '+1-613-867-7767',
+  description:
+    'Ottawa-based applied innovation and technology company building AI systems, software products and collaborative R&D projects.',
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: 'Ottawa',
+    addressRegion: 'Ontario',
+    addressCountry: 'CA'
+  }
+};
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
   <head>
     <meta charset="UTF-8" />
-    <meta name="description" content={description} />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
-    <meta name="keywords" content="crypto tax Canada, CRA crypto reporting, international tax consultant Ottawa" />
-    <link rel="canonical" href={canonical} />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#071214" />
+    <link rel="canonical" href={canonicalURL} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
     <meta property="og:type" content="website" />
-    <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content="INNOVA" />
+    <meta property="og:url" content={canonicalURL} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:site_name" content="InnovaConsult.ca" />
+    <meta property="og:image" content={image} />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={image} />
+
     <title>{title}</title>
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <script type="application/ld+json" set:html={JSON.stringify(organizationSchema)}></script>
   </head>
   <body>
     <slot />

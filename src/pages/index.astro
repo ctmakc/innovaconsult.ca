@@ -1,183 +1,257 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
 
-const faq = [
-  {
-    question: 'Do I need to report every crypto transaction to the CRA?',
-    answer:
-      'Yes. Canadian taxpayers should maintain complete records of buys, sells, swaps, and transfers because the CRA can request a full audit trail.'
-  },
-  {
-    question: 'Is staking income taxable in Canada?',
-    answer:
-      'Generally yes. Staking rewards are commonly treated as business or investment income depending on your activity profile.'
-  },
-  {
-    question: 'How are NFTs taxed for Canadian residents?',
-    answer:
-      'NFT disposals can trigger capital gains or business income tax, and NFT creators may also have GST/HST considerations.'
-  },
-  {
-    question: 'Can I use an offshore company while living in Canada?',
-    answer:
-      'Possibly, but structures must be designed to comply with Canadian tax residency, foreign reporting, and anti-avoidance rules.'
-  }
+const capabilities = [
+  { index: '01', title: 'Applied AI', text: 'AI systems designed around real workflows, decisions and measurable operational outcomes.', href: '/ai-transformation' },
+  { index: '02', title: 'Software Products', text: 'Custom platforms, internal systems and digital products built from prototype to deployment.', href: '#projects' },
+  { index: '03', title: 'Applied R&D', text: 'Technology discovery, experimentation and rapid validation of new technical opportunities.', href: '#innovation' },
+  { index: '04', title: 'Innovation Partnerships', text: 'Collaborative development with businesses, researchers, technology providers and public organizations.', href: '#partnerships' }
 ];
 
-const faqSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'FAQPage',
-  mainEntity: faq.map((item) => ({
-    '@type': 'Question',
-    name: item.question,
-    acceptedAnswer: {
-      '@type': 'Answer',
-      text: item.answer
-    }
-  }))
-};
+const domains = [
+  ['Building', 'AI & Agentic Systems', 'Workflow intelligence, assistants, agents and governed automation.'],
+  ['Building', 'Enterprise Software', 'Operational systems, internal platforms and AI-enabled applications.'],
+  ['Researching', 'AgriTech', 'Applied software, data and automation opportunities across agriculture.'],
+  ['Exploring with partners', 'HealthTech & PharmaTech', 'Digital systems and applied AI around healthcare and life-science workflows.'],
+  ['Exploring with partners', 'Smart Infrastructure', 'Data, automation and software for complex physical environments.'],
+  ['Building', 'Data & Knowledge Systems', 'Structured knowledge, retrieval, decision support and operational data layers.'],
+  ['Exploring with partners', 'Public Sector Technology', 'Digital services, knowledge systems and workflow modernization.'],
+  ['Researching', 'Emerging Technology', 'New technical combinations with practical commercialization potential.']
+];
 
-const businessSchema = {
+const projectSchema = {
   '@context': 'https://schema.org',
-  '@type': 'ProfessionalService',
-  name: 'InnovaConsult Canada',
-  url: 'https://innovaconsult.ca',
-  telephone: '+1-613-867-7767',
-  email: 'canada@innovaconsult.ca',
-  areaServed: 'Canada',
-  address: {
-    '@type': 'PostalAddress',
-    addressLocality: 'Ottawa',
-    addressRegion: 'ON',
-    addressCountry: 'CA'
-  }
+  '@type': 'ItemList',
+  name: 'INNOVA technology projects',
+  itemListElement: [
+    { '@type': 'SoftwareApplication', name: 'UAFest Digital Ecosystem', applicationCategory: 'BusinessApplication' },
+    { '@type': 'SoftwareApplication', name: 'AICRMIUS', applicationCategory: 'BusinessApplication' },
+    { '@type': 'SoftwareApplication', name: 'INNOVA AI Workflow OS', applicationCategory: 'BusinessApplication' }
+  ]
 };
 ---
 
 <BaseLayout
-  title="InnovaConsult.ca | Crypto Tax & International Compliance for Canadians"
-  description="Ottawa-based specialists in crypto tax Canada, CRA crypto reporting, international structures, and business immigration."
+  title="INNOVA — Applied Innovation & Technology | Ottawa, Canada"
+  description="INNOVA is an Ottawa-based applied innovation company building AI systems, software products, prototypes and collaborative R&D projects."
+  canonicalURL="https://innovaconsult.ca/"
 >
-  <header class="sticky top-0 z-20 border-b border-slate-200 bg-white/95 backdrop-blur">
-    <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-      <a href="#" class="text-xl font-extrabold text-navy">InnovaConsult<span class="text-red">.ca</span></a>
-      <nav class="hidden gap-6 text-sm font-medium text-slate-700 md:flex">
-        <a href="#services" class="hover:text-red">Services</a>
-        <a href="#why-us" class="hover:text-red">Why Us</a>
-        <a href="#faq" class="hover:text-red">FAQ</a>
-        <a href="#contact" class="hover:text-red">Contact</a>
-      </nav>
-      <a
-        href="#contact"
-        class="hidden rounded-full bg-red px-5 py-2 text-sm font-bold text-white transition hover:bg-navy md:inline-block"
-      >
-        Free Consultation
-      </a>
-    </div>
-  </header>
+  <Header />
 
   <main>
-    <section class="relative isolate overflow-hidden bg-navy text-white">
-      <div class="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.18),transparent_42%),linear-gradient(180deg,rgba(30,58,95,0.84),rgba(30,58,95,0.93))]"></div>
-      <div class="relative mx-auto max-w-6xl px-6 pb-28 pt-24 md:pt-32">
-        <p class="mb-5 inline-block rounded-full border border-white/30 px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em]">
-          Ottawa • Canadian Corporate Advisory
-        </p>
-        <h1 class="max-w-3xl text-4xl font-extrabold leading-tight md:text-6xl">International Expertise. Canadian Compliance.</h1>
-        <p class="mt-6 max-w-2xl text-lg text-slate-100">
-          Crypto tax, international structures, and business immigration strategy for Canadians.
-        </p>
-        <a href="#contact" class="mt-10 inline-block rounded-full bg-red px-8 py-3 text-base font-bold text-white shadow-card transition hover:bg-white hover:text-navy">Book a Free Call</a>
-      </div>
-    </section>
+    <section class="hero">
+      <div class="shell hero-grid">
+        <div class="hero-copy">
+          <p class="eyebrow">Applied Innovation · Canada</p>
+          <h1 class="display">Turning complex opportunities into <span class="gradient-text">working technology.</span></h1>
+          <p class="kicker">INNOVA develops and deploys applied AI, software and emerging-technology solutions — from business transformation and digital products to R&D and industry collaboration.</p>
+          <div class="hero-actions">
+            <a class="button button-primary button-arrow" href="#projects">Explore what we build</a>
+            <a class="button button-ghost" href="#partnerships">Partner with us</a>
+          </div>
+          <div class="trust-line" aria-label="Company facts">
+            <span>Ottawa, Canada</span>
+            <span>14+ years international experience</span>
+            <span>Build · Prototype · Deploy</span>
+          </div>
+        </div>
 
-    <section id="services" class="mx-auto max-w-6xl px-6 py-20">
-      <h2 class="section-title">Core Services</h2>
-      <p class="section-subtitle">Cross-border strategy built for Canadian regulation and practical execution.</p>
-      <div class="mt-10 grid gap-6 md:grid-cols-3">
-        <article class="rounded-2xl border border-slate-200 p-7 shadow-card">
-          <h3 class="text-2xl font-bold text-navy">Crypto Tax Canada</h3>
-          <p class="mt-3 text-slate-600">CRA reporting support across DeFi activity, staking, mining, NFTs, and year-end filing readiness.</p>
-        </article>
-        <article class="rounded-2xl border border-slate-200 p-7 shadow-card">
-          <h3 class="text-2xl font-bold text-navy">International Structures</h3>
-          <p class="mt-3 text-slate-600">Compliant international company and holding structures for Canadian residents and founders.</p>
-        </article>
-        <article class="rounded-2xl border border-slate-200 p-7 shadow-card">
-          <h3 class="text-2xl font-bold text-navy">Business Immigration</h3>
-          <p class="mt-3 text-slate-600">Planning for Start-up Visa, founder relocation, and cross-border expansion into Canada.</p>
-        </article>
-      </div>
-    </section>
-
-    <section id="why-us" class="bg-snow py-20">
-      <div class="mx-auto max-w-6xl px-6">
-        <h2 class="section-title">Why InnovaConsult Canada</h2>
-        <div class="mt-8 grid gap-4 md:grid-cols-4">
-          <p class="rounded-xl bg-white p-5 text-center font-semibold text-navy">Ottawa-based</p>
-          <p class="rounded-xl bg-white p-5 text-center font-semibold text-navy">Cross-border experience</p>
-          <p class="rounded-xl bg-white p-5 text-center font-semibold text-navy">CRA-aware advisory</p>
-          <p class="rounded-xl bg-white p-5 text-center font-semibold text-navy">Founder-friendly execution</p>
+        <div class="engine" aria-label="INNOVA innovation engine: opportunity to measurable impact">
+          <span class="engine-label">Innovation Engine / 01</span>
+          <span class="engine-status">Active system</span>
+          <div class="engine-flow">
+            <div class="engine-step"><strong>Opportunity</strong><span>identify value</span></div>
+            <div class="engine-step"><strong>Research</strong><span>evaluate paths</span></div>
+            <div class="engine-step active"><strong>Prototype</strong><span>validate quickly</span></div>
+            <div class="engine-step"><strong>Build</strong><span>create system</span></div>
+            <div class="engine-step"><strong>Deploy</strong><span>integrate</span></div>
+            <div class="engine-step"><strong>Impact</strong><span>measure</span></div>
+          </div>
+          <div class="engine-domains"><span>AI</span><span>Software</span><span>AgriTech</span><span>HealthTech</span><span>Data</span><span>Public Sector</span></div>
         </div>
       </div>
     </section>
 
-    <section class="mx-auto max-w-6xl px-6 py-20">
-      <div class="rounded-3xl bg-navy p-10 text-white">
-        <p class="text-sm font-bold uppercase tracking-[0.2em] text-red">What We Solve</p>
-        <h2 class="mt-3 text-3xl font-extrabold">From reporting risk to international structure clarity</h2>
-        <ul class="mt-6 grid gap-3 text-slate-100 md:grid-cols-3">
-          <li>Crypto records and reporting discipline for CRA-facing years.</li>
-          <li>International entity planning without casual compliance mistakes.</li>
-          <li>Advisory that connects tax, structure, immigration, and execution.</li>
-        </ul>
+    <div class="stats-strip">
+      <div class="shell stats-grid">
+        <div class="stat stat-intro"><strong>Experienced operators building new technology.</strong></div>
+        <div class="stat"><strong>14+ years</strong><span>International business and technology experience behind the current innovation focus.</span></div>
+        <div class="stat"><strong>Ottawa</strong><span>Based inside one of Canada’s major technology and public-sector ecosystems.</span></div>
+        <div class="stat"><strong>End-to-end</strong><span>Opportunity discovery through prototype, implementation and measurable operation.</span></div>
+      </div>
+    </div>
+
+    <section id="capabilities" class="section">
+      <div class="shell">
+        <div class="section-head">
+          <div><p class="eyebrow">Core capabilities</p><h2 class="h2">We do more than recommend. We build.</h2></div>
+          <p class="kicker">Strategy only matters when it survives contact with implementation. Our work connects process understanding, technical architecture and product execution.</p>
+        </div>
+        <div class="card-grid">
+          {capabilities.map((cap) => (
+            <article class="cap-card">
+              <span class="cap-index">{cap.index}</span>
+              <h3>{cap.title}</h3>
+              <p>{cap.text}</p>
+              <a href={cap.href}>Explore capability ↗</a>
+            </article>
+          ))}
+        </div>
       </div>
     </section>
 
-    <section id="faq" class="mx-auto max-w-6xl px-6 py-20">
-      <h2 class="section-title">Frequently Asked Questions</h2>
-      <div class="mt-8 space-y-4">
-        {faq.map((item) => (
-          <details class="rounded-xl border border-slate-200 p-5">
-            <summary class="cursor-pointer text-lg font-bold text-navy">{item.question}</summary>
-            <p class="mt-3 text-slate-600">{item.answer}</p>
-          </details>
-        ))}
+    <section class="section" id="model">
+      <div class="shell operating-grid">
+        <div>
+          <p class="eyebrow">Operating model</p>
+          <h2 class="h2">From opportunity to deployment.</h2>
+          <p class="kicker">INNOVA does not separate strategy from implementation. We move through one connected operating model and keep technical choices tied to the outcome.</p>
+        </div>
+        <div class="process" aria-label="INNOVA operating model">
+          <div class="process-row"><span class="num">01</span><strong>Discover</strong><span>Problem + opportunity</span></div>
+          <div class="process-row"><span class="num">02</span><strong>Design</strong><span>Architecture + path</span></div>
+          <div class="process-row"><span class="num">03</span><strong>Prototype</strong><span>Feasibility + validation</span></div>
+          <div class="process-row"><span class="num">04</span><strong>Build</strong><span>Product + integrations</span></div>
+          <div class="process-row"><span class="num">05</span><strong>Deploy</strong><span>People + systems</span></div>
+          <div class="process-row"><span class="num">06</span><strong>Measure</strong><span>Impact + iteration</span></div>
+        </div>
       </div>
     </section>
 
-    <section id="contact" class="bg-navy py-20 text-white">
-      <div class="mx-auto max-w-6xl px-6">
-        <h2 class="text-3xl font-extrabold md:text-4xl">Contact InnovaConsult Canada</h2>
-        <div class="mt-8 grid gap-6 md:grid-cols-2">
-          <div class="rounded-2xl border border-white/20 p-6">
-            <p class="font-semibold">Email</p>
-            <a href="mailto:canada@innovaconsult.ca" class="mt-2 block text-xl text-white hover:text-red">canada@innovaconsult.ca</a>
-            <p class="mt-5 font-semibold">Phone</p>
-            <a href="tel:+16138677767" class="mt-2 block text-xl text-white hover:text-red">+1 (613) 867-7767</a>
-            <p class="mt-5 font-semibold">Location</p>
-            <p class="mt-2 text-lg">Ottawa, ON</p>
-          </div>
-          <div class="rounded-2xl border border-white/20 p-6">
-            <p class="font-semibold">Messenger</p>
-            <div class="mt-4 flex flex-wrap gap-3">
-              <a href="https://t.me/mmixua" class="rounded-full bg-white px-4 py-2 font-bold text-navy">Telegram</a>
-              <a href="https://wa.me/16138677767" class="rounded-full bg-white px-4 py-2 font-bold text-navy">WhatsApp</a>
+    <section class="section">
+      <div class="shell product-panel">
+        <span class="product-status">Prototype · In development</span>
+        <p class="eyebrow" style="margin-top:28px;color:#08624f">Featured product</p>
+        <h2 class="product-title">AI transformation starts with understanding how work actually happens.</h2>
+        <p class="product-copy"><strong>INNOVA AI Workflow OS</strong> maps company operations, identifies high-value automation opportunities, recommends the right automation architecture and converts them into implementation roadmaps with measurable ROI.</p>
+        <div class="flow-chips" aria-label="Workflow OS product flow"><span>Company</span><span>→</span><span>Processes</span><span>→</span><span>Score</span><span>→</span><span>Select</span><span>→</span><span>Design</span><span>→</span><span>Implement</span><span>→</span><span>Measure</span></div>
+        <a class="button button-dark button-arrow" href="/workflow-os">Explore Workflow OS</a>
+      </div>
+    </section>
+
+    <section id="innovation" class="section">
+      <div class="shell">
+        <div class="section-head">
+          <div><p class="eyebrow">Innovation domains</p><h2 class="h2">Technology is horizontal. Impact happens inside industries.</h2></div>
+          <p class="kicker">These are areas we build in, research and explore with partners. We state the level of activity explicitly instead of pretending to lead every vertical.</p>
+        </div>
+        <div class="domain-grid">
+          {domains.map(([status, title, text]) => (
+            <article class="domain"><small>{status}</small><h3>{title}</h3><p>{text}</p></article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section id="projects" class="section">
+      <div class="shell">
+        <div class="section-head">
+          <div><p class="eyebrow">Selected work</p><h2 class="h2">Proof beats positioning.</h2></div>
+          <p class="kicker">We distinguish what is live, what is being built and what remains experimental. No invented traction. No blurry status labels.</p>
+        </div>
+
+        <div class="project-grid">
+          <article class="project-card large">
+            <span class="status live">Built · Live</span>
+            <div class="project-visual" aria-hidden="true">
+              <div class="diagram-nodes">
+                <div class="diagram-row"><div class="diagram-node accent">Event Platform</div><div class="diagram-node">Vendor Layer</div><div class="diagram-node">Community</div></div>
+                <div class="diagram-row"><div class="diagram-node">Content</div><div class="diagram-node accent">UAFest Digital Ecosystem</div><div class="diagram-node">Operations</div></div>
+                <div class="diagram-row"><div class="diagram-node">Networking</div><div class="diagram-node">Data</div><div class="diagram-node">Engagement</div></div>
+              </div>
             </div>
-            <a href="mailto:canada@innovaconsult.ca" class="mt-8 inline-block rounded-full bg-red px-6 py-3 font-bold text-white">Free Consultation Request</a>
-          </div>
+            <h3>UAFest Digital Ecosystem</h3>
+            <p>An interconnected digital environment supporting events, vendors, participants, community engagement and operational workflows.</p>
+            <span class="project-meta">Digital products · Operations · Community systems</span>
+          </article>
+
+          <article class="project-card">
+            <span class="status dev">In development</span>
+            <div class="project-visual" aria-hidden="true"><div class="diagram-row"><div class="diagram-node">Human</div><div class="diagram-node accent">Shared Workflow</div><div class="diagram-node">AI Agent</div></div></div>
+            <h3>AICRMIUS</h3>
+            <p>AI-native CRM/ERP environment designed for humans and AI agents to operate inside shared business workflows.</p>
+            <span class="project-meta">CRM/ERP · Agentic systems · Workflow infrastructure</span>
+          </article>
+
+          <article class="project-card">
+            <span class="status prototype">Prototype · In development</span>
+            <div class="project-visual" aria-hidden="true"><div class="diagram-row"><div class="diagram-node">Processes</div><div class="diagram-node accent">Opportunity Score</div><div class="diagram-node">ROI</div></div></div>
+            <h3>INNOVA AI Workflow OS</h3>
+            <p>Business-process discovery and AI automation planning environment that connects opportunity mapping to implementation and measurable impact.</p>
+            <span class="project-meta">Applied AI · Process intelligence · Automation architecture</span>
+          </article>
         </div>
+      </div>
+    </section>
+
+    <section id="partnerships" class="section">
+      <div class="shell partnership-panel">
+        <div class="partnership-copy">
+          <p class="eyebrow">Innovation partnerships</p>
+          <h2 class="h2">Bring the expertise. Bring the technology. Bring the problem.</h2>
+          <p>We work with technology companies, industry operators, researchers, institutions and public organizations on applied R&D, software development, pilot deployment and commercialization.</p>
+          <a class="button button-primary button-arrow" href="#contact">Discuss a collaboration</a>
+        </div>
+        <div class="partnership-list">
+          <div><span>01</span><strong>Co-development</strong></div>
+          <div><span>02</span><strong>Applied R&D</strong></div>
+          <div><span>03</span><strong>Technology integration</strong></div>
+          <div><span>04</span><strong>Pilot deployment</strong></div>
+          <div><span>05</span><strong>Commercialization</strong></div>
+          <div><span>06</span><strong>Joint funding & innovation applications</strong></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="about" class="section">
+      <div class="shell about-grid">
+        <div><p class="eyebrow">Company evolution</p><h2 class="h2">New technology. Experienced operators.</h2></div>
+        <div class="about-copy">
+          <p>INNOVA’s current focus is technology and applied innovation, but the organization was not created yesterday. Our team brings more than 14 years of international experience working across business operations, software, regulation and commercialization.</p>
+          <div class="timeline" aria-label="INNOVA evolution"><div><strong>Business</strong><span>Operating context</span></div><div><strong>Digital</strong><span>Systems & channels</span></div><div><strong>Software</strong><span>Products & platforms</span></div><div><strong>AI</strong><span>Automation & agents</span></div><div><strong>Innovation</strong><span>R&D & collaboration</span></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact" class="section">
+      <div class="shell contact-panel">
+        <div class="contact-copy">
+          <p class="eyebrow">Start a conversation</p>
+          <h2 class="h2">Have a problem worth solving or technology worth building around?</h2>
+          <p>Tell us what you are working on. We are interested in technology products, AI transformation, applied R&D, commercialization and collaborative projects.</p>
+          <p><strong>Ottawa, Ontario</strong><br /><a href="mailto:canada@innovaconsult.ca">canada@innovaconsult.ca</a><br /><a href="tel:+16138677767">+1 (613) 867-7767</a></p>
+        </div>
+        <form class="contact-form" id="project-form">
+          <div class="field"><label for="name">Name</label><input id="name" name="name" autocomplete="name" required /></div>
+          <div class="field"><label for="organization">Organization</label><input id="organization" name="organization" autocomplete="organization" /></div>
+          <div class="field full"><label for="email">Email</label><input id="email" type="email" name="email" autocomplete="email" required /></div>
+          <div class="field full"><label for="type">I want to</label><select id="type" name="type"><option>Build a technology product</option><option>Automate business processes</option><option>Explore an AI initiative</option><option>Discuss an R&D project</option><option>Commercialize technology</option><option>Explore a partnership</option><option>Discuss a public-sector project</option><option>Other</option></select></div>
+          <div class="field full"><label for="message">What are you working on?</label><textarea id="message" name="message" required></textarea></div>
+          <div class="field full"><button class="button button-dark button-arrow" type="submit">Start a conversation</button></div>
+        </form>
       </div>
     </section>
   </main>
 
-  <footer class="border-t border-slate-200 bg-white py-8">
-    <div class="mx-auto flex max-w-6xl flex-col items-start justify-between gap-3 px-6 text-sm text-slate-600 md:flex-row md:items-center">
-      <p>© {new Date().getFullYear()} InnovaConsult.ca. All rights reserved.</p>
-      <a href="https://innovaconsult.ai" class="font-semibold text-navy hover:text-red">Visit the global AI consulting brand</a>
-    </div>
-  </footer>
-
-  <script type="application/ld+json" set:html={JSON.stringify(faqSchema)}></script>
-  <script type="application/ld+json" set:html={JSON.stringify(businessSchema)}></script>
+  <Footer />
+  <script type="application/ld+json" set:html={JSON.stringify(projectSchema)}></script>
+  <script is:inline>
+    document.getElementById('project-form')?.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const data = new FormData(form);
+      const subject = `INNOVA project inquiry — ${data.get('type') || 'Technology project'}`;
+      const body = [
+        `Name: ${data.get('name') || ''}`,
+        `Organization: ${data.get('organization') || ''}`,
+        `Email: ${data.get('email') || ''}`,
+        `Project type: ${data.get('type') || ''}`,
+        '',
+        `${data.get('message') || ''}`
+      ].join('\n');
+      window.location.href = `mailto:canada@innovaconsult.ca?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    });
+  </script>
 </BaseLayout>
