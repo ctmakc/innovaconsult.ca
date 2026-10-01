@@ -1,183 +1,575 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import RiseHeading from '../components/RiseHeading.astro';
+import PipelineBoard from '../components/PipelineBoard.astro';
+import StageTrack from '../components/StageTrack.astro';
+import StatusChip from '../components/StatusChip.astro';
+import StageLine from '../components/StageLine.astro';
+import { CAPABILITIES } from '../data/capabilities';
+import { SECTORS, ENGAGEMENT_LABEL } from '../data/sectors';
+import { featuredProjects, STATUS_STAGE } from '../data/projects';
+import { SITE } from '../data/site';
 
-const faq = [
-  {
-    question: 'Do I need to report every crypto transaction to the CRA?',
-    answer:
-      'Yes. Canadian taxpayers should maintain complete records of buys, sells, swaps, and transfers because the CRA can request a full audit trail.'
-  },
-  {
-    question: 'Is staking income taxable in Canada?',
-    answer:
-      'Generally yes. Staking rewards are commonly treated as business or investment income depending on your activity profile.'
-  },
-  {
-    question: 'How are NFTs taxed for Canadian residents?',
-    answer:
-      'NFT disposals can trigger capital gains or business income tax, and NFT creators may also have GST/HST considerations.'
-  },
-  {
-    question: 'Can I use an offshore company while living in Canada?',
-    answer:
-      'Possibly, but structures must be designed to comply with Canadian tax residency, foreign reporting, and anti-avoidance rules.'
-  }
+const engagementMark = { building: 'building', researching: 'research', exploring: 'exploring' } as const;
+const wosFlow = ['Company', 'Processes', 'Score', 'Select', 'Design', 'Implement', 'Measure'];
+const stageNotes = [
+  'We look at how the organization works and where technology would change the result.',
+  'We test the technical options against real data and constraints before anyone commits a budget.',
+  'We build a working prototype that real users can try within weeks.',
+  'We engineer the chosen solution with security, permissions and audit built in.',
+  'We roll it out inside the systems and routines people already use.',
+  'We measure time, cost, errors and adoption against the starting point.'
 ];
-
-const faqSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'FAQPage',
-  mainEntity: faq.map((item) => ({
-    '@type': 'Question',
-    name: item.question,
-    acceptedAnswer: {
-      '@type': 'Answer',
-      text: item.answer
-    }
-  }))
-};
-
-const businessSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'ProfessionalService',
-  name: 'InnovaConsult Canada',
-  url: 'https://innovaconsult.ca',
-  telephone: '+1-613-867-7767',
-  email: 'canada@innovaconsult.ca',
-  areaServed: 'Canada',
-  address: {
-    '@type': 'PostalAddress',
-    addressLocality: 'Ottawa',
-    addressRegion: 'ON',
-    addressCountry: 'CA'
-  }
-};
 ---
 
 <BaseLayout
-  title="InnovaConsult.ca | Crypto Tax & International Compliance for Canadians"
-  description="Ottawa-based specialists in crypto tax Canada, CRA crypto reporting, international structures, and business immigration."
+  title="INNOVA — Applied Innovation & Technology | Ottawa, Canada"
+  description="INNOVA is an Ottawa applied-innovation company. We research, prototype, build and deploy applied AI and software with companies, researchers and public organizations."
+  path="/"
 >
-  <header class="sticky top-0 z-20 border-b border-slate-200 bg-white/95 backdrop-blur">
-    <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-      <a href="#" class="text-xl font-extrabold text-navy">InnovaConsult<span class="text-red">.ca</span></a>
-      <nav class="hidden gap-6 text-sm font-medium text-slate-700 md:flex">
-        <a href="#services" class="hover:text-red">Services</a>
-        <a href="#why-us" class="hover:text-red">Why Us</a>
-        <a href="#faq" class="hover:text-red">FAQ</a>
-        <a href="#contact" class="hover:text-red">Contact</a>
-      </nav>
-      <a
-        href="#contact"
-        class="hidden rounded-full bg-red px-5 py-2 text-sm font-bold text-white transition hover:bg-navy md:inline-block"
-      >
-        Free Consultation
-      </a>
+  <!-- HERO -->
+  <section class="hero">
+    <div class="wrap grid12 hero-grid">
+      <div class="hero-copy">
+        <p class="kicker hero-kick">Applied innovation · Ottawa, Canada</p>
+        <RiseHeading text="Turning complex opportunities into working technology." />
+        <p class="lede hero-lede">
+          INNOVA researches, prototypes, builds and deploys applied AI and software, and brings companies, researchers and public organizations onto the same project.
+        </p>
+        <div class="hero-ctas">
+          <a href="/projects" class="btn btn-primary">Explore what we build <span class="arr" aria-hidden="true">→</span></a>
+          <a href="/partnerships" class="btn btn-ghost">Work with INNOVA</a>
+        </div>
+        <p class="hero-trust mono">Ottawa, Canada · 14+ years of international business and technology experience</p>
+      </div>
+      <div class="hero-board">
+        <PipelineBoard />
+      </div>
     </div>
-  </header>
+  </section>
 
-  <main>
-    <section class="relative isolate overflow-hidden bg-navy text-white">
-      <div class="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.18),transparent_42%),linear-gradient(180deg,rgba(30,58,95,0.84),rgba(30,58,95,0.93))]"></div>
-      <div class="relative mx-auto max-w-6xl px-6 pb-28 pt-24 md:pt-32">
-        <p class="mb-5 inline-block rounded-full border border-white/30 px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em]">
-          Ottawa • Canadian Corporate Advisory
+  <!-- WHAT WE DO -->
+  <section class="section" id="what-we-do">
+    <div class="wrap">
+      <div class="grid12 sec-head">
+        <div class="sh-l">
+          <h2 class="d-xl">Four capabilities on one line.</h2>
+        </div>
+        <p class="body sh-r">
+          Each capability covers a stretch of the path from first opportunity to measured impact. The track on the right of every row shows which stretch.
         </p>
-        <h1 class="max-w-3xl text-4xl font-extrabold leading-tight md:text-6xl">International Expertise. Canadian Compliance.</h1>
-        <p class="mt-6 max-w-2xl text-lg text-slate-100">
-          Crypto tax, international structures, and business immigration strategy for Canadians.
+      </div>
+      <div class="rows">
+        {
+          CAPABILITIES.map((c) => (
+            <a class="row" href={c.href}>
+              <h3 class="d-m row-title">{c.name}</h3>
+              <p class="body">{c.line}</p>
+              <StageTrack span={c.span} />
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- OPERATING MODEL -->
+  <section class="section" id="how-we-work">
+    <div class="wrap">
+      <div class="grid12 sec-head">
+        <div class="sh-l">
+          <h2 class="d-xl">From opportunity to deployment.</h2>
+        </div>
+        <p class="body sh-r">
+          Strategy and implementation stay in one team. The people who study the problem also build, ship and measure the solution, so nothing is lost in a hand-off.
         </p>
-        <a href="#contact" class="mt-10 inline-block rounded-full bg-red px-8 py-3 text-base font-bold text-white shadow-card transition hover:bg-white hover:text-navy">Book a Free Call</a>
       </div>
-    </section>
+      <StageLine notes={stageNotes} />
+    </div>
+  </section>
 
-    <section id="services" class="mx-auto max-w-6xl px-6 py-20">
-      <h2 class="section-title">Core Services</h2>
-      <p class="section-subtitle">Cross-border strategy built for Canadian regulation and practical execution.</p>
-      <div class="mt-10 grid gap-6 md:grid-cols-3">
-        <article class="rounded-2xl border border-slate-200 p-7 shadow-card">
-          <h3 class="text-2xl font-bold text-navy">Crypto Tax Canada</h3>
-          <p class="mt-3 text-slate-600">CRA reporting support across DeFi activity, staking, mining, NFTs, and year-end filing readiness.</p>
-        </article>
-        <article class="rounded-2xl border border-slate-200 p-7 shadow-card">
-          <h3 class="text-2xl font-bold text-navy">International Structures</h3>
-          <p class="mt-3 text-slate-600">Compliant international company and holding structures for Canadian residents and founders.</p>
-        </article>
-        <article class="rounded-2xl border border-slate-200 p-7 shadow-card">
-          <h3 class="text-2xl font-bold text-navy">Business Immigration</h3>
-          <p class="mt-3 text-slate-600">Planning for Start-up Visa, founder relocation, and cross-border expansion into Canada.</p>
-        </article>
+  <!-- WORKFLOW OS -->
+  <section class="section wos" id="workflow-os">
+    <div class="wrap grid12">
+      <div class="wos-l">
+        <h2 class="d-xl">AI transformation starts with how work actually happens.</h2>
+        <div class="wos-name">
+          <span class="d-m">INNOVA AI Workflow OS</span>
+          <StatusChip status="prototype" />
+        </div>
+        <p class="lede">From business processes to measurable AI automation.</p>
+        <p class="body">
+          Workflow OS maps a company’s operations, scores every process for automation value, recommends the right architecture, from plain software to supervised AI agents, and turns the result into an implementation plan with a measurable return.
+        </p>
+        <a href="/workflow-os" class="btn btn-primary wos-cta">Explore Workflow OS <span class="arr" aria-hidden="true">→</span></a>
       </div>
-    </section>
-
-    <section id="why-us" class="bg-snow py-20">
-      <div class="mx-auto max-w-6xl px-6">
-        <h2 class="section-title">Why InnovaConsult Canada</h2>
-        <div class="mt-8 grid gap-4 md:grid-cols-4">
-          <p class="rounded-xl bg-white p-5 text-center font-semibold text-navy">Ottawa-based</p>
-          <p class="rounded-xl bg-white p-5 text-center font-semibold text-navy">Cross-border experience</p>
-          <p class="rounded-xl bg-white p-5 text-center font-semibold text-navy">CRA-aware advisory</p>
-          <p class="rounded-xl bg-white p-5 text-center font-semibold text-navy">Founder-friendly execution</p>
+      <div class="wos-r" aria-label="Workflow OS flow">
+        <ol class="wos-flow" data-draw>
+          {
+            wosFlow.map((step, i) => (
+              <li style={`--i:${i}`}>
+                <span class="mono wos-i">{String(i + 1).padStart(2, '0')}</span>
+                <span class="wos-step">{step}</span>
+              </li>
+            ))
+          }
+        </ol>
+        <div class="wos-why">
+          <p class="mono">Every score shows its reasons</p>
+          <ul>
+            {['Time spent', 'Volume', 'Repetition', 'Error rate', 'Delays', 'Cost', 'Risk', 'Data readiness', 'Integration effort', 'AI suitability', 'ROI potential'].map((f) => <li>{f}</li>)}
+          </ul>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <section class="mx-auto max-w-6xl px-6 py-20">
-      <div class="rounded-3xl bg-navy p-10 text-white">
-        <p class="text-sm font-bold uppercase tracking-[0.2em] text-red">What We Solve</p>
-        <h2 class="mt-3 text-3xl font-extrabold">From reporting risk to international structure clarity</h2>
-        <ul class="mt-6 grid gap-3 text-slate-100 md:grid-cols-3">
-          <li>Crypto records and reporting discipline for CRA-facing years.</li>
-          <li>International entity planning without casual compliance mistakes.</li>
-          <li>Advisory that connects tax, structure, immigration, and execution.</li>
-        </ul>
+  <!-- DOMAINS -->
+  <section class="section" id="domains">
+    <div class="wrap">
+      <div class="grid12 sec-head">
+        <div class="sh-l">
+          <h2 class="d-xl">Technology is horizontal. Impact happens inside industries.</h2>
+        </div>
+        <p class="body sh-r">Areas we build in, research and explore with partners. The mark on each row says which.</p>
       </div>
-    </section>
-
-    <section id="faq" class="mx-auto max-w-6xl px-6 py-20">
-      <h2 class="section-title">Frequently Asked Questions</h2>
-      <div class="mt-8 space-y-4">
-        {faq.map((item) => (
-          <details class="rounded-xl border border-slate-200 p-5">
-            <summary class="cursor-pointer text-lg font-bold text-navy">{item.question}</summary>
-            <p class="mt-3 text-slate-600">{item.answer}</p>
-          </details>
-        ))}
-      </div>
-    </section>
-
-    <section id="contact" class="bg-navy py-20 text-white">
-      <div class="mx-auto max-w-6xl px-6">
-        <h2 class="text-3xl font-extrabold md:text-4xl">Contact InnovaConsult Canada</h2>
-        <div class="mt-8 grid gap-6 md:grid-cols-2">
-          <div class="rounded-2xl border border-white/20 p-6">
-            <p class="font-semibold">Email</p>
-            <a href="mailto:canada@innovaconsult.ca" class="mt-2 block text-xl text-white hover:text-red">canada@innovaconsult.ca</a>
-            <p class="mt-5 font-semibold">Phone</p>
-            <a href="tel:+16138677767" class="mt-2 block text-xl text-white hover:text-red">+1 (613) 867-7767</a>
-            <p class="mt-5 font-semibold">Location</p>
-            <p class="mt-2 text-lg">Ottawa, ON</p>
-          </div>
-          <div class="rounded-2xl border border-white/20 p-6">
-            <p class="font-semibold">Messenger</p>
-            <div class="mt-4 flex flex-wrap gap-3">
-              <a href="https://t.me/mmixua" class="rounded-full bg-white px-4 py-2 font-bold text-navy">Telegram</a>
-              <a href="https://wa.me/16138677767" class="rounded-full bg-white px-4 py-2 font-bold text-navy">WhatsApp</a>
+      <div class="dom">
+        {
+          SECTORS.map((s) => (
+            <div class="dom-row">
+              <span class="status dom-st">
+                <span class="mark" data-s={engagementMark[s.engagement]} aria-hidden="true" />
+                {ENGAGEMENT_LABEL[s.engagement]}
+              </span>
+              <h3 class="d-m dom-h">{s.name}</h3>
+              <p class="body dom-p">
+                {s.line}
+                {s.evidence && <span class="dom-ev mono">{s.evidence}</span>}
+              </p>
             </div>
-            <a href="mailto:canada@innovaconsult.ca" class="mt-8 inline-block rounded-full bg-red px-6 py-3 font-bold text-white">Free Consultation Request</a>
-          </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- PROJECTS -->
+  <section class="section" id="projects">
+    <div class="wrap">
+      <div class="grid12 sec-head">
+        <div class="sh-l">
+          <h2 class="d-xl">Real work, with its real status.</h2>
+        </div>
+        <p class="body sh-r">
+          Live products, systems in development and early research sit side by side. Every project carries one status, and the track shows its stage.
+        </p>
+      </div>
+      <div class="rows">
+        {
+          featuredProjects.map((p) => (
+            <a class="row prow" href={`/projects/${p.slug}`}>
+              <div class="row-title">
+                <p class="mono prow-code">{p.code}</p>
+                <h3 class="d-m">{p.name}</h3>
+              </div>
+              <p class="body">{p.summary}</p>
+              <div class="prow-meta">
+                <StatusChip status={p.status} />
+                <StageTrack at={STATUS_STAGE[p.status]} status={p.status} caption={false} />
+              </div>
+            </a>
+          ))
+        }
+      </div>
+      <p class="more">
+        <a class="arrow-link" href="/projects"><span>All projects</span><span aria-hidden="true">→</span></a>
+      </p>
+    </div>
+  </section>
+
+  <!-- COLLABORATION -->
+  <section class="section collab" id="collaboration">
+    <div class="wrap grid12">
+      <div class="co-l">
+        <h2 class="d-xl">Innovation works better in collaboration.</h2>
+      </div>
+      <div class="co-r">
+        <p class="lede">
+          We work with technology companies, industry operators, researchers, institutions and public organizations on applied R&amp;D, software development, pilot deployment and commercialization.
+        </p>
+        <ul class="co-areas">
+          {['Applied AI', 'Industrial software', 'Agriculture technology', 'Health technology', 'Data infrastructure', 'Public-sector digital systems', 'Commercializing emerging technology'].map((a) => <li>{a}</li>)}
+        </ul>
+        <div class="co-ctas">
+          <a href="/partnerships" class="btn btn-primary">Discuss a collaboration <span class="arr" aria-hidden="true">→</span></a>
+          <a href="/partnerships#models" class="arrow-link"><span>Partnership models</span><span aria-hidden="true">→</span></a>
         </div>
       </div>
-    </section>
-  </main>
-
-  <footer class="border-t border-slate-200 bg-white py-8">
-    <div class="mx-auto flex max-w-6xl flex-col items-start justify-between gap-3 px-6 text-sm text-slate-600 md:flex-row md:items-center">
-      <p>© {new Date().getFullYear()} InnovaConsult.ca. All rights reserved.</p>
-      <a href="https://innovaconsult.ai" class="font-semibold text-navy hover:text-red">Visit the global AI consulting brand</a>
     </div>
-  </footer>
+  </section>
 
-  <script type="application/ld+json" set:html={JSON.stringify(faqSchema)}></script>
-  <script type="application/ld+json" set:html={JSON.stringify(businessSchema)}></script>
+  <!-- CREDIBILITY -->
+  <section class="section cred" id="background">
+    <div class="wrap grid12">
+      <div class="cr-l">
+        <h2 class="d-xl">New technology. Experienced operators.</h2>
+        <p class="body cr-p">
+          INNOVA’s focus today is applied technology, built on a longer history. Its founder has worked with businesses across many jurisdictions, industries and operating environments since {SITE.experienceSince}. That history teaches how companies run, where processes break and what it takes to get a new system adopted.
+        </p>
+        <a href="/about" class="arrow-link"><span>About INNOVA</span><span aria-hidden="true">→</span></a>
+      </div>
+      <ol class="cr-path" data-draw>
+        <span class="cr-rail trk-span" aria-hidden="true"></span>
+        <li><span class="mono">From {SITE.experienceSince}</span><strong>Business operations</strong> across jurisdictions and industries</li>
+        <li><span class="mono">Then</span><strong>Digital systems</strong> for the companies we worked with</li>
+        <li><span class="mono">Then</span><strong>Software products</strong> built and run in-house</li>
+        <li><span class="mono">Then</span><strong>Applied AI</strong> inside real business workflows</li>
+        <li><span class="mono">{SITE.incorporated} · Canada</span><strong>{SITE.legalName}</strong> incorporated federally, based in Ottawa</li>
+        <li class="now"><span class="mono">Now</span><strong>Applied innovation</strong> with Canadian partners</li>
+      </ol>
+    </div>
+  </section>
 </BaseLayout>
+
+<style>
+  /* Hero */
+  .hero {
+    padding-block: clamp(36px, 4vw, 64px) clamp(72px, 7vw, 120px);
+  }
+  .hero-grid {
+    align-items: start;
+    row-gap: 48px;
+  }
+  .hero-copy {
+    grid-column: 1 / span 5;
+    padding-top: clamp(8px, 2vw, 36px);
+  }
+  .hero-board {
+    grid-column: 6 / span 7;
+    padding-top: clamp(8px, 2vw, 36px);
+  }
+  .hero-kick {
+    animation: hfade 700ms var(--ease-out) both;
+  }
+  .hero-lede {
+    margin-top: 28px;
+    animation: hfade 800ms var(--ease-out) 520ms both;
+  }
+  .hero-ctas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 34px;
+    animation: hfade 800ms var(--ease-out) 640ms both;
+  }
+  .hero-trust {
+    margin: 30px 0 0;
+    padding-top: 18px;
+    border-top: 1px solid var(--rule);
+    color: var(--lichen);
+    font-size: 0.7rem;
+    max-width: 46ch;
+    animation: hfade 800ms var(--ease-out) 760ms both;
+  }
+  @keyframes hfade {
+    from {
+      opacity: 0;
+      translate: 0 10px;
+    }
+    to {
+      opacity: 1;
+      translate: 0 0;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero * {
+      animation: none !important;
+    }
+  }
+  @media (max-width: 1100px) {
+    .hero-copy,
+    .hero-board {
+      grid-column: 1 / -1;
+    }
+    .hero-copy .d-hero {
+      max-width: 14ch;
+    }
+  }
+
+  /* Workflow OS */
+  .wos-l {
+    grid-column: 1 / span 6;
+  }
+  .wos-r {
+    grid-column: 8 / span 5;
+  }
+  .wos-name {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 18px;
+    margin: 36px 0 14px;
+    padding-top: 22px;
+    border-top: 1px solid var(--rule);
+  }
+  .wos-l .lede {
+    margin-bottom: 18px;
+  }
+  .wos-cta {
+    margin-top: 30px;
+  }
+  .wos-flow {
+    list-style: none;
+    margin: 0;
+    padding: 0 0 0 30px;
+    position: relative;
+  }
+  .wos-flow::before {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 14px;
+    bottom: 14px;
+    width: 1px;
+    background: var(--signal);
+    transform-origin: top;
+    transition: transform 1100ms var(--ease-in-out);
+  }
+  :global(.js) .wos-flow:not(.is-in)::before {
+    transform: scaleY(0);
+  }
+  .wos-flow li {
+    position: relative;
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .wos-flow li::before {
+    content: '';
+    position: absolute;
+    left: -29px;
+    top: 50%;
+    width: 11px;
+    height: 11px;
+    margin-top: -5.5px;
+    border-radius: 50%;
+    background: var(--ground);
+    border: 2px solid var(--signal);
+  }
+  .wos-flow li:last-child::before {
+    background: var(--signal);
+  }
+  .wos-i {
+    color: var(--lichen);
+  }
+  .wos-step {
+    font-family: var(--font-display);
+    font-stretch: 110%;
+    font-weight: 480;
+    font-size: clamp(1.25rem, 1rem + 0.8vw, 1.75rem);
+    letter-spacing: -0.02em;
+  }
+  .wos-why {
+    margin-top: 28px;
+    padding: 20px 22px;
+    background: var(--plate);
+    border: 1px solid var(--rule);
+  }
+  .wos-why .mono {
+    margin: 0 0 14px;
+    color: var(--frost);
+  }
+  .wos-why ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .wos-why li {
+    font-size: 0.86rem;
+    color: var(--lichen);
+    padding: 4px 10px;
+    border: 1px solid var(--rule-strong);
+  }
+  @media (max-width: 980px) {
+    .wos-l,
+    .wos-r {
+      grid-column: 1 / -1;
+    }
+    .wos-r {
+      margin-top: 48px;
+    }
+  }
+
+  /* Domains: two-column ruled list */
+  .dom {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: clamp(24px, 4vw, 72px);
+    border-bottom: 1px solid var(--rule);
+  }
+  .dom-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+    padding: 26px 0 28px;
+    border-top: 1px solid var(--rule);
+  }
+  .dom-st {
+    color: var(--lichen);
+  }
+  .dom-h {
+    margin: 2px 0 0;
+  }
+  .dom-ev {
+    display: block;
+    margin-top: 10px;
+    color: var(--frost);
+    font-size: 0.7rem;
+  }
+  @media (max-width: 860px) {
+    .dom {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Projects */
+  .prow-code {
+    color: var(--lichen);
+    margin: 0 0 8px;
+  }
+  .prow h3 {
+    margin: 0;
+  }
+  .prow-meta {
+    display: grid;
+    gap: 12px;
+  }
+  .more {
+    margin: 32px 0 0;
+  }
+
+  /* Collaboration */
+  .co-l {
+    grid-column: 1 / span 5;
+  }
+  .co-r {
+    grid-column: 7 / span 6;
+    padding-top: 8px;
+  }
+  .co-areas {
+    list-style: none;
+    margin: 32px 0 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 8px;
+  }
+  .co-areas li {
+    padding: 7px 14px;
+    border: 1px solid var(--rule-strong);
+    font-size: 0.95rem;
+  }
+  .co-ctas {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px 28px;
+    margin-top: 36px;
+  }
+  @media (max-width: 980px) {
+    .co-l,
+    .co-r {
+      grid-column: 1 / -1;
+    }
+    .co-r {
+      margin-top: 24px;
+    }
+  }
+
+  /* Credibility */
+  .cr-l {
+    grid-column: 1 / span 5;
+  }
+  .cr-p {
+    margin: 28px 0 28px;
+  }
+  .cr-path {
+    grid-column: 7 / span 6;
+    list-style: none;
+    margin: 0;
+    padding: 0 0 0 34px;
+    position: relative;
+    align-self: center;
+  }
+  .cr-path::before {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 10px;
+    bottom: 10px;
+    width: 1px;
+    background: var(--rule-strong);
+  }
+  .cr-rail {
+    position: absolute;
+    left: 5px;
+    top: 10px;
+    bottom: 10px;
+    width: 3px;
+    background: var(--signal);
+    transform-origin: top;
+    transition: transform var(--t-draw) var(--ease-in-out);
+  }
+  :global(.js) .cr-path:not(.is-in) .cr-rail {
+    transform: scaleY(0) !important;
+  }
+  :global(.js) .cr-path.is-in .cr-rail {
+    transform: none !important;
+  }
+  .cr-path li {
+    position: relative;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--rule);
+    color: var(--lichen);
+  }
+  .cr-path li::before {
+    content: '';
+    position: absolute;
+    left: -33px;
+    top: 50%;
+    width: 11px;
+    height: 11px;
+    margin-top: -5.5px;
+    border-radius: 50%;
+    background: var(--ground);
+    border: 2px solid var(--signal);
+  }
+  .cr-path li.now::before {
+    background: var(--signal);
+  }
+  .cr-path .mono {
+    display: block;
+    color: var(--signal);
+    font-size: 0.68rem;
+    margin-bottom: 4px;
+  }
+  .cr-path strong {
+    color: var(--frost);
+    font-weight: 600;
+    margin-right: 6px;
+  }
+  @media (max-width: 980px) {
+    .cr-l,
+    .cr-path {
+      grid-column: 1 / -1;
+    }
+    .cr-path {
+      margin-top: 40px;
+    }
+  }
+</style>

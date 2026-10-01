@@ -1,0 +1,80 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHead from '../components/PageHead.astro';
+import StageTrack from '../components/StageTrack.astro';
+import { CAPABILITIES } from '../data/capabilities';
+---
+
+<BaseLayout
+  title="Capabilities — applied AI, software, R&D and partnerships | INNOVA"
+  description="INNOVA capabilities: applied AI and automation, software and digital products, applied R&D and commercialization, and innovation partnerships — from first opportunity to measured impact."
+  path="/capabilities"
+>
+  <PageHead
+    crumb="Capabilities"
+    title="One team from first idea to measured result."
+    lede="Four capabilities, each covering a stretch of the same line. Most projects use two or three of them together."
+  />
+
+  {
+    CAPABILITIES.map((c, i) => (
+      <section class="section cap" id={c.key}>
+        <div class="wrap grid12">
+          <div class="cap-l">
+            <p class="mono cap-n">{String(i + 1).padStart(2, '0')} / {String(CAPABILITIES.length).padStart(2, '0')}</p>
+            <h2 class="d-l">{c.name}</h2>
+            <p class="lede cap-line">{c.line}</p>
+            <StageTrack span={c.span} />
+          </div>
+          <div class="cap-r">
+            <ul class="cap-scope">
+              {c.scope.map((s) => (
+                <li>{s}</li>
+              ))}
+            </ul>
+            <a class="arrow-link" href={c.href}>
+              <span>{c.href === '/partnerships' ? 'Partnership models' : 'How we work here'}</span>
+              <span aria-hidden="true">→</span>
+            </a>
+          </div>
+        </div>
+      </section>
+    ))
+  }
+</BaseLayout>
+
+<style>
+  .cap-l {
+    grid-column: 1 / span 6;
+  }
+  .cap-r {
+    grid-column: 8 / span 5;
+  }
+  .cap-n {
+    color: var(--signal);
+    margin: 0 0 18px;
+  }
+  .cap-line {
+    margin: 22px 0 28px;
+  }
+  .cap-scope {
+    list-style: none;
+    margin: 0 0 28px;
+    padding: 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .cap-scope li {
+    padding: 14px 0;
+    border-top: 1px solid var(--rule);
+    font-size: 1.05rem;
+  }
+  @media (max-width: 980px) {
+    .cap-l,
+    .cap-r {
+      grid-column: 1 / -1;
+    }
+    .cap-r {
+      margin-top: 36px;
+    }
+  }
+</style>

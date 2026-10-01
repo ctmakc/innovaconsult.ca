@@ -1,0 +1,119 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHead from '../components/PageHead.astro';
+import StageTrack from '../components/StageTrack.astro';
+import { PARTNERSHIP_MODELS } from '../data/partnerships';
+
+const audiences = ['Founders', 'Research groups', 'Technical teams', 'Foreign technology companies', 'Canadian companies', 'Public organizations'];
+---
+
+<BaseLayout
+  title="Partnerships — co-development, applied R&D, pilots | INNOVA, Ottawa"
+  description="Partner with INNOVA on co-development, applied R&D, commercialization, technology integration, pilot deployments, Canadian market collaboration and joint innovation funding applications."
+  path="/partnerships"
+>
+  <PageHead
+    crumb="Partnerships"
+    title="Bring the expertise, the technology or the problem. We build the rest together."
+    lede="Have technology, expertise, a problem or an opportunity? Each partnership model below says what each side brings and which part of the line it covers."
+  >
+    <div slot="aside" class="pa-aside">
+      <a class="btn btn-primary" href="/contact?topic=partnership">Start a partnership conversation <span class="arr" aria-hidden="true">→</span></a>
+    </div>
+  </PageHead>
+
+  <section class="section" id="models">
+    <div class="wrap">
+      <div class="grid12 sec-head">
+        <div class="sh-l"><h2 class="d-l">Eight ways to work together.</h2></div>
+        <p class="body sh-r">Most real projects combine two of them, for example applied R&amp;D followed by a pilot.</p>
+      </div>
+      <div class="rows">
+        {
+          PARTNERSHIP_MODELS.map((m) => (
+            <div class="row pm">
+              <div>
+                <h3 class="d-m">{m.name}</h3>
+                <p class="body pm-line">{m.line}</p>
+              </div>
+              <dl class="pm-dl">
+                <div>
+                  <dt class="mono">You bring</dt>
+                  <dd>{m.youBring}</dd>
+                </div>
+                <div>
+                  <dt class="mono">INNOVA brings</dt>
+                  <dd>{m.weBring}</dd>
+                </div>
+              </dl>
+              <StageTrack span={m.span} />
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap grid12">
+      <div class="au-l">
+        <h2 class="d-l">Who we partner with.</h2>
+        <p class="body au-p">
+          INNOVA is based in Ottawa and works with partners in Canada and abroad. We are glad to join consortium applications to Canadian innovation programs as the software and AI partner.
+        </p>
+      </div>
+      <ul class="au">{audiences.map((a) => <li>{a}</li>)}</ul>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .pa-aside {
+    margin-top: 26px;
+  }
+  .pm-line {
+    margin-top: 10px;
+  }
+  .pm-dl {
+    margin: 0;
+    display: grid;
+    gap: 14px;
+  }
+  .pm-dl dt {
+    color: var(--lichen);
+    margin-bottom: 4px;
+  }
+  .pm-dl dd {
+    margin: 0;
+  }
+  .au-l {
+    grid-column: 1 / span 6;
+  }
+  .au-p {
+    margin-top: 20px;
+  }
+  .au {
+    grid-column: 8 / span 5;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .au li {
+    padding: 14px 0;
+    border-top: 1px solid var(--rule);
+    font-family: var(--font-display);
+    font-stretch: 108%;
+    font-size: clamp(1.1rem, 1rem + 0.4vw, 1.4rem);
+    letter-spacing: -0.015em;
+  }
+  @media (max-width: 980px) {
+    .au-l,
+    .au {
+      grid-column: 1 / -1;
+    }
+    .au {
+      margin-top: 28px;
+    }
+  }
+</style>

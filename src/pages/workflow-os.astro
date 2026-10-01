@@ -1,0 +1,393 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHead from '../components/PageHead.astro';
+import StatusChip from '../components/StatusChip.astro';
+import { SITE } from '../data/site';
+
+const questions = [
+  'What exactly should be automated?',
+  'Which process comes first?',
+  'Where is AI actually useful?',
+  'Does this need an agent, or ordinary automation?',
+  'What will implementation cost?',
+  'Did the automation produce measurable value?'
+];
+const flow = ['Company', 'Processes', 'Score', 'Select', 'Design', 'Implement', 'Measure'];
+const modules = [
+  {
+    name: 'Process discovery',
+    line: 'Capture the company as it really operates, through structured input, interviews and document import.',
+    items: ['Company', 'Departments', 'Processes', 'Roles', 'Systems', 'Documents', 'Pain points', 'Process volume']
+  },
+  {
+    name: 'Automation opportunity map',
+    line: 'Score every process and show the reasons behind each score.',
+    items: ['Time spent', 'Volume', 'Repetition', 'Error rate', 'Delays', 'Cost', 'Risk', 'Data readiness', 'Integration effort', 'AI suitability', 'ROI potential']
+  },
+  {
+    name: 'Automation designer',
+    line: 'Recommend the architecture that fits: traditional automation, assistant, agent, multi-agent, human-in-the-loop or hybrid.',
+    items: ['Systems', 'Triggers', 'Data', 'Approvals', 'Tools', 'Integrations', 'Risk controls']
+  },
+  {
+    name: 'Implementation workspace',
+    line: 'Turn the design into a delivery plan a team can execute.',
+    items: ['Tasks', 'Owners', 'Integrations', 'Milestones', 'Stages', 'Controls', 'Tests']
+  },
+  {
+    name: 'Impact & ROI',
+    line: 'Compare before and after on the numbers agreed at the start.',
+    items: ['Labour hours', 'Process cost', 'Cycle time', 'Error rate', 'Response speed', 'Automation rate', 'Adoption', 'ROI']
+  }
+];
+const risk = ['Privacy', 'Security', 'Data sensitivity', 'Human approval', 'Auditability', 'Model risk', 'Permissions'];
+
+const product = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: 'INNOVA AI Workflow OS',
+  applicationCategory: 'BusinessApplication',
+  description: 'Business-process discovery and AI automation planning: maps operations, scores processes for automation value, recommends architecture and tracks measured ROI.',
+  creator: { '@id': 'https://innovaconsult.ca/#org' },
+  operatingSystem: 'Web'
+};
+---
+
+<BaseLayout
+  title="AI Workflow OS — from business processes to measurable AI automation | INNOVA"
+  description="INNOVA AI Workflow OS maps company operations, scores processes for automation value, recommends the right AI or automation architecture and tracks measured ROI. Working prototype."
+  path="/workflow-os"
+  jsonLd={[product]}
+>
+  <PageHead crumb="AI Workflow OS" title="INNOVA AI Workflow OS" lede="From business processes to measurable AI automation.">
+    <div slot="aside" class="w-aside">
+      <StatusChip status="prototype" />
+      <p class="body">Working prototype. First demonstrations in October 2026.</p>
+      {
+        SITE.workflowDemoUrl ? (
+          <a class="btn btn-primary" href={SITE.workflowDemoUrl}>
+            Open the demo <span class="arr" aria-hidden="true">→</span>
+          </a>
+        ) : (
+          <a class="btn btn-primary" href="/contact?topic=workflow-os">
+            Request a demo <span class="arr" aria-hidden="true">→</span>
+          </a>
+        )
+      }
+    </div>
+  </PageHead>
+
+  <section class="section">
+    <div class="wrap grid12">
+      <div class="q-l">
+        <h2 class="d-l">Six questions every automation plan has to answer.</h2>
+        <p class="body q-p">Workflow OS answers them with evidence from the company’s own processes.</p>
+      </div>
+      <ol class="q">
+        {
+          questions.map((q, i) => (
+            <li>
+              <span class="mono">{String(i + 1).padStart(2, '0')}</span>
+              {q}
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <h2 class="sr-only">Product flow</h2>
+      <ol class="wf" data-draw>
+        <span class="wf-rail trk-span" aria-hidden="true"></span>
+        {
+          flow.map((f, i) => (
+            <li style={`--i:${i}`}>
+              <span class="wf-dot" aria-hidden="true" />
+              <span class="mono">{String(i + 1).padStart(2, '0')}</span>
+              <span class="wf-t">{f}</span>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="grid12 sec-head">
+        <div class="sh-l"><h2 class="d-l">Five modules.</h2></div>
+        <p class="body sh-r">Each module hands its output to the next. Risk controls run through all five.</p>
+      </div>
+      <div class="mods">
+        {
+          modules.map((m, i) => (
+            <div class="mod">
+              <p class="mono mod-n">Module {i + 1}</p>
+              <h3 class="d-m">{m.name}</h3>
+              <p class="body mod-l">{m.line}</p>
+              <ul class="chips">
+                {m.items.map((x) => (
+                  <li>{x}</li>
+                ))}
+              </ul>
+            </div>
+          ))
+        }
+        <div class="riskbar">
+          <p class="mono">Risk &amp; governance layer · across every module</p>
+          <ul>
+            {risk.map((r) => (
+              <li>{r}</li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap grid12">
+      <div class="b-l">
+        <h2 class="d-l">Where Workflow OS ends.</h2>
+      </div>
+      <div class="b-r">
+        <p class="lede">
+          Workflow OS decides what to automate and how. The automations themselves run in the client’s existing platforms or in INNOVA products such as AICRMIUS.
+        </p>
+        <p class="body b-p">That boundary keeps the planning tool independent of any single vendor, including us.</p>
+        <a class="arrow-link" href="/ai-transformation"><span>Our AI transformation method</span><span aria-hidden="true">→</span></a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .w-aside {
+    display: grid;
+    gap: 14px;
+    justify-items: start;
+    margin-top: 24px;
+  }
+  .q-l {
+    grid-column: 1 / span 5;
+  }
+  .q-p {
+    margin-top: 20px;
+  }
+  .q {
+    grid-column: 7 / span 6;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .q li {
+    display: flex;
+    gap: 18px;
+    align-items: baseline;
+    padding: 16px 0;
+    border-top: 1px solid var(--rule);
+    font-size: clamp(1.05rem, 0.95rem + 0.35vw, 1.3rem);
+  }
+  .q .mono {
+    color: var(--signal);
+  }
+
+  .wf {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+  }
+  .wf::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 8px;
+    height: 1px;
+    background: var(--rule-strong);
+  }
+  .wf-rail {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 7px;
+    height: 3px;
+    background: var(--signal);
+    transform-origin: left;
+    transition: transform var(--t-draw) var(--ease-in-out);
+  }
+  .wf li {
+    position: relative;
+    padding-top: 36px;
+  }
+  .wf-dot {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 17px;
+    height: 17px;
+    border-radius: 50%;
+    background: var(--ground);
+    border: 2px solid var(--signal);
+  }
+  .wf li:last-child .wf-dot {
+    background: var(--signal);
+  }
+  .wf .mono {
+    display: block;
+    color: var(--lichen);
+    margin-bottom: 8px;
+  }
+  .wf-t {
+    font-family: var(--font-display);
+    font-stretch: 112%;
+    font-weight: 480;
+    font-size: clamp(1.1rem, 0.7rem + 1.2vw, 2rem);
+    letter-spacing: -0.02em;
+  }
+
+  .mods {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 0 clamp(16px, 2vw, 28px);
+  }
+  .mod {
+    padding: 24px 0 28px;
+    border-top: 2px solid var(--signal);
+  }
+  .mod-n {
+    color: var(--lichen);
+    margin: 0 0 12px;
+  }
+  .mod-l {
+    margin: 12px 0 18px;
+    font-size: 0.95rem;
+  }
+  .chips {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .chips li {
+    padding: 3px 9px;
+    border: 1px solid var(--rule-strong);
+    font-size: 0.82rem;
+    color: var(--lichen);
+  }
+  .riskbar {
+    grid-column: 1 / -1;
+    margin-top: 12px;
+    padding: 18px 22px;
+    background: var(--plate);
+    border: 1px solid var(--rule);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 28px;
+  }
+  .riskbar .mono {
+    margin: 0;
+    color: var(--frost);
+  }
+  .riskbar ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 18px;
+    color: var(--lichen);
+  }
+  .riskbar li::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    margin-right: 8px;
+    border-radius: 50%;
+    background: var(--signal);
+    vertical-align: middle;
+  }
+
+  .b-l {
+    grid-column: 1 / span 5;
+  }
+  .b-r {
+    grid-column: 7 / span 6;
+  }
+  .b-p {
+    margin: 18px 0 26px;
+  }
+
+  @media (max-width: 1100px) {
+    .mods {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 980px) {
+    .q-l,
+    .q,
+    .b-l,
+    .b-r {
+      grid-column: 1 / -1;
+    }
+    .q,
+    .b-r {
+      margin-top: 28px;
+    }
+  }
+  @media (max-width: 760px) {
+    .wf {
+      grid-template-columns: 1fr;
+      padding-left: 36px;
+    }
+    .wf::before {
+      left: 8px;
+      right: auto;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      height: auto;
+    }
+    .wf-rail {
+      left: 7px;
+      right: auto;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      height: auto;
+      transform-origin: top;
+    }
+    :global(.js) .wf:not(.is-in) .wf-rail {
+      transform: scaleY(0) !important;
+    }
+    :global(.js) .wf.is-in .wf-rail {
+      transform: none !important;
+    }
+    .wf li {
+      padding: 0 0 22px;
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+    }
+    .wf-dot {
+      left: -36px;
+      top: 4px;
+    }
+    .wf .mono {
+      margin: 0;
+    }
+    .mods {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

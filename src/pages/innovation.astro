@@ -1,0 +1,141 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHead from '../components/PageHead.astro';
+import StageTrack from '../components/StageTrack.astro';
+import StatusChip from '../components/StatusChip.astro';
+import { visibleProjects } from '../data/projects';
+
+const tracks = [
+  {
+    name: 'Technology scouting',
+    span: [0, 1] as const,
+    line: 'Finding what already exists before building anything new.',
+    items: ['Emerging technologies', 'Existing technologies worth recombining', 'Open-source components', 'Research outputs ready for use', 'Potential technical partners']
+  },
+  {
+    name: 'Applied R&D',
+    span: [1, 2] as const,
+    line: 'Turning a hypothesis into evidence, fast and on a small budget.',
+    items: ['A written hypothesis', 'Prototype', 'Experiments with real data', 'Validation with users', 'Technical feasibility', 'Business feasibility']
+  },
+  {
+    name: 'Commercialization',
+    span: [2, 5] as const,
+    line: 'Taking what worked to the people who will pay for it.',
+    items: ['MVP', 'Market validation', 'Product architecture', 'Pilots with industry partners', 'Canadian market', 'International markets']
+  }
+];
+const rd = visibleProjects.filter((p) => ['research', 'prototype', 'exploring', 'partner-opportunity'].includes(p.status));
+const publicSector = ['Digital services', 'Workflow automation', 'Knowledge systems', 'AI-assisted operations', 'Data platforms', 'Public-facing digital tools', 'R&D pilots', 'Technology modernization', 'Dual-use technology'];
+---
+
+<BaseLayout
+  title="Innovation & R&D — scouting, applied research, commercialization | INNOVA"
+  description="INNOVA runs applied R&D in Ottawa: technology scouting, rapid prototypes and experiments, and commercialization with industry, research and public-sector partners."
+  path="/innovation"
+>
+  <PageHead
+    crumb="Innovation & R&D"
+    title="We explore where technology can create new economic value."
+    lede="Applied R&D at INNOVA is small, fast and evidence-first: a clear question, a working prototype and an honest answer about what to do next."
+  />
+
+  {
+    tracks.map((t, i) => (
+      <section class="section">
+        <div class="wrap grid12">
+          <div class="tr-l">
+            <p class="mono tr-n">{String(i + 1).padStart(2, '0')} / 03</p>
+            <h2 class="d-l">{t.name}</h2>
+            <p class="lede tr-line">{t.line}</p>
+            <StageTrack span={t.span} />
+          </div>
+          <ul class="tr-items">
+            {t.items.map((x) => (
+              <li>{x}</li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    ))
+  }
+
+  <section class="section">
+    <div class="wrap">
+      <div class="grid12 sec-head">
+        <div class="sh-l"><h2 class="d-l">On the bench now.</h2></div>
+        <p class="body sh-r">Current research, prototypes and early explorations, each with its status.</p>
+      </div>
+      <div class="rows">
+        {
+          rd.map((p) => (
+            <a class="row" href={`/projects/${p.slug}`}>
+              <h3 class="d-m row-title">{p.name}</h3>
+              <p class="body">{p.summary}</p>
+              <StatusChip status={p.status} />
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="public-sector">
+    <div class="wrap grid12">
+      <div class="ps-l">
+        <h2 class="d-l">Public sector &amp; strategic innovation.</h2>
+        <p class="body ps-p">
+          Technology for complex operational environments. INNOVA is actively developing its participation in Canada’s public-sector and innovation ecosystem, through pilots, R&amp;D collaborations and innovation programs.
+        </p>
+        <a href="/partnerships" class="btn btn-primary">Discuss a project <span class="arr" aria-hidden="true">→</span></a>
+      </div>
+      <ul class="ps-list">{publicSector.map((x) => <li>{x}</li>)}</ul>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .tr-l {
+    grid-column: 1 / span 6;
+  }
+  .tr-n {
+    color: var(--signal);
+    margin: 0 0 18px;
+  }
+  .tr-line {
+    margin: 22px 0 28px;
+  }
+  .tr-items,
+  .ps-list {
+    grid-column: 8 / span 5;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-bottom: 1px solid var(--rule);
+    align-self: center;
+  }
+  .tr-items li,
+  .ps-list li {
+    padding: 14px 0;
+    border-top: 1px solid var(--rule);
+    font-size: 1.05rem;
+  }
+  .ps-l {
+    grid-column: 1 / span 6;
+  }
+  .ps-p {
+    margin: 22px 0 30px;
+  }
+  @media (max-width: 980px) {
+    .tr-l,
+    .tr-items,
+    .ps-l,
+    .ps-list {
+      grid-column: 1 / -1;
+    }
+    .tr-items,
+    .ps-list {
+      margin-top: 36px;
+    }
+  }
+</style>

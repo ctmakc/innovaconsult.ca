@@ -1,0 +1,95 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHead from '../../components/PageHead.astro';
+import StatusChip from '../../components/StatusChip.astro';
+import StageTrack from '../../components/StageTrack.astro';
+import { visibleProjects, STATUS_STAGE, DOMAINS, type Project } from '../../data/projects';
+import { STAGES } from '../../data/stages';
+
+export function getStaticPaths() {
+  return visibleProjects.map((p) => ({ params: { slug: p.slug }, props: { p } }));
+}
+const { p } = Astro.props as { p: Project };
+const stage = STATUS_STAGE[p.status];
+const idx = visibleProjects.findIndex((x) => x.slug === p.slug);
+const next = visibleProjects[(idx + 1) % visibleProjects.length];
+const domain = DOMAINS.find((d) => d.key === p.domain)?.label;
+---
+
+<BaseLayout title={`${p.name} — ${domain} | INNOVA projects`} description={p.summary} path={`/projects/${p.slug}`}>
+  <PageHead crumb="Projects" title={p.name} lede={p.summary}>
+    <div slot="aside" class="pj-aside">
+      <StatusChip status={p.status} />
+      <StageTrack at={stage} status={p.status} />
+      {p.url && <a class="arrow-link" href={p.url} target="_blank" rel="noopener"><span>{p.urlLabel}</span><span aria-hidden="true">↗</span></a>}
+      {p.internal && <a class="arrow-link" href={p.internal}><span>Product page</span><span aria-hidden="true">→</span></a>}
+    </div>
+  </PageHead>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="rows">
+        <div class="row">
+          <h2 class="d-m">Problem</h2>
+          <p class="body pj-t">{p.problem}</p>
+          <span></span>
+        </div>
+        <div class="row">
+          <h2 class="d-m">Solution</h2>
+          <p class="body pj-t">{p.solution}</p>
+          <span></span>
+        </div>
+        <div class="row">
+          <h2 class="d-m">Technology</h2>
+          <ul class="pj-tech">{p.technology.map((t) => <li>{t}</li>)}</ul>
+          <span></span>
+        </div>
+        <div class="row">
+          <h2 class="d-m">Where it stands</h2>
+          <p class="body pj-t">{p.outcome}</p>
+          <p class="mono pj-st">{p.code} · stage {String(stage + 1).padStart(2, '0')} {STAGES[stage].label}</p>
+        </div>
+      </div>
+      <p class="pj-next">
+        <a class="arrow-link" href="/projects"><span>All projects</span><span aria-hidden="true">→</span></a>
+        <a class="arrow-link" href={`/projects/${next.slug}`}><span>Next: {next.name}</span><span aria-hidden="true">→</span></a>
+      </p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .pj-aside {
+    display: grid;
+    gap: 16px;
+    margin-top: 26px;
+    justify-items: start;
+  }
+  .pj-t {
+    color: var(--frost);
+  }
+  .pj-tech {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .pj-tech li {
+    padding: 5px 12px;
+    border: 1px solid var(--rule-strong);
+    font-size: 0.92rem;
+  }
+  .pj-st {
+    color: var(--lichen);
+    margin: 4px 0 0;
+  }
+  .pj-next {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 16px;
+    margin: 36px 0 0;
+  }
+</style>

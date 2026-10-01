@@ -1,0 +1,140 @@
+---
+// The operating model: the full stage line, with what INNOVA does at each station.
+import { STAGES } from '../data/stages';
+interface Props {
+  notes: string[];
+}
+const { notes } = Astro.props;
+---
+
+<ol class="sl" data-draw>
+  <span class="sl-rail trk-span" aria-hidden="true"></span>
+  {
+    STAGES.map((s, i) => (
+      <li class="sl-st" style={`--i:${i}`}>
+        <span class="sl-dot" aria-hidden="true" />
+        <span class="sl-n mono">{String(i + 1).padStart(2, '0')}</span>
+        <h3 class="sl-h">{s.label}</h3>
+        <p class="sl-line">{s.line}</p>
+        <p class="sl-note">{notes[i]}</p>
+      </li>
+    ))
+  }
+</ol>
+
+<style>
+  .sl {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 0 clamp(14px, 1.6vw, 28px);
+  }
+  .sl::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 7px;
+    height: 1px;
+    background: var(--rule-strong);
+  }
+  .sl-rail {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 6px;
+    height: 3px;
+    background: var(--signal);
+    transform-origin: left center;
+    transition: transform var(--t-draw) var(--ease-in-out);
+  }
+  .sl-st {
+    position: relative;
+    padding-top: 34px;
+  }
+  .sl-dot {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: var(--ground);
+    border: 2px solid var(--signal);
+    transition: background-color 300ms var(--ease-out);
+    transition-delay: calc(var(--i) * 200ms + 200ms);
+  }
+  :global(.js) .sl.is-in .sl-dot,
+  :global(html:not(.js)) .sl-dot {
+    background: var(--signal);
+  }
+  .sl-n {
+    color: var(--signal);
+    display: block;
+    margin-bottom: 10px;
+  }
+  .sl-h {
+    font-family: var(--font-display);
+    font-stretch: 112%;
+    font-weight: 500;
+    font-size: clamp(1.25rem, 1rem + 0.7vw, 1.7rem);
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+    margin: 0 0 10px;
+  }
+  .sl-line {
+    margin: 0 0 14px;
+    color: var(--frost);
+    font-weight: 500;
+    font-size: 0.98rem;
+    line-height: 1.4;
+  }
+  .sl-note {
+    margin: 0;
+    color: var(--lichen);
+    font-size: 0.92rem;
+    line-height: 1.55;
+  }
+  @media (max-width: 980px) {
+    .sl {
+      grid-template-columns: 1fr;
+      gap: 0;
+      padding-left: 40px;
+    }
+    .sl::before {
+      left: 7px;
+      right: auto;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      height: auto;
+    }
+    .sl-rail {
+      left: 6px;
+      right: auto;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      height: auto;
+      transform-origin: center top;
+    }
+    :global(.js) .sl:not(.is-in) .sl-rail {
+      transform: scaleY(0);
+    }
+    :global(.js) .sl.is-in .sl-rail {
+      transform: scaleY(1);
+    }
+    .sl-st {
+      padding: 0 0 34px;
+    }
+    .sl-dot {
+      left: -40px;
+    }
+    .sl-n {
+      margin-bottom: 6px;
+    }
+  }
+</style>

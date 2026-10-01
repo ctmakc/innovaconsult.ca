@@ -1,0 +1,9 @@
+---
+import { STATUS_LABEL, type ProjectStatus } from '../data/projects';
+interface Props {
+  status: ProjectStatus;
+}
+const { status } = Astro.props;
+---
+
+<span class="status"><span class="mark" data-s={status} aria-hidden="true"></span>{STATUS_LABEL[status]}</span>

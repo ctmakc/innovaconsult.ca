@@ -1,0 +1,186 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHead from '../components/PageHead.astro';
+
+const steps = [
+  ['Process discovery', 'We map departments, roles, systems, documents and the processes that connect them, with volumes and pain points.'],
+  ['Opportunity mapping', 'Each process is scored on time spent, volume, repetition, errors, delays, cost, risk, data readiness and integration effort.'],
+  ['Prioritization', 'We rank opportunities by value and feasibility and agree on the first two or three to act on.'],
+  ['Solution architecture', 'For each chosen process we pick the simplest approach that works, from deterministic software to supervised agents.'],
+  ['Implementation', 'We build, integrate and test inside the tools your team already uses.'],
+  ['Governance', 'Approvals, permissions, audit trails and data controls are designed in from the first sprint.'],
+  ['Measurement', 'We compare cycle time, cost, error rate and adoption against the baseline taken during discovery.']
+];
+const approaches = [
+  ['Deterministic software', 'Rules are clear and stable. Plain code is cheaper, faster and fully predictable.'],
+  ['Conventional automation', 'Data moves between known systems on known triggers.'],
+  ['AI assistant', 'People stay in charge; AI drafts, summarizes and looks things up.'],
+  ['AI agent', 'A bounded task with tools, permissions and a person who approves the result.'],
+  ['Multi-agent workflow', 'Several specialised agents hand work to each other under one supervisor.'],
+  ['Human-in-the-loop system', 'High-stakes steps always pass through a named person before they take effect.']
+];
+const outcomes = ['Shorter cycle time', 'Fewer repetitive tasks', 'Lower operating cost', 'Faster response to clients', 'Visibility into every process', 'Better-informed decisions', 'Fewer manual errors'];
+---
+
+<BaseLayout
+  title="AI Transformation — process-first applied AI | INNOVA, Ottawa"
+  description="INNOVA's AI transformation method: map how work happens, score where automation pays, choose the simplest architecture that works, implement with governance, and measure the result."
+  path="/ai-transformation"
+>
+  <PageHead
+    crumb="AI Transformation"
+    title="AI transformation means redesigning how work happens."
+    lede="Companies often add AI tools one at a time, with no map of the processes underneath. We start from that map, so every automation has an owner, a reason and a number to beat."
+  />
+
+  <section class="section">
+    <div class="wrap">
+      <div class="grid12 sec-head">
+        <div class="sh-l"><h2 class="d-l">Seven steps, one baseline.</h2></div>
+        <p class="body sh-r">The baseline measured in step one is the number we report against in step seven.</p>
+      </div>
+      <ol class="steps">
+        {
+          steps.map(([t, d], i) => (
+            <li>
+              <span class="mono steps-n">{String(i + 1).padStart(2, '0')}</span>
+              <h3 class="d-m">{t}</h3>
+              <p class="body">{d}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="grid12 sec-head">
+        <div class="sh-l"><h2 class="d-l">The right tool for each process.</h2></div>
+        <p class="body sh-r">
+          We use AI where it earns its place. When ordinary software does the job better, we build ordinary software, and say so.
+        </p>
+      </div>
+      <div class="ap">
+        {
+          approaches.map(([t, d], i) => (
+            <div class="ap-row">
+              <span class="ap-scale" aria-hidden="true" style={`--k:${i}`}><i /></span>
+              <h3 class="ap-t">{t}</h3>
+              <p class="body">{d}</p>
+            </div>
+          ))
+        }
+      </div>
+      <p class="mono ap-cap">Scale: from fully predictable to supervised autonomy</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap grid12">
+      <div class="oc-l">
+        <h2 class="d-l">What we measure.</h2>
+        <p class="body oc-p">Outcomes are agreed before the build starts and reported against the discovery baseline.</p>
+        <a href="/workflow-os" class="btn btn-primary">See AI Workflow OS <span class="arr" aria-hidden="true">→</span></a>
+      </div>
+      <ul class="oc">{outcomes.map((o) => <li>{o}</li>)}</ul>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .steps {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 0 clamp(20px, 3vw, 48px);
+  }
+  .steps li {
+    padding: 26px 0 30px;
+    border-top: 1px solid var(--rule);
+  }
+  .steps-n {
+    color: var(--signal);
+    display: block;
+    margin-bottom: 14px;
+  }
+  .steps h3 {
+    margin-bottom: 12px;
+  }
+  .ap {
+    border-bottom: 1px solid var(--rule);
+  }
+  .ap-row {
+    display: grid;
+    grid-template-columns: 120px minmax(0, 4fr) minmax(0, 6fr);
+    gap: clamp(16px, 2vw, 32px);
+    align-items: center;
+    padding: 20px 0;
+    border-top: 1px solid var(--rule);
+  }
+  .ap-t {
+    font-family: var(--font-display);
+    font-stretch: 108%;
+    font-weight: 520;
+    font-size: 1.3rem;
+    letter-spacing: -0.015em;
+    margin: 0;
+  }
+  .ap-scale {
+    position: relative;
+    height: 4px;
+    background: var(--rule-strong);
+  }
+  .ap-scale i {
+    position: absolute;
+    left: calc(var(--k) / 5 * (100% - 12px));
+    top: -4px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--signal);
+  }
+  .ap-cap {
+    color: var(--lichen);
+    margin: 16px 0 0;
+  }
+  .oc-l {
+    grid-column: 1 / span 5;
+  }
+  .oc-p {
+    margin: 20px 0 30px;
+  }
+  .oc {
+    grid-column: 7 / span 6;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .oc li {
+    padding: 16px 0;
+    border-top: 1px solid var(--rule);
+    font-family: var(--font-display);
+    font-stretch: 108%;
+    font-size: clamp(1.15rem, 1rem + 0.5vw, 1.5rem);
+    letter-spacing: -0.015em;
+  }
+  @media (max-width: 860px) {
+    .ap-row {
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    .ap-scale {
+      max-width: 160px;
+    }
+    .oc-l,
+    .oc {
+      grid-column: 1 / -1;
+    }
+    .oc {
+      margin-top: 36px;
+    }
+  }
+</style>

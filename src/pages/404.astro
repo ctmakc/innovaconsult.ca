@@ -1,0 +1,35 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Page not found | INNOVA" description="This page does not exist on innovaconsult.ca." path="/404" noindex>
+  <section class="nf">
+    <div class="wrap">
+      <p class="kicker">404 · off the line</p>
+      <h1 class="d-xl">This page is not on the line.</h1>
+      <p class="lede nf-p">The address may be old or mistyped. These will get you back on track.</p>
+      <ul class="nf-l">
+        <li><a class="arrow-link" href="/"><span>Home</span><span aria-hidden="true">→</span></a></li>
+        <li><a class="arrow-link" href="/projects"><span>Projects</span><span aria-hidden="true">→</span></a></li>
+        <li><a class="arrow-link" href="/contact"><span>Contact</span><span aria-hidden="true">→</span></a></li>
+      </ul>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .nf {
+    padding-block: clamp(80px, 10vw, 160px);
+  }
+  .nf-p {
+    margin: 24px 0 32px;
+  }
+  .nf-l {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px 36px;
+  }
+</style>

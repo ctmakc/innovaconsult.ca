@@ -1,0 +1,149 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHead from '../components/PageHead.astro';
+import { SITE } from '../data/site';
+
+const why = ['How companies operate', 'Economics', 'Processes', 'Regulation', 'Users', 'Implementation', 'Commercialization'];
+---
+
+<BaseLayout
+  title="About INNOVA — applied innovation company in Ottawa"
+  description="INNOVA CONSULT LTD. is an Ottawa-based applied innovation and technology company, built on more than 14 years of international business and technology experience."
+  path="/about"
+>
+  <PageHead
+    crumb="About"
+    title="An Ottawa applied innovation and technology company."
+    lede="INNOVA identifies high-value problems, develops technology around them and brings the right people, software and partners together to put it into use."
+  />
+
+  <section class="section">
+    <div class="wrap grid12">
+      <div class="ab-l">
+        <h2 class="d-l">Our background.</h2>
+      </div>
+      <div class="ab-r">
+        <p class="lede">
+          INNOVA’s founder brings more than 14 years of international business and technology experience, from {SITE.experienceSince} onward, working with companies across many jurisdictions, industries and operating environments.
+        </p>
+        <p class="body ab-p">
+          That work moved step by step from business operations to digital systems, to software products, to applied AI. {SITE.legalName} was incorporated federally in {SITE.incorporated} and is based in Ottawa, where it now focuses on applied innovation with Canadian partners.
+        </p>
+        <ol class="evo">
+          {['Business operations', 'Digital systems', 'Software', 'Applied AI', 'Applied innovation'].map((s, i, a) => <li class:list={{ now: i === a.length - 1 }}>{s}</li>)}
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap grid12">
+      <div class="ab-l">
+        <h2 class="d-l">Why this background matters.</h2>
+      </div>
+      <div class="ab-r">
+        <p class="lede">Technology projects succeed when the builders understand the business around the code.</p>
+        <ul class="why">{why.map((w) => <li>{w}</li>)}</ul>
+        <p class="body">That multidisciplinary view is what lets one team study a problem, build the solution and see it adopted.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap grid12">
+      <div class="ab-l">
+        <h2 class="d-l">Company record.</h2>
+      </div>
+      <dl class="rec ab-r">
+        <div><dt class="mono">Legal name</dt><dd>{SITE.legalName}</dd></div>
+        <div><dt class="mono">Operating name</dt><dd>INNOVA</dd></div>
+        <div><dt class="mono">Federal corporation</dt><dd>{SITE.corporationNumber} (Canada Business Corporations Act, {SITE.incorporated})</dd></div>
+        <div><dt class="mono">Location</dt><dd>{SITE.city}, {SITE.region}, {SITE.country}</dd></div>
+        <div><dt class="mono">Contact</dt><dd><a class="ulink" href={`mailto:${SITE.email}`}>{SITE.email}</a></dd></div>
+      </dl>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .ab-l {
+    grid-column: 1 / span 5;
+  }
+  .ab-r {
+    grid-column: 7 / span 6;
+  }
+  .ab-p {
+    margin: 22px 0 30px;
+  }
+  .evo {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 0;
+  }
+  .evo li {
+    font-family: var(--font-mono);
+    font-size: 0.74rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--lichen);
+    display: inline-flex;
+    align-items: center;
+  }
+  .evo li + li::before {
+    content: '';
+    width: 28px;
+    height: 1px;
+    margin: 0 10px;
+    background: var(--signal);
+  }
+  .evo li.now {
+    color: var(--frost);
+  }
+  .why {
+    list-style: none;
+    margin: 26px 0 26px;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .why li {
+    padding: 6px 13px;
+    border: 1px solid var(--rule-strong);
+  }
+  .rec {
+    margin: 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .rec div {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 16px;
+    padding: 14px 0;
+    border-top: 1px solid var(--rule);
+  }
+  .rec dt {
+    color: var(--lichen);
+    padding-top: 3px;
+  }
+  .rec dd {
+    margin: 0;
+  }
+  @media (max-width: 980px) {
+    .ab-l,
+    .ab-r {
+      grid-column: 1 / -1;
+    }
+    .ab-r {
+      margin-top: 24px;
+    }
+    .rec div {
+      grid-template-columns: 1fr;
+      gap: 4px;
+    }
+  }
+</style>

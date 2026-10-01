@@ -1,0 +1,149 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHead from '../../components/PageHead.astro';
+import StatusChip from '../../components/StatusChip.astro';
+import StageTrack from '../../components/StageTrack.astro';
+import PipelineBoard from '../../components/PipelineBoard.astro';
+import { visibleProjects, STATUS_STAGE, STATUS_LABEL, DOMAINS, type ProjectStatus } from '../../data/projects';
+
+const order: ProjectStatus[] = ['live', 'built', 'in-development', 'prototype', 'research', 'exploring', 'partner-opportunity'];
+const projects = [...visibleProjects].sort((a, b) => order.indexOf(a.status) - order.indexOf(b.status));
+const domainLabel = (k: string) => DOMAINS.find((d) => d.key === k)?.label ?? k;
+
+const itemList = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: 'INNOVA projects',
+  itemListElement: projects.map((p, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    url: `https://innovaconsult.ca/projects/${p.slug}`,
+    name: p.name
+  }))
+};
+---
+
+<BaseLayout
+  title="Projects — live products, prototypes and R&D | INNOVA"
+  description="INNOVA projects with their real status: live platforms, products in development, working prototypes and applied R&D in AI, software, community platforms and AgriTech."
+  path="/projects"
+  jsonLd={[itemList]}
+>
+  <PageHead
+    crumb="Projects"
+    title="Real work, with its real status."
+    lede="Every project carries exactly one status. Live means people use it today; Prototype means it works and is being tested; R&D and Exploring mean exactly that."
+  />
+
+  <section class="section">
+    <div class="wrap pr-board">
+      <PipelineBoard />
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="rows">
+        {
+          projects.map((p) => (
+            <a class="row prow" href={`/projects/${p.slug}`} id={p.slug}>
+              <div class="row-title">
+                <p class="mono prow-code">
+                  {p.code} · {domainLabel(p.domain)}
+                </p>
+                <h2 class="d-m">{p.name}</h2>
+              </div>
+              <div>
+                <p class="body">{p.summary}</p>
+                <p class="body prow-out">
+                  <strong>Where it stands:</strong> {p.outcome}
+                </p>
+              </div>
+              <div class="prow-meta">
+                <StatusChip status={p.status} />
+                <StageTrack at={STATUS_STAGE[p.status]} status={p.status} />
+              </div>
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap grid12 sec-head">
+      <div class="sh-l">
+        <h2 class="d-l">How we label status</h2>
+      </div>
+      <dl class="sh-r legend">
+        {
+          order.map((s) => (
+            <div>
+              <dt>
+                <span class="status">
+                  <span class="mark" data-s={s} aria-hidden="true" />
+                  {STATUS_LABEL[s]}
+                </span>
+              </dt>
+              <dd>
+                {
+                  {
+                    live: 'Running in production with real users.',
+                    built: 'Complete and working; release or rollout in progress.',
+                    'in-development': 'Core works; the product is being engineered toward release.',
+                    prototype: 'A working version used for testing and demonstrations.',
+                    research: 'Applied research: hypotheses, experiments and feasibility.',
+                    exploring: 'Early scouting and partner conversations; no deliverable claimed.',
+                    'partner-opportunity': 'A defined opportunity looking for the right partner.'
+                  }[s]
+                }
+              </dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .prow-code {
+    color: var(--lichen);
+    margin: 0 0 8px;
+  }
+  .prow h2 {
+    margin: 0;
+  }
+  .prow-out {
+    margin-top: 12px;
+    font-size: 0.95rem;
+  }
+  .prow-meta {
+    display: grid;
+    gap: 12px;
+  }
+  .legend {
+    margin: 0;
+    grid-column: 6 / span 7 !important;
+  }
+  .legend div {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 16px;
+    padding: 14px 0;
+    border-top: 1px solid var(--rule);
+  }
+  .legend dd {
+    margin: 0;
+    color: var(--lichen);
+  }
+  @media (max-width: 860px) {
+    .legend {
+      grid-column: 1 / -1 !important;
+    }
+    .legend div {
+      grid-template-columns: 1fr;
+      gap: 6px;
+    }
+  }
+</style>

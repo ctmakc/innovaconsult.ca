@@ -1,0 +1,303 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHead from '../components/PageHead.astro';
+import { SITE } from '../data/site';
+
+const topics = [
+  ['product', 'Build a technology product'],
+  ['automation', 'Automate business processes'],
+  ['ai', 'Explore an AI initiative'],
+  ['workflow-os', 'See AI Workflow OS'],
+  ['rd', 'Discuss an R&D project'],
+  ['commercialize', 'Commercialize technology'],
+  ['partnership', 'Explore a partnership'],
+  ['public-sector', 'Discuss a public-sector project'],
+  ['other', 'Other']
+];
+---
+
+<BaseLayout
+  title="Contact INNOVA — start a conversation | Ottawa, Canada"
+  description="Tell INNOVA what you are working on: a technology product, process automation, an AI initiative, an R&D project, commercialization or a partnership."
+  path="/contact"
+  footerCta={false}
+>
+  <PageHead
+    crumb="Contact"
+    title="Start a conversation."
+    lede="Tell us what you are working on. A person reads every message and replies within two business days."
+  />
+
+  <section class="section">
+    <div class="wrap grid12">
+      <form class="cf" data-cf novalidate>
+        <fieldset class="cf-topics">
+          <legend class="mono">I want to</legend>
+          <div class="cf-opts">
+            {
+              topics.map(([v, l], i) => (
+                <label class="cf-opt">
+                  <input type="radio" name="topic" value={v} checked={i === 0} />
+                  <span>{l}</span>
+                </label>
+              ))
+            }
+          </div>
+        </fieldset>
+
+        <div class="cf-grid">
+          <label class="cf-f">
+            <span class="mono">Name</span>
+            <input name="name" autocomplete="name" required maxlength="120" />
+          </label>
+          <label class="cf-f">
+            <span class="mono">Organization</span>
+            <input name="organization" autocomplete="organization" maxlength="160" />
+          </label>
+          <label class="cf-f cf-wide">
+            <span class="mono">Email</span>
+            <input name="email" type="email" autocomplete="email" required maxlength="200" />
+          </label>
+          <label class="cf-f cf-wide">
+            <span class="mono">What are you working on?</span>
+            <textarea name="message" rows="6" required maxlength="4000"></textarea>
+          </label>
+          <label class="cf-hp" aria-hidden="true">
+            Website <input name="website" tabindex="-1" autocomplete="off" />
+          </label>
+        </div>
+
+        <div class="cf-foot">
+          <button class="btn btn-primary" type="submit">Start a conversation <span class="arr" aria-hidden="true">→</span></button>
+          <p class="cf-note">We use your details only to reply to this message.</p>
+        </div>
+        <p class="cf-status" role="status" aria-live="polite" data-cf-status></p>
+      </form>
+
+      <aside class="ca">
+        <div>
+          <p class="mono ca-h">Email</p>
+          <a class="ulink ca-v" href={`mailto:${SITE.email}`}>{SITE.email}</a>
+        </div>
+        <div>
+          <p class="mono ca-h">Location</p>
+          <p class="ca-v">{SITE.city}, {SITE.region}, {SITE.country}</p>
+        </div>
+        <div>
+          <p class="mono ca-h">Company</p>
+          <p class="ca-v">{SITE.legalName}<br />Federal corporation {SITE.corporationNumber}</p>
+        </div>
+      </aside>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('[data-cf]');
+  const status = document.querySelector<HTMLElement>('[data-cf-status]');
+  const started = Date.now();
+
+  const topic = new URLSearchParams(location.search).get('topic');
+  if (form && topic) {
+    const r = form.querySelector<HTMLInputElement>(`input[name="topic"][value="${CSS.escape(topic)}"]`);
+    if (r) r.checked = true;
+  }
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!form || !status) return;
+    const fd = new FormData(form);
+    const data = Object.fromEntries(fd.entries()) as Record<string, string>;
+    const missing = ['name', 'email', 'message'].filter((k) => !String(data[k] || '').trim());
+    if (missing.length || !/^\S+@\S+\.\S+$/.test(data.email || '')) {
+      status.dataset.state = 'error';
+      status.textContent = 'Please add your name, a valid email and a few words about your project.';
+      form.querySelector<HTMLElement>(missing.length ? `[name="${missing[0]}"]` : '[name="email"]')?.focus();
+      return;
+    }
+    const btn = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+    if (btn) btn.disabled = true;
+    status.dataset.state = 'sending';
+    status.textContent = 'Sending…';
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ ...data, page: location.href, elapsed: Date.now() - started })
+      });
+      if (!res.ok) throw new Error(String(res.status));
+      form.reset();
+      status.dataset.state = 'ok';
+      status.textContent = 'Thank you. Your message is with us, and we will reply by email.';
+      (window as any).gtag?.('event', 'generate_lead', { form: 'contact', topic: data.topic });
+    } catch {
+      status.dataset.state = 'error';
+      status.innerHTML = 'The message did not go through. Please email <a href="mailto:info@innovaconsult.ca">info@innovaconsult.ca</a>.';
+    } finally {
+      if (btn) btn.disabled = false;
+    }
+  });
+</script>
+
+<style>
+  .cf {
+    grid-column: 1 / span 8;
+  }
+  .ca {
+    grid-column: 10 / span 3;
+    display: grid;
+    gap: 26px;
+    align-content: start;
+  }
+  .ca-h {
+    color: var(--lichen);
+    margin: 0 0 6px;
+  }
+  .ca-v {
+    margin: 0;
+    text-decoration: none;
+  }
+  .cf-topics {
+    border: 0;
+    margin: 0 0 36px;
+    padding: 0;
+  }
+  .cf-topics legend {
+    color: var(--lichen);
+    margin-bottom: 14px;
+    padding: 0;
+  }
+  .cf-opts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .cf-opt {
+    position: relative;
+    cursor: pointer;
+  }
+  .cf-opt input {
+    position: absolute;
+    opacity: 0;
+    inset: 0;
+    margin: 0;
+    cursor: pointer;
+  }
+  .cf-opt span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 16px;
+    border: 1px solid var(--rule-strong);
+    color: var(--lichen);
+    transition:
+      border-color var(--t-micro) var(--ease-out),
+      color var(--t-micro) var(--ease-out),
+      background-color var(--t-micro) var(--ease-out);
+  }
+  .cf-opt:hover span {
+    border-color: var(--frost);
+    color: var(--frost);
+  }
+  .cf-opt input:checked + span {
+    background: var(--frost);
+    border-color: var(--frost);
+    color: var(--ground);
+    font-weight: 600;
+  }
+  .cf-opt input:focus-visible + span {
+    outline: 2px solid var(--signal);
+    outline-offset: 3px;
+  }
+  .cf-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 22px 24px;
+  }
+  .cf-wide {
+    grid-column: 1 / -1;
+  }
+  .cf-f {
+    display: grid;
+    gap: 8px;
+  }
+  .cf-f .mono {
+    color: var(--lichen);
+  }
+  .cf-f input,
+  .cf-f textarea {
+    width: 100%;
+    font: inherit;
+    color: var(--frost);
+    background: var(--plate);
+    border: 1px solid var(--rule-strong);
+    border-radius: 0;
+    padding: 13px 14px;
+    min-height: 50px;
+    transition: border-color var(--t-micro) var(--ease-out);
+  }
+  .cf-f textarea {
+    resize: vertical;
+    min-height: 160px;
+  }
+  .cf-f input:hover,
+  .cf-f textarea:hover {
+    border-color: var(--lichen);
+  }
+  .cf-f input:focus,
+  .cf-f textarea:focus {
+    outline: none;
+    border-color: var(--signal);
+    box-shadow: 0 0 0 1px var(--signal);
+  }
+  .cf-hp {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+  .cf-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px 24px;
+    margin-top: 28px;
+  }
+  .cf-foot .btn[disabled] {
+    opacity: 0.6;
+    cursor: progress;
+  }
+  .cf-note {
+    margin: 0;
+    color: var(--lichen);
+    font-size: 0.9rem;
+  }
+  .cf-status {
+    margin: 18px 0 0;
+    min-height: 1.6em;
+  }
+  .cf-status[data-state='ok'] {
+    color: var(--live);
+  }
+  .cf-status[data-state='error'] {
+    color: #f2a7a0;
+  }
+  .cf-status a {
+    color: inherit;
+  }
+  @media (max-width: 980px) {
+    .cf,
+    .ca {
+      grid-column: 1 / -1;
+    }
+    .ca {
+      margin-top: 48px;
+    }
+  }
+  @media (max-width: 640px) {
+    .cf-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

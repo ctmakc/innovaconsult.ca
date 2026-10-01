@@ -1,0 +1,199 @@
+---
+import { SITE } from '../data/site';
+import { STAGES } from '../data/stages';
+interface Props {
+  showCta?: boolean;
+}
+const { showCta = true } = Astro.props;
+const year = new Date().getFullYear();
+---
+
+<footer class="ftr">
+  <div class="wrap">
+    {showCta && <div class="ftr-cta">
+      <p class="d-l">Have a problem worth solving or technology worth building around?</p>
+      <a href="/contact" class="btn btn-primary">Start a conversation <span class="arr" aria-hidden="true">→</span></a>
+    </div>}
+
+    <div class="ftr-cols">
+      <div>
+        <p class="mono ftr-h">Work</p>
+        <ul>
+          <li><a class="ulink" href="/projects">Projects</a></li>
+          <li><a class="ulink" href="/workflow-os">AI Workflow OS</a></li>
+          <li><a class="ulink" href="/partnerships">Partnerships</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="mono ftr-h">Capabilities</p>
+        <ul>
+          <li><a class="ulink" href="/ai-transformation">AI Transformation</a></li>
+          <li><a class="ulink" href="/software">Software &amp; Products</a></li>
+          <li><a class="ulink" href="/innovation">Innovation &amp; R&amp;D</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="mono ftr-h">Company</p>
+        <ul>
+          <li><a class="ulink" href="/about">About</a></li>
+          <li><a class="ulink" href="/contact">Contact</a></li>
+          <li><a class="ulink" href={`mailto:${SITE.email}`}>{SITE.email}</a></li>
+        </ul>
+      </div>
+      <div class="ftr-record">
+        <p class="mono ftr-h">Corporate record</p>
+        <p>
+          {SITE.legalName}<br />
+          Federal corporation {SITE.corporationNumber}<br />
+          {SITE.city}, {SITE.region}, {SITE.country}
+        </p>
+      </div>
+    </div>
+
+    <div class="ftr-word" aria-hidden="true">
+      <span class="ftr-line">
+        {STAGES.map((s) => <i title={s.label}></i>)}
+      </span>
+      <svg class="ftr-big" viewBox="0 0 1000 176" preserveAspectRatio="xMidYMax meet">
+        <text x="0" y="168" textLength="1000" lengthAdjust="spacingAndGlyphs">INNOVA</text>
+      </svg>
+    </div>
+
+    <div class="ftr-meta">
+      <p class="mono">© {year} {SITE.legalName}</p>
+      <p class="mmix">
+        Development &amp; promotion —
+        <a href="https://mmix.ua/en/zakazat-korporativnyj-sajt/" class="mmix-badge">
+          <img src="/mmix-logo.png" alt="MMIX — Marketing Mix" width="37" height="36" loading="lazy" />
+        </a>
+      </p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .ftr {
+    border-top: 1px solid var(--rule);
+    padding-top: clamp(72px, 8vw, 128px);
+    overflow: hidden;
+  }
+  .ftr-cta {
+    display: grid;
+    grid-template-columns: minmax(0, 8fr) minmax(0, 4fr);
+    gap: 32px;
+    align-items: end;
+    padding-bottom: clamp(56px, 6vw, 96px);
+  }
+  .ftr-cta .d-l {
+    max-width: 22ch;
+  }
+  .ftr-cta .btn {
+    justify-self: end;
+  }
+  .ftr-cols {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 32px;
+    padding-block: 40px;
+    border-top: 1px solid var(--rule);
+  }
+  .ftr-h {
+    color: var(--lichen);
+    margin: 0 0 16px;
+  }
+  .ftr ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 10px;
+  }
+  .ftr ul a {
+    text-decoration: none;
+    color: var(--frost);
+  }
+  .ftr-record p:last-child {
+    margin: 0;
+    color: var(--lichen);
+    font-size: 0.95rem;
+    line-height: 1.7;
+  }
+  .ftr-word {
+    position: relative;
+    margin-top: 24px;
+    display: block;
+    padding-bottom: 18px;
+  }
+  .ftr-big {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+  .ftr-big text {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-stretch: 125%;
+    font-size: 232px;
+    fill: var(--plate-hi);
+  }
+  .ftr-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 1px;
+    background: var(--signal-dim);
+    display: flex;
+    justify-content: space-between;
+    z-index: 1;
+  }
+  .ftr-line i {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    margin-top: -4px;
+    background: var(--ground);
+    border: 1.5px solid var(--signal);
+  }
+  .ftr-line i:last-child {
+    background: var(--signal);
+  }
+  .ftr-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding-block: 22px 28px;
+    border-top: 1px solid var(--rule);
+    position: relative;
+    background: var(--ground);
+  }
+  .ftr-meta p {
+    margin: 0;
+    color: var(--lichen);
+  }
+  .mmix {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.9rem;
+  }
+  .mmix-badge {
+    display: inline-flex;
+    padding: 5px 8px;
+    background: rgb(255 255 255 / 0.9);
+  }
+  @media (max-width: 860px) {
+    .ftr-cta {
+      grid-template-columns: 1fr;
+    }
+    .ftr-cta .btn {
+      justify-self: start;
+    }
+    .ftr-cols {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>

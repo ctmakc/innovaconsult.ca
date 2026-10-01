@@ -1,7 +1,10 @@
 import { defineConfig } from 'astro/config';
 import tailwind from '@astrojs/tailwind';
+import sitemap from '@astrojs/sitemap';
 
 export default defineConfig({
   site: 'https://innovaconsult.ca',
-  integrations: [tailwind({ applyBaseStyles: false })]
+  trailingSlash: 'never',
+  build: { format: 'file' },
+  integrations: [tailwind({ applyBaseStyles: false }), sitemap()]
 });

@@ -1,0 +1,192 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHead from '../components/PageHead.astro';
+import StatusChip from '../components/StatusChip.astro';
+import { visibleProjects } from '../data/projects';
+
+const kinds = [
+  ['Custom platforms', 'Back offices and operations systems shaped around how your team works.'],
+  ['Internal tools', 'Registers, dashboards and approval flows that replace spreadsheets and email chains.'],
+  ['SaaS products', 'Multi-tenant products with billing, roles and audit from day one.'],
+  ['AI-enabled products', 'Applications where AI drafts, classifies or acts inside a controlled workflow.'],
+  ['Mobile apps', 'iOS and Android apps from one codebase, shipped through the stores.'],
+  ['Integrations', 'Connecting CRMs, accounting, payments, email and public data sources.'],
+  ['Prototypes', 'A working version in weeks, for users, investors or a funding application.'],
+  ['Modernization', 'Moving legacy systems to maintainable, secure, documented software.']
+];
+const flow = ['Define', 'Prototype', 'Validate', 'Build', 'Integrate', 'Operate'];
+const proof = visibleProjects.filter((p) => ['uafest', 'foundwall', 'aicrmius', 'babakokum'].includes(p.slug));
+---
+
+<BaseLayout
+  title="Software & Products — custom software, SaaS and prototypes | INNOVA, Ottawa"
+  description="INNOVA designs and builds custom software, internal platforms, SaaS and mobile products in Ottawa, from a working prototype to operation."
+  path="/software"
+>
+  <PageHead
+    crumb="Software & Products"
+    title="Software designed around outcomes."
+    lede="We define what the software must change, prove it with a prototype, then build, integrate and keep it running."
+  />
+
+  <section class="section">
+    <div class="wrap">
+      <ol class="flow" data-draw>
+        <span class="flow-rail trk-span" aria-hidden="true"></span>
+        {
+          flow.map((f, i) => (
+            <li>
+              <span class="mono">{String(i + 1).padStart(2, '0')}</span>
+              {f}
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="grid12 sec-head">
+        <div class="sh-l"><h2 class="d-l">What we build.</h2></div>
+        <p class="body sh-r">TypeScript, Python, Postgres and native mobile, with security, permissions and audit designed in.</p>
+      </div>
+      <div class="kinds">
+        {
+          kinds.map(([t, d]) => (
+            <div>
+              <h3 class="d-m">{t}</h3>
+              <p class="body">{d}</p>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap grid12">
+      <div class="pt-l">
+        <h2 class="d-l">Prototype first.</h2>
+        <p class="lede pt-p">
+          INNOVA can turn a research concept or an operational problem into a working prototype before anyone commits to a full build.
+        </p>
+        <p class="body">
+          For funded projects this means the first milestone is something a reviewer can click, and every later milestone is measured against it.
+        </p>
+      </div>
+      <div class="pt-r">
+        <p class="mono pt-h">Built by INNOVA</p>
+        <ul class="pt-list">
+          {
+            proof.map((p) => (
+              <li>
+                <a href={`/projects/${p.slug}`} class="ulink">{p.name}</a>
+                <StatusChip status={p.status} />
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .flow {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    border-top: 1px solid var(--rule-strong);
+  }
+  .flow-rail {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: -2px;
+    height: 3px;
+    background: var(--signal);
+    transform-origin: left;
+    transition: transform var(--t-draw) var(--ease-in-out);
+  }
+  .flow li {
+    padding-top: 22px;
+    font-family: var(--font-display);
+    font-stretch: 112%;
+    font-weight: 480;
+    font-size: clamp(1.2rem, 0.9rem + 1.2vw, 2.1rem);
+    letter-spacing: -0.02em;
+  }
+  .flow .mono {
+    display: block;
+    color: var(--signal);
+    margin-bottom: 10px;
+  }
+  .kinds {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0 clamp(20px, 2.4vw, 40px);
+  }
+  .kinds > div {
+    padding: 24px 0 30px;
+    border-top: 1px solid var(--rule);
+  }
+  .kinds h3 {
+    margin-bottom: 10px;
+  }
+  .pt-l {
+    grid-column: 1 / span 6;
+  }
+  .pt-p {
+    margin: 22px 0 18px;
+  }
+  .pt-r {
+    grid-column: 8 / span 5;
+  }
+  .pt-h {
+    color: var(--lichen);
+    margin: 0 0 12px;
+  }
+  .pt-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .pt-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 0;
+    border-top: 1px solid var(--rule);
+    font-size: 1.05rem;
+  }
+  .pt-list a {
+    text-decoration: none;
+  }
+  @media (max-width: 980px) {
+    .kinds {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .pt-l,
+    .pt-r {
+      grid-column: 1 / -1;
+    }
+    .pt-r {
+      margin-top: 36px;
+    }
+  }
+  @media (max-width: 640px) {
+    .flow {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      row-gap: 18px;
+    }
+    .kinds {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
