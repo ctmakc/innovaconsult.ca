@@ -49,18 +49,11 @@ export const PARTNERSHIP_MODELS: PartnershipModel[] = [
     example: { href: '/projects/openfield', label: 'Example: OpenField, field validation now being scoped for 2027' }
   },
   {
-    name: 'Canadian adaptation and integration',
-    line: 'Fitting technology proven elsewhere to Canadian users and the systems they run.',
-    span: [0, 4],
-    youBring: 'Technology proven in other markets',
-    weBring: 'Engineering to adapt it to Canadian data, languages, regulation and the software already in place'
-  },
-  {
-    name: 'Joint funding applications',
-    line: 'Building the project and the consortium behind an innovation program application.',
+    name: 'Program-funded R&D projects',
+    line: 'An R&D project carried out under an innovation funding program, with the partners and roles set out in the application.',
     span: [0, 2],
     youBring: 'Expertise, co-funding or an industry need',
-    weBring: 'Project design, the technical work plan and budget, and the software build with named subcontractors'
+    weBring: 'The software and AI work package: its technical plan, its budget and the build.'
   },
   {
     name: 'Industry + technology consortium',
@@ -68,5 +61,12 @@ export const PARTNERSHIP_MODELS: PartnershipModel[] = [
     span: [0, 5],
     youBring: 'Your part of the problem',
     weBring: 'Coordination and the software that ties it together'
+  },
+  {
+    name: 'Canadian adaptation and integration',
+    line: 'Fitting technology proven elsewhere to Canadian users and the systems they run.',
+    span: [0, 4],
+    youBring: 'Technology proven in other markets',
+    weBring: 'Engineering to adapt it to Canadian data, languages, regulation and the software already in place'
   }
 ];

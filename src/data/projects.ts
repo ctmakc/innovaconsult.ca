@@ -119,7 +119,7 @@ export const PROJECTS: Project[] = [
     featured: true,
     visible: true,
     summary:
-      'One connected system that runs a Ukrainian cultural festival in Carleton Place, Ontario: public site, applications, participant cabinets, sponsor and finance registers, and certificates anyone can verify online.',
+      'One connected system that runs a Ukrainian cultural festival in Carleton Place, Ontario: public site, applications, participant cabinets, sponsor and finance registers, and certificates anyone can verify online. Built for the Ukrainian Community of Lanark County, a non-profit co-founded by INNOVA’s founder.',
     problem:
       'A community festival run by a non-profit and its volunteers juggled vendors, performers, volunteers, sponsors and money across spreadsheets, shared inboxes and chats. Nobody could see the whole picture.',
     solution:
@@ -135,7 +135,8 @@ export const PROJECTS: Project[] = [
     outcome:
       'CRM in production since August 2026; the festival ran on it on 13 September 2026. By September the system held about 300 participant applications and 199 participant cabinets, with 13 shared mailboxes synced into one record.',
     role: 'Designed, built and operated with the festival team.',
-    client: 'Built for the Ukrainian Community of Lanark County, a non-profit co-founded by INNOVA’s founder.',
+    // The related-party note (Ukrainian Community of Lanark County, co-founded by INNOVA's founder) lives in the summary,
+    // so it shows on the home and /projects cards too and is printed once on the detail page.
     seoTitle: 'UAFest: Festival Operations Platform',
     seoDescription:
       'UAFest runs a Ukrainian festival in Carleton Place, Ontario: applications, participant cabinets, sponsor and finance registers and verifiable certificates.',
@@ -145,7 +146,7 @@ export const PROJECTS: Project[] = [
         1600,
         1000,
         'UAFest 2027 sign-up page on uafest.ca: one form with participation types for guests, volunteers, vendors, performers, sponsors, Unity Ride drivers, the Rushnyk and the organizing team.',
-        'One intake form routes every participant type into the festival back office.'
+        'The 2027 sign-up list: one form files every participant type into the CRM, ready for each call.'
       ),
       proof(
         'uafest-certificate-check-1440',
@@ -170,7 +171,7 @@ export const PROJECTS: Project[] = [
     featured: true,
     visible: true,
     summary:
-      'A Canada-first recovery network for lost, stolen and found property: bikes, pets, robot mowers and drones. Web platform live; iOS and Android apps in public beta.',
+      'A Canada-first recovery network for lost, stolen and found property: bikes, pets, robot mowers and drones. Web platform live; iOS and Android apps in public beta (TestFlight, Google Play testing).',
     problem:
       'Lost-and-found reports are scattered across social posts, police forms and classified sites, and a phone photo can carry the owner’s home location in its metadata.',
     solution:
@@ -178,12 +179,12 @@ export const PROJECTS: Project[] = [
     technology: [
       'Next.js 16',
       'React Native (Expo)',
-      'Supabase Postgres in Canada (ca-central-1), row-level security',
+      'Supabase Postgres with row-level security',
       'Server-side media sanitizing worker',
       'Privacy impact assessment and threat model'
     ],
-    outcome: 'Web platform live at foundwall.com; iOS and Android apps are in store testing.',
-    role: 'Designed, built and published by INNOVA CONSULT LTD.: web platform, plus iOS and Android apps in TestFlight and Google Play testing.',
+    outcome: 'Web platform live at foundwall.com; iOS and Android apps in public beta (TestFlight, Google Play testing).',
+    role: 'Designed, built and published by INNOVA CONSULT LTD.: web platform, plus iOS and Android apps in public beta (TestFlight, Google Play testing).',
     seoTitle: 'FoundWall: Lost & Found Recovery Network',
     seoDescription:
       'FoundWall is a Canada-first network for lost, stolen and found bikes, pets, robot mowers and drones; photos lose their location data before anyone sees them.',
@@ -193,21 +194,21 @@ export const PROJECTS: Project[] = [
         1600,
         1000,
         'FoundWall public recovery board: notice cards with status bands (stolen, lost, found), area-level locations and recognition details.',
-        'Public board: area-level locations only, owner identities and full serials stay private.'
+        'Public board with seeded sample notices: area-level locations only; owner identities and full serials stay private.'
       ),
       proof(
         'foundwall-notice-1440',
         1600,
         1000,
         'FoundWall notice page for a found keyring: photo, area, report date and a Contact the reporter privately button.',
-        'A notice page. Owner and finder talk through FoundWall messaging, with no email or phone published.'
+        'A sample notice. Owner and finder talk through FoundWall messaging; no email or phone is published.'
       ),
       proof(
         'foundwall-board-390',
         800,
         1731,
         'FoundWall board on a 390 px phone screen: stacked notice cards for a stolen bike and a lost cat.',
-        'The same board on a phone.',
+        'The same board on a phone (sample notices).',
         true
       )
     ],
@@ -289,7 +290,7 @@ export const PROJECTS: Project[] = [
     problem:
       'Small companies need bookkeeping, reconciliation and reporting every month, and a general-purpose chat assistant cannot be trusted with the books.',
     solution:
-      'Deterministic accounting engines keep the ledger correct; AI agents classify, reconcile and draft on top of them, and every posting lands in a tamper-evident audit chain.',
+      'Deterministic engines classify, post and reconcile, and keep the ledger correct. Eight AI agents read the books through read-only tools, report what needs attention and open approval tasks for a person; every posting lands in a tamper-evident audit chain.',
     technology: [
       'Next.js 15 + TypeScript',
       'Postgres (Prisma)',
@@ -298,7 +299,7 @@ export const PROJECTS: Project[] = [
       '200+ automated tests'
     ],
     outcome:
-      'Working prototype with bank import, classification and closing flows, configured for Ukrainian charts of accounts and taxes.',
+      'Working prototype with bank import, classification and closing flows, configured for Ukrainian charts of accounts and taxes. Not yet sold to customers.',
     seoTitle: 'FINMOZG: AI Finance Agents on a Real Ledger',
     seoDescription:
       'FINMOZG is a working prototype of an AI finance back office: eight agents and a CFO copilot on a real double-entry ledger, built for Ukrainian accounting rules.',
@@ -339,14 +340,14 @@ export const PROJECTS: Project[] = [
         1600,
         1000,
         'OpenField season report preview: block-by-week pass grid and report figures such as hectares completed and passes on time, each tagged with its data source.',
-        'Season report preview generated from the logbook (demo data).'
+        'Season report preview from the logbook, on a simulated 2027 season (demo data).'
       ),
       proof(
         'openfield-entry-390',
         800,
         1621,
         'OpenField technician entry screen on a 390 px phone: open stops and a machine list for starting a walk-out record.',
-        'Technician entry on a phone (demo data).',
+        'Technician entry on a phone (demo farm, simulated data).',
         true
       )
     ],
@@ -375,10 +376,10 @@ export const PROJECTS: Project[] = [
       'Telegram Mini App'
     ],
     outcome:
-      'Playable on the web (itch.io, Game Jolt) and as a Telegram Mini App; iOS build submitted for App Store review, Android in Google Play testing.',
+      'On the App Store since 24 September 2026, playable on the web (itch.io, Game Jolt) and as a Telegram Mini App; Android in Google Play testing.',
     seoTitle: 'Porch Print Shop: Kokum Scarf Puzzle Game',
     seoDescription:
-      'BABA & KOKUM: The Porch Print Shop is a cozy offline puzzle game about the kokum scarf, shared by Ukrainian and Plains Cree families. Play it in a web browser.',
+      'BABA & KOKUM is a cozy offline puzzle game about the kokum scarf, shared by Ukrainian and Plains Cree families. Play it on iPhone, iPad or in a web browser.',
     images: [
       {
         src: '/proof/babakokum-rules-tablet-1600.webp',

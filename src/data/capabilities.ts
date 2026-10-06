@@ -84,7 +84,7 @@ export const CAPABILITIES: Capability[] = [
       'Pilot deployment',
       'Technology integration',
       'Canadian market collaboration',
-      'Consortium funding applications'
+      'Program-funded R&D projects'
     ],
     projects: ['openfield', 'dual-use']
   }

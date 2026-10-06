@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import PageHead from '../../components/PageHead.astro';
+import RiseHeading from '../../components/RiseHeading.astro';
 import StatusChip from '../../components/StatusChip.astro';
 import StageTrack from '../../components/StageTrack.astro';
 import { visibleProjects, STATUS_STAGE, STATUS_LABEL, projectHref, type Project, type ProofImage } from '../../data/projects';
@@ -80,31 +80,44 @@ const CYCLE = [
   jsonLd={[ld]}
   breadcrumbs={breadcrumbs}
 >
-  <PageHead crumb="Projects" crumbHref="/projects" title={p.name} lede={p.summary}>
-    <div slot="aside" class="pj-aside">
-      <p class="pj-rec">{p.code}{p.tagline && <> · {p.tagline}</>}</p>
-      <StatusChip status={p.status} />
-      <StageTrack at={stage} status={p.status} />
-      {
-        p.url && (
-          <a class="arrow-link" href={p.url} target="_blank" rel="noopener">
-            <span>{p.urlLabel}<span class="sr-only"> (opens in a new tab)</span></span>
-            <span aria-hidden="true">↗</span>
-          </a>
-        )
-      }
+  <section class="pj-hero">
+    <div class="wrap grid12">
+      <div class="pj-hl">
+        <p class="kicker pj-crumb">
+          <a href="/" class="ulink">INNOVA</a><span aria-hidden="true">/</span><a href="/projects" class="ulink">Projects</a>
+        </p>
+        <RiseHeading text={p.name} class="d-page" delay={60} />
+        <div class="pj-meta">
+          <p class="pj-rec">{p.code}{p.tagline && <> · {p.tagline}</>}</p>
+          <div class="pj-stage">
+            <StatusChip status={p.status} />
+            <StageTrack at={stage} status={p.status} />
+          </div>
+          {
+            p.url && (
+              <a class="arrow-link" href={p.url} target="_blank" rel="noopener">
+                <span>{p.urlLabel}<span class="sr-only"> (opens in a new tab)</span></span>
+                <span aria-hidden="true">↗</span>
+              </a>
+            )
+          }
+        </div>
+      </div>
+      <div class="pj-hr">
+        <p class="lede">{p.summary}</p>
+      </div>
     </div>
-  </PageHead>
+  </section>
 
   {
     lead && (
       <div class="wrap pj-lead">
-        <figure class:list={['proof', { 'proof-mat': !leadFits }]}>
+        <figure class:list={['proof', 'pj-fig1', { 'proof-mat': !leadFits }]}>
           <a class="proof-frame" href={lead.src}>
             <img
               src={lead.src}
               srcset={srcset(lead)}
-              sizes="(max-width: 1440px) 94vw, 1360px"
+              sizes="(max-width: 860px) 94vw, (max-width: 1440px) 78vw, 1100px"
               width={lead.w}
               height={lead.h}
               alt={lead.alt}
@@ -173,7 +186,7 @@ const CYCLE = [
 
       {
         more.length > 0 && (
-          <div class:list={['pj-more', { 'has-phone': more.some(isPhone), solo: more.length === 1 }]}>
+          <div class:list={['pj-more', { 'has-phone': more.some(isPhone), solo: more.length === 1, pair: more.length === 2 && isPhone(more[1]) && !isPhone(more[0]) }]}>
             {more.map((im, i) => (
               <figure class:list={['proof', { 'proof-phone': isPhone(im) }]}>
                 <a class="proof-frame" href={im.src}>
@@ -284,68 +297,143 @@ const CYCLE = [
 </BaseLayout>
 
 <style>
-  .pj-aside {
+  /* ── Hero: name and record on the left, the description level with the H1 cap line ── */
+  .pj-hero {
+    padding-block: clamp(48px, 5vw, 88px) 64px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .pj-hero .grid12 {
+    align-items: start;
+    row-gap: 28px;
+  }
+  .pj-hl {
+    grid-column: 1 / span 7;
+    min-width: 0;
+  }
+  .pj-hl :global(.d-page) {
+    max-width: 15ch;
+  }
+  .pj-crumb a {
+    color: var(--frost);
+  }
+  .pj-crumb span {
+    color: var(--rule-strong);
+  }
+  /* Crumb line (13px × 1.3) + its 22px margin puts the lede's first line on the H1 cap line. */
+  .pj-hr {
+    grid-column: 9 / span 4;
+    padding-top: 46px;
+    animation: pj-in 800ms var(--ease-out) 380ms both;
+  }
+  .pj-meta {
+    margin-top: 40px;
     display: grid;
-    gap: 16px;
-    margin-top: 26px;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    column-gap: clamp(24px, 3vw, 48px);
+    row-gap: 18px;
     justify-items: start;
+    max-width: 640px;
+    animation: pj-in 800ms var(--ease-out) 520ms both;
   }
   .pj-rec {
+    grid-column: 1 / -1;
     margin: 0;
     font-family: var(--font-mono);
     font-size: 0.8125rem;
     color: var(--lichen);
     letter-spacing: 0.02em;
   }
+  .pj-stage {
+    display: grid;
+    gap: 12px;
+    width: 260px;
+    max-width: 100%;
+  }
+  /* The link's 44px touch box is centred on its text; pull it up so the text sits level with the status chip. */
+  .pj-meta .arrow-link {
+    align-self: start;
+    margin-top: -12px;
+  }
+  @keyframes pj-in {
+    from {
+      opacity: 0;
+      translate: 0 8px;
+    }
+    to {
+      opacity: 1;
+      translate: 0 0;
+    }
+  }
 
-  /* ── Evidence frame ─────────────────────────────────────────────────── */
+  /* ── Evidence frame: light screenshots sit dimmed on the plate ───────── */
   .pj-lead {
     padding-top: clamp(32px, 3.4vw, 56px);
   }
   .proof {
     margin: 0;
+    background: none;
+    border: 0;
+  }
+  .pj-fig1 {
+    width: calc((100% - 11 * var(--gap)) / 12 * 10 + 9 * var(--gap));
+  }
+  .pj-lead,
+  .pj-more {
+    --gap: clamp(16px, 2vw, 32px);
   }
   .proof-frame {
     display: block;
     position: relative;
     background: var(--plate);
     border: 1px solid var(--rule);
+    padding: 16px;
+  }
+  .proof-win {
+    display: block;
     overflow: hidden;
   }
-  .pj-lead .proof-frame {
+  .proof img {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 640px;
+    object-fit: cover;
+    object-position: top;
+    filter: brightness(0.9) saturate(0.95);
+    transition: filter 300ms var(--ease-out);
+  }
+  .pj-lead .proof img {
     aspect-ratio: 16 / 10;
   }
-  .proof img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: top center;
-  }
-  /* Screenshots that are not 16:10 sit on the plate at their own proportion. */
-  .proof-mat .proof-frame {
-    --pad: clamp(12px, 3vw, 48px);
-  }
-  .proof-mat img {
-    position: absolute;
-    inset: var(--pad);
-    width: calc(100% - 2 * var(--pad));
-    height: calc(100% - 2 * var(--pad));
+  /* Screenshots that are not 16:10 keep their own proportion, centred on the plate. */
+  .pj-lead .proof-mat img {
+    aspect-ratio: auto;
+    width: auto;
+    max-width: 100%;
+    margin-inline: auto;
     object-fit: contain;
-    object-position: center;
   }
   a.proof-frame {
     cursor: zoom-in;
     transition: border-color var(--t-micro) var(--ease-out);
   }
-  a.proof-frame:hover {
+  a.proof-frame:hover,
+  a.proof-frame:focus-visible {
     border-color: var(--rule-strong);
+  }
+  a.proof-frame:hover img,
+  a.proof-frame:focus-visible img {
+    filter: none;
   }
   .proof figcaption {
     display: grid;
     grid-template-columns: 72px minmax(0, 1fr);
     gap: 12px;
-    padding-top: 14px;
+    margin: 0;
+    padding: 14px 0 0;
     color: var(--lichen);
+    font-family: var(--font-text);
     font-size: 0.95rem;
     line-height: 1.5;
     max-width: 80ch;
@@ -358,7 +446,7 @@ const CYCLE = [
     white-space: nowrap;
   }
   /* The lead screenshot opens like a shutter after the headline lands. */
-  .js .pj-lead .proof-frame {
+  :global(.js) .pj-lead .proof-frame {
     animation: pj-shut 1000ms var(--ease-out) 420ms both;
   }
   @keyframes pj-shut {
@@ -442,6 +530,14 @@ const CYCLE = [
   .pj-body {
     padding-bottom: 72px;
   }
+  /* No lead figure: the hero's bottom rule is the first row's rule, no empty band. */
+  .pj-hero + .pj-body {
+    padding-top: 0;
+    border-top: 0;
+  }
+  .pj-hero + .pj-body .rows > .row:first-child {
+    border-top: 0;
+  }
   .pj-row {
     grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
   }
@@ -470,9 +566,10 @@ const CYCLE = [
 
   /* ── Further screenshots ────────────────────────────────────────────── */
   .pj-more {
+    container-type: inline-size;
     display: grid;
     grid-template-columns: repeat(12, minmax(0, 1fr));
-    column-gap: clamp(16px, 2vw, 32px);
+    column-gap: var(--gap);
     row-gap: 40px;
     align-items: start;
     padding-block: clamp(40px, 4.4vw, 72px);
@@ -486,12 +583,52 @@ const CYCLE = [
   .pj-more.solo .proof {
     grid-column: 5 / span 8;
   }
+  .pj-more .proof-phone img {
+    max-height: 560px;
+  }
+  /* Desktop + phone pair (8 / 4): plates share one height and the captions share one baseline row. */
+  .pj-more.pair {
+    /* One column, and the desktop image height that an 8-column 16:10 shot gets (frame padding + border = 34px). */
+    --col: calc((100cqw - 11 * var(--gap)) / 12);
+    --dh: min(640px, calc((8 * var(--col) + 7 * var(--gap) - 34px) * 0.625));
+    grid-template-rows: auto auto;
+    row-gap: 0;
+    align-items: end;
+  }
+  .pj-more.pair .proof {
+    grid-column: 1 / span 8;
+    grid-row: 1 / span 2;
+    display: grid;
+    grid-template-rows: subgrid;
+  }
+  .pj-more.pair .proof-phone {
+    grid-column: 9 / span 4;
+  }
+  .pj-more.pair .proof img {
+    aspect-ratio: auto;
+    height: var(--dh);
+    max-height: none;
+  }
+  .pj-more.pair .proof-phone .proof-frame {
+    display: flex;
+    justify-content: center;
+  }
+  .pj-more.pair .proof-phone img {
+    width: auto;
+    max-width: 100%;
+  }
+  .pj-more.pair figcaption,
+  .pj-more.pair .proof-phone figcaption {
+    align-self: start;
+    grid-template-columns: 72px minmax(0, 1fr);
+    gap: 12px;
+  }
   /* A lone phone shot keeps its caption beside it instead of leaving the row empty. */
   .pj-more.solo .proof-phone {
     grid-column: 5 / span 8;
     display: grid;
     grid-template-columns: minmax(0, 3fr) minmax(0, 5fr);
-    column-gap: clamp(16px, 2vw, 32px);
+    column-gap: var(--gap);
     align-items: end;
   }
   .pj-more.solo .proof-phone figcaption {
@@ -530,16 +667,66 @@ const CYCLE = [
   }
 
   @media (max-width: 980px) {
+    .pj-fig1 {
+      width: 100%;
+    }
     .pj-more .proof,
-    .pj-more.solo .proof {
+    .pj-more.solo .proof,
+    .pj-more.pair .proof {
       grid-column: 1 / -1;
+      grid-row: auto;
+      display: block;
+    }
+    .pj-more.pair {
+      row-gap: 40px;
+    }
+    .pj-more.pair .proof img {
+      height: auto;
+      max-height: 640px;
+      aspect-ratio: 16 / 10;
     }
     .pj-more .proof-phone,
-    .pj-more.solo .proof-phone {
+    .pj-more.solo .proof-phone,
+    .pj-more.pair .proof-phone {
       grid-column: 1 / span 7;
+    }
+    .pj-more.pair .proof-phone img {
+      aspect-ratio: auto;
+      max-height: 560px;
     }
   }
   @media (max-width: 860px) {
+    .pj-hero {
+      padding-bottom: 48px;
+    }
+    /* Phone: name, description, then the record and its stage. */
+    .pj-hero .grid12 {
+      row-gap: 0;
+    }
+    .pj-hl {
+      display: contents;
+    }
+    .pj-hl > :global(*),
+    .pj-hr {
+      grid-column: 1 / -1;
+    }
+    .pj-hr {
+      padding-top: 0;
+      margin-top: 24px;
+      grid-row: 3;
+    }
+    .pj-meta {
+      grid-row: 4;
+      margin-top: 32px;
+      grid-template-columns: minmax(0, 1fr);
+      row-gap: 14px;
+    }
+    .pj-meta .arrow-link {
+      margin-top: 0;
+    }
+    .proof-frame {
+      padding: 10px;
+    }
     .pj-row {
       grid-template-columns: 1fr;
     }
@@ -599,12 +786,15 @@ const CYCLE = [
       text-transform: uppercase;
       color: var(--frost);
     }
-    .proof figcaption {
+    .proof figcaption,
+    .pj-more.pair figcaption,
+    .pj-more.pair .proof-phone figcaption {
       grid-template-columns: 1fr;
       gap: 4px;
     }
     .pj-more .proof-phone,
-    .pj-more.solo .proof-phone {
+    .pj-more.solo .proof-phone,
+    .pj-more.pair .proof-phone {
       grid-column: 1 / -1;
       display: block;
       max-width: 280px;

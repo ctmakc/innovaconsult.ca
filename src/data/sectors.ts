@@ -40,8 +40,8 @@ export const SECTORS: Sector[] = [
   },
   {
     name: 'AgriTech',
-    engagement: 'researching',
-    line: 'Records and reporting for mixed fleets of agricultural robots, built for dealers and growers.',
+    engagement: 'building',
+    line: 'A prototype logbook and reports for mixed fleets of agricultural robots; field validation planned for 2027.',
     evidence: 'OpenField'
   },
   {

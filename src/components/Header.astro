@@ -12,9 +12,9 @@ const capActive = capChildren.some((c) => isActive(c.href));
 const mobile = [
   { href: '/projects', label: 'Projects' },
   { href: '/capabilities', label: 'Capabilities' },
-  { href: '/ai-transformation', label: 'AI Transformation', sub: true },
-  { href: '/software', label: 'Software & Products', sub: true },
   { href: '/innovation', label: 'Innovation & R&D', sub: true },
+  { href: '/software', label: 'Software & Products', sub: true },
+  { href: '/ai-transformation', label: 'AI Transformation', sub: true },
   { href: '/workflow-os', label: 'Workflow OS' },
   { href: '/partnerships', label: 'Partnerships' },
   { href: '/about', label: 'About' },
@@ -363,6 +363,11 @@ const mobile = [
   .sub a.on {
     box-shadow: inset 2px 0 0 var(--signal);
   }
+  /* Rings sit inside the panel and the menu rows instead of spilling over their edges. */
+  .sub a:focus-visible,
+  .m-list a:focus-visible {
+    outline-offset: -2px;
+  }
   .hdr-cta {
     min-height: 44px;
     padding: 0 18px;
@@ -418,7 +423,8 @@ const mobile = [
     font-stretch: 112%;
     font-weight: 480;
     font-size: clamp(1.7rem, 7vw, 2.4rem);
-    letter-spacing: -0.02em;
+    letter-spacing: -0.014em;
+    word-spacing: 0.08em;
     text-decoration: none;
     border-bottom: 1px solid var(--rule);
   }

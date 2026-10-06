@@ -59,3 +59,13 @@ vs sovereign /today, nevod /control, unistaff, relohub, regserv «ШКАЛА В�
 ## Forbidden here
 Glow orbs, gradient meshes, glassmorphism, robot/brain imagery, stock handshakes, icon-in-tinted-square cards, stat banners, numbered 01/02/03 on non-sequences,
 uniform fade-up on every block, centered hero, rounded cards with shadows, «not X but Y» copy, «consulting/consultation» CTAs, invented traction.
+
+## Changelog
+**2026-10-05 — polish round (audit: Invest Ottawa/IRAP persona, fact check, art director).**
+- Display type: tracking eased and word-spacing added (.d-hero/.d-page −0.022em +0.1em word, .d-xl −0.018em +0.12em, .d-l −0.014em +0.08em) — Hubot's narrow space glued words at −0.035em.
+- **No years or zeros in display type**: Hubot's zero carries a bar and reads as θ («2θ12»). Years live in text/mono (trust line, record strip, path rows).
+- Hubot Sans `font-display: swap` + metric-matched 'Hubot Fallback' (local Arial, size-adjust) in --font-display.
+- Light product screenshots (UAFest, FoundWall, OpenField) always sit on a --plate mat (10–16px, 1px --rule) with `filter: brightness(.9) saturate(.95)`, restored on hover/focus — protects the dark page and the owner's eyes.
+- Board on the homepage shows featured projects only; /projects shows all. Hero board bleeds to the right viewport edge on purpose (the line continues).
+- Homepage gains: Ottawa eyebrow, partner CTA, "What a funded project with INNOVA looks like", corporate record strip (corp. no., NCAGE L15L3, D-U-N-S, hidden registry link).
+- Section heads are always left-aligned 7/5; the operating-model band is no longer centered.

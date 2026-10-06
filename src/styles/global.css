@@ -20,7 +20,7 @@
   --rule-strong: rgb(150 210 205 / 0.26);
   --rule-field: rgb(150 210 205 / 0.5);
 
-  --font-display: 'Hubot Sans', 'Arial Narrow', Arial, sans-serif;
+  --font-display: 'Hubot Sans', 'Hubot Fallback', Arial, sans-serif;
   --font-text: 'Instrument Sans', 'Helvetica Neue', Arial, sans-serif;
   --font-mono: 'Fragment Mono', ui-monospace, 'SF Mono', Menlo, monospace;
 
@@ -168,7 +168,8 @@ main > .section:last-child {
   font-weight: 440;
   font-stretch: 110%;
   line-height: 0.96;
-  letter-spacing: -0.035em;
+  letter-spacing: -0.022em;
+  word-spacing: 0.1em;
 }
 /* Inner-page H1 (PageHead). */
 .d-page {
@@ -176,28 +177,31 @@ main > .section:last-child {
   font-weight: 420;
   font-stretch: 112%;
   line-height: 0.96;
-  letter-spacing: -0.035em;
+  letter-spacing: -0.022em;
+  word-spacing: 0.1em;
 }
 .d-xl {
   font-size: clamp(1.7rem, 0.6rem + 2.7vw, 3.4rem); /* keeps H1:H2 ≥ 1.5 against .d-hero at every width */
   font-weight: 450;
   font-stretch: 114%;
   line-height: 0.98;
-  letter-spacing: -0.032em;
+  letter-spacing: -0.018em;
+  word-spacing: 0.12em;
 }
 .d-l {
   font-size: clamp(1.6rem, 1.2rem + 1.8vw, 3rem);
   font-weight: 470;
   font-stretch: 112%;
   line-height: 1.02;
-  letter-spacing: -0.026em;
+  letter-spacing: -0.014em;
+  word-spacing: 0.08em;
 }
 .d-m {
   font-size: clamp(1.3rem, 1.08rem + 0.7vw, 1.8rem);
   font-weight: 520;
   font-stretch: 108%;
   line-height: 1.12;
-  letter-spacing: -0.018em;
+  letter-spacing: -0.008em;
 }
 
 .lede {

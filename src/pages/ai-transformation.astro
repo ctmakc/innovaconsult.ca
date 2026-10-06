@@ -61,8 +61,7 @@ const approaches: { t: string; d: string; ex?: { name: string; href: string } }[
   },
   {
     t: 'Multi-agent workflow',
-    d: 'Several specialized agents hand work to each other under one supervisor.',
-    ex: { name: 'FINMOZG', href: '/projects/finmozg' }
+    d: 'Several specialized agents hand work to each other under one supervisor.'
   },
   {
     t: 'Human-in-the-loop system',
@@ -224,8 +223,11 @@ const outcomes = ['Shorter cycle time', 'Fewer repetitive tasks', 'Lower operati
   <section class="section" id="engagement">
     <div class="wrap">
       <div class="grid12 sec-head">
-        <div class="sh-l"><h2 class="d-l">How an engagement starts</h2></div>
-        <p class="body sh-r">Four steps. Each one ends in a result you can review before the next one is agreed.</p>
+        <div class="sh-l"><h2 class="d-l">How a Workflow OS project runs</h2></div>
+        <p class="body sh-r">
+          Each step runs on <a class="ulink en-a" href="/workflow-os">INNOVA AI Workflow OS</a>, from the first process map to the measured result.
+          Four steps; each one ends in a result you can review before the next one is agreed.
+        </p>
       </div>
       <ol class="rows en-rows">
         {
@@ -527,7 +529,8 @@ const outcomes = ['Shorter cycle time', 'Fewer repetitive tasks', 'Lower operati
   .ag-lede {
     margin-bottom: 20px;
   }
-  .ag-a {
+  .ag-a,
+  .en-a {
     color: var(--frost);
   }
   .ag-cycle {

@@ -108,7 +108,6 @@ const modules: Module[] = [
   {
     name: 'Process discovery',
     line: 'Capture departments, roles, systems and processes by hand, or paste a written company description and review the draft process model the AI proposes.',
-    shot: SHOTS.overview,
     fields: ['Company', 'Departments', 'Roles', 'Systems', 'Processes', 'Process steps', 'Pain points', 'Volume and minutes per case']
   },
   {
@@ -218,18 +217,18 @@ const faq = {
       <figure class="proof wh-fig">
         <div class="proof-frame">
         <img
-          src={SHOTS.map.src}
-          srcset={SHOTS.map.srcset}
+          src={SHOTS.overview.src}
+          srcset={SHOTS.overview.srcset}
           sizes="(max-width: 980px) calc(100vw - 32px), (max-width: 1472px) 56vw, 800px"
-          width={SHOTS.map.width}
-          height={SHOTS.map.height}
-          alt={SHOTS.map.alt}
+          width={SHOTS.overview.width}
+          height={SHOTS.overview.height}
+          alt={SHOTS.overview.alt}
           loading="eager"
           fetchpriority="high"
           decoding="async"
         />
         </div>
-        <figcaption>Prototype · illustrative demo data on Northstar Professional Services, a fictional 30-person firm. Every score shows its formula.</figcaption>
+        <figcaption>Prototype · company overview of Northstar Professional Services, a fictional 30-person firm, with its automation opportunities ranked by score (illustrative demo data).</figcaption>
       </figure>
 
       <div class="wh-act">
@@ -277,7 +276,7 @@ const faq = {
     </div>
   </section>
 
-  <section class="section" aria-labelledby="flow-h">
+  <section class="section wf-sec" aria-labelledby="flow-h">
     <div class="wrap">
       <h2 class="sr-only" id="flow-h">Product flow</h2>
       <p class="wf-cap">One path through the product, seven stations. Each station opens the module that handles it.</p>
@@ -287,11 +286,13 @@ const faq = {
         <ol class="wf-ol">
         {
           flow.map((f, i) => (
-            <li style={`--i:${i}`}>
+            <li style={`--i:${i};--c:${2 * i}`}>
               <a href={`#module-${f.m}`} class="wf-a">
                 <span class="wf-dot" aria-hidden="true" />
-                <span class="wf-i">{String(i + 1).padStart(2, '0')}</span>
-                <span class="wf-t">{f.t}</span>
+                <span class="wf-lab">
+                  <span class="wf-i">{String(i + 1).padStart(2, '0')}</span>
+                  <span class="wf-t">{f.t}</span>
+                </span>
                 <span class="sr-only">, module {f.m}</span>
               </a>
             </li>
@@ -413,7 +414,7 @@ const faq = {
           Workflow OS decides what to automate and how. The automations themselves run in the client’s existing platforms or in INNOVA products such as <a class="ulink b-link" href="/projects/aicrmius">AICRMIUS</a>.
         </p>
         <p class="body b-p">That boundary keeps the planning tool independent of any single vendor, including us.</p>
-        <p class="body b-p2">The demo runs on fictional data and works without any external AI service.</p>
+        <p class="body b-p2">The demo runs on fictional data. Scoring, design and ROI are calculated without AI. Optional AI discovery sends the description you paste to an external AI model hosted outside Canada; when it is off or slow, a rules engine drafts the process model instead.</p>
         <a class="arrow-link" href="/ai-transformation"><span>Our AI transformation method</span><span aria-hidden="true">→</span></a>
       </div>
     </div>
@@ -623,7 +624,10 @@ const faq = {
     transform: translateY(3px);
   }
 
-  /* ── Product flow: shared line language ── */
+  /* ── Product flow: seven stations spread evenly over the full 12 columns ── */
+  .wf-sec {
+    padding-block: clamp(56px, 7vw, 96px);
+  }
   .wf-cap {
     margin: 0 0 clamp(28px, 3vw, 44px);
     color: var(--lichen);
@@ -634,18 +638,20 @@ const faq = {
     --dot: 10px;
     position: relative;
   }
+  /* Twelve equal tracks with no gap: station k sits on the boundary k × 2, so the stations are 1/6 apart,
+     the first starts on the left grid edge and the last ends on the right one. */
   .wf-ol {
     list-style: none;
     margin: 0;
     padding: 0;
     display: grid;
-    grid-template-columns: repeat(7, minmax(0, 1fr));
+    grid-template-columns: repeat(12, minmax(0, 1fr));
   }
   .wf-track,
   .wf-rail {
     position: absolute;
     left: 0;
-    right: calc(100% / 7 - var(--dot) / 2);
+    right: 0;
     top: calc(var(--dot) / 2 - 1px);
     height: 2px;
   }
@@ -659,20 +665,39 @@ const faq = {
   }
   .wf li {
     position: relative;
+    grid-column: var(--c) / span 2;
+    text-align: center;
+  }
+  .wf li:first-child {
+    grid-column: 1 / span 1;
+    text-align: left;
+  }
+  .wf li:last-child {
+    grid-column: 12 / span 1;
+    text-align: right;
   }
   .wf-a {
     display: block;
     padding-top: 30px;
-    padding-right: 12px;
     color: var(--frost);
     text-decoration: none;
+  }
+  .wf-lab {
+    display: inline-block;
+    white-space: nowrap;
+    transition: transform 320ms var(--ease-out);
+  }
+  .wf-a:hover .wf-lab,
+  .wf-a:focus-visible .wf-lab {
+    transform: translateX(6px);
   }
   .wf-dot {
     position: absolute;
     top: 0;
-    left: 0;
+    left: 50%;
     width: var(--dot);
     height: var(--dot);
+    margin-left: calc(var(--dot) / -2);
     border-radius: 50%;
     background: var(--ground);
     border: 2px solid var(--signal);
@@ -680,7 +705,14 @@ const faq = {
       transform var(--t-micro) var(--ease-out),
       background-color var(--t-micro) var(--ease-out);
   }
+  .wf li:first-child .wf-dot {
+    left: 0;
+    margin-left: 0;
+  }
   .wf li:last-child .wf-dot {
+    left: auto;
+    right: 0;
+    margin-left: 0;
     background: var(--signal);
   }
   .wf-i {
@@ -694,7 +726,7 @@ const faq = {
     font-family: var(--font-display);
     font-stretch: 112%;
     font-weight: 480;
-    font-size: clamp(1.1rem, 0.6rem + 1.1vw, 1.9rem);
+    font-size: clamp(1.1rem, 0.5rem + 1vw, 1.75rem);
     letter-spacing: -0.02em;
     background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
     transition: background-size var(--t-micro) var(--ease-out);
@@ -704,7 +736,8 @@ const faq = {
   .wf-a:focus-visible .wf-t {
     background-size: 100% 1px;
   }
-  .wf-a:hover .wf-dot {
+  .wf-a:hover .wf-dot,
+  .wf-a:focus-visible .wf-dot {
     transform: scale(1.3);
   }
   @media (prefers-reduced-motion: no-preference) {
@@ -995,6 +1028,12 @@ const faq = {
       grid-template-columns: 1fr;
       padding-left: 30px;
     }
+    .wf li,
+    .wf li:first-child,
+    .wf li:last-child {
+      grid-column: 1;
+      text-align: left;
+    }
     .wf-track,
     .wf-rail {
       left: calc(var(--dot) / 2 - 1px);
@@ -1015,14 +1054,20 @@ const faq = {
     }
     .wf-a {
       padding: 0 0 18px;
+      min-height: 44px;
+    }
+    .wf-lab {
       display: flex;
       align-items: baseline;
       gap: 14px;
-      min-height: 44px;
     }
-    .wf-dot {
+    .wf-dot,
+    .wf li:first-child .wf-dot,
+    .wf li:last-child .wf-dot {
       left: -30px;
+      right: auto;
       top: 6px;
+      margin-left: 0;
     }
     .wf-i {
       margin: 0;
@@ -1035,9 +1080,24 @@ const faq = {
     .qa-m {
       grid-column: 1;
     }
-    .ruled-2,
     .grp {
       grid-template-columns: 1fr;
+    }
+    /* Factor and field lists stay two-up on a phone, so the page does not run to single-item rows. */
+    .grp .ruled,
+    .ruled-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: 16px;
+      row-gap: 10px;
+      font-size: 15px;
+    }
+    .grp .ruled li,
+    .ruled-2 li {
+      padding: 9px 0 0;
+    }
+    .ruled-2 {
+      padding-bottom: 10px;
     }
     .ph5 {
       grid-template-columns: 1fr;

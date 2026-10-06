@@ -59,11 +59,7 @@ const shownIn = (slugs: string[] = []) =>
               <StageTrack span={c.span} caption={false} />
             </div>
             <div class="cap-r">
-              {compact ? (
-                <p class="body cap-note">
-                  Scouting, proof-of-concept builds and feasibility work, with the full method on its own page.
-                </p>
-              ) : (
+              {!compact && (
                 <ul class="cap-scope">
                   {c.scope.map((s) => (
                     <li>{s}</li>
@@ -76,7 +72,7 @@ const shownIn = (slugs: string[] = []) =>
               </a>
               {projects.length > 0 && (
                 <p class="cap-shown">
-                  <span class="cap-shown-l">Shown in:</span>
+                  <span class="cap-shown-l">{c.key === 'partnerships' ? 'Partnership-ready projects:' : 'Shown in:'}</span>
                   {projects.map((p) => (
                     <a class="cap-p" href={p.href}>{p.name}</a>
                   ))}
@@ -151,9 +147,6 @@ const shownIn = (slugs: string[] = []) =>
     width: 6px;
     height: 6px;
     background: var(--rule-strong);
-  }
-  .cap-note {
-    margin: 0 0 26px;
   }
   .cap-shown {
     margin: 22px 0 0;

@@ -27,7 +27,11 @@ const label =
   </div>
   {
     caption && (
-      <p class="trk-cap mono" aria-hidden="true">
+      <p
+        class:list={['trk-cap', 'mono', { 'trk-cap--at': at !== undefined }]}
+        data-edge={at === 0 ? 'start' : at === STAGES.length - 1 ? 'end' : undefined}
+        aria-hidden="true"
+      >
         {at !== undefined ? STAGES[at].label : from === to ? STAGES[from].label : `${STAGES[from].label} → ${STAGES[to].label}`}
       </p>
     )
@@ -106,6 +110,23 @@ const label =
     margin: 10px 0 0;
     color: var(--lichen);
     font-size: 0.75rem;
+  }
+  /* A single-position track names its stage under the marker itself: centred on the active station,
+     edge-aligned with the marker at the first and last stations so the label never leaves the track. */
+  .trk-cap--at {
+    position: relative;
+    width: max-content;
+    white-space: nowrap;
+    left: calc(var(--cell) * var(--to) + var(--cell) / 2);
+    transform: translateX(-50%);
+  }
+  .trk-cap--at[data-edge='start'] {
+    left: calc(var(--cell) / 2 - 6.5px);
+    transform: none;
+  }
+  .trk-cap--at[data-edge='end'] {
+    left: calc(var(--cell) * 5.5 + 6.5px);
+    transform: translateX(-100%);
   }
   @media (max-width: 860px) {
     .trk {

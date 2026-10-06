@@ -31,6 +31,25 @@ const countPhrases = (Object.keys(STATUS_LABEL) as ProjectStatus[])
   });
 const counts =
   countPhrases.length > 1 ? `${countPhrases.slice(0, -1).join(', ')} and ${countPhrases.at(-1)}` : countPhrases.join('');
+const WORDS = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'];
+const word = (n: number) => WORDS[n] ?? String(n);
+const totalWord = word(visibleProjects.length);
+const boardWord = word(featuredProjects.length);
+
+/* Hero trust line: years counted at build time from the founder's start year. */
+const practiceYears = new Date().getFullYear() - Number(SITE.experienceSince);
+
+/* Corporate record strip. Owner law (external-links-hidden): the registry link renders without href,
+   base64 in data-x, opened by the script at the bottom (same mechanism as /about). */
+const registryB64 = btoa(`https://ised-isde.canada.ca/cc/lgcy/fdrlCrpDtls.html?corpId=${SITE.corporationNumber.replace('-', '')}`);
+
+/* Partners: the four parts of a funded project, worded exactly as on /innovation. */
+const funded = [
+  'A written technical question and the uncertainty behind it.',
+  'A starting point and a target for the work.',
+  'Two or three milestones, each ending in something a reviewer can run.',
+  'Measured results, including the experiments that failed.'
+];
 
 /* What we do: the projects that prove each capability. */
 const capRows = CAPABILITIES.map((c) => ({
@@ -77,16 +96,18 @@ const domainGroups = (['building', 'researching', 'exploring'] as Engagement[])
   .filter((g) => g.rows.length > 0);
 
 /* Projects: real screenshots (captured 2026-10-01, see .proof-staging/MANIFEST.json). */
-const shots: Record<string, { src: string; alt: string; cap: string }> = {
+const shots: Record<string, { src: string; alt: string; cap: string; light?: boolean }> = {
   uafest: {
     src: '/proof/uafest-applications-1440-800.webp',
     alt: 'UAFest 2027 sign-up page on uafest.ca: one form with participation types for guests, volunteers, vendors, performers, sponsors, Unity Ride drivers, the Rushnyk and the organizing team.',
-    cap: 'One intake form routes every participant type into the festival back office.'
+    cap: 'The 2027 sign-up list: one form files every participant type into the CRM.',
+    light: true
   },
   foundwall: {
     src: '/proof/foundwall-home-1440-800.webp',
     alt: 'FoundWall homepage at 1440 px: Lost, Stolen, Found headline beside sample notices for a bike, a beagle, a robotic mower and a reunited bike.',
-    cap: 'FoundWall public homepage, foundwall.com.'
+    cap: 'FoundWall public homepage, foundwall.com (sample notices).',
+    light: true
   },
   'workflow-os': {
     src: '/proof/workflow-os-opportunity-map-1440-800.webp',
@@ -96,7 +117,8 @@ const shots: Record<string, { src: string; alt: string; cap: string }> = {
   openfield: {
     src: '/proof/openfield-season-report-1440-800.webp',
     alt: 'OpenField season report preview: block-by-week pass grid and report figures such as hectares completed and passes on time, each tagged with its data source.',
-    cap: 'Season report preview generated from the logbook, demo data.'
+    cap: 'Season report preview on a simulated 2027 season (demo data).',
+    light: true
   }
 };
 const MOBILE_SHOT: ProjectStatus[] = ['live', 'built', 'prototype'];
@@ -105,7 +127,7 @@ const MOBILE_SHOT: ProjectStatus[] = ['live', 'built', 'prototype'];
 const path = [
   {
     when: `From ${SITE.experienceSince}`,
-    what: 'The founder’s business practice: strategy, legal structure, tax and marketing for small and mid-sized companies.'
+    what: 'The founder’s business practice with small and mid-sized companies in more than 50 countries.'
   },
   { when: 'Then', what: 'Digital systems for client companies.' },
   { when: 'Then', what: 'Software products built and run in-house.' },
@@ -122,21 +144,25 @@ const path = [
   <section class="hero">
     <div class="wrap grid12 hero-grid">
       <div class="hero-copy">
+        <p class="kicker hero-eyebrow">Applied innovation · {SITE.city}, {SITE.country}</p>
         <RiseHeading text="Turning complex opportunities into working technology." />
         <p class="lede hero-lede">
           INNOVA researches, prototypes, builds and deploys applied AI and software<span class="lede-more">, and sets up joint projects with companies, researchers and public organizations</span>.
         </p>
+        <p class="hero-trust">
+          <span>{SITE.city}, {SITE.country} ·</span> <span>Federal corporation since {SITE.incorporated} ·</span>
+          <span>Founder in business since {SITE.experienceSince} ({practiceYears} years)</span>
+        </p>
         <div class="hero-ctas">
           <a href="/projects" class="btn btn-primary">Explore what we build <span class="arr" aria-hidden="true">→</span></a>
-          <a href="/ai-transformation#engagement" class="btn btn-ghost hero-sec"
-            ><span>Start with one process</span><span class="hero-sec-arr" aria-hidden="true">→</span></a
+          <a href="/partnerships" class="btn btn-ghost hero-sec"
+            ><span>Partner with INNOVA</span><span class="hero-sec-arr" aria-hidden="true">→</span></a
           >
         </div>
       </div>
       <div class="hero-board">
         <PipelineBoard only="featured" />
       </div>
-      <p class="hero-trust">Founder’s experience since {SITE.experienceSince} · Incorporated in {SITE.city}, {SITE.incorporated}</p>
     </div>
   </section>
 
@@ -146,8 +172,9 @@ const path = [
       <h2 id="brief-h" class="meta brief-h">In brief</h2>
       <p class="brief-p">
         <strong>INNOVA ({SITE.legalName})</strong> is an applied-innovation and technology company in {SITE.city}, {SITE.region}, incorporated
-        federally in {SITE.incorporated}. It researches, prototypes, builds and deploys applied AI and software. Its portfolio shows each
-        project at its real stage: {counts}.
+        federally in {SITE.incorporated}. It researches, prototypes, builds and deploys applied AI and software. Its {totalWord} projects each
+        show their real stage: {counts}. The board above shows {boardWord}; all {totalWord} are on the
+        <a href="/projects" class="ulink brief-a">Projects page</a>.
       </p>
     </div>
   </section>
@@ -166,12 +193,8 @@ const path = [
       <div class="rows">
         {
           capRows.map(({ c, proof }) => (
-            <div class="row caprow">
-              <h3 class="d-m row-title">
-                <a class="cap-link" href={c.href}>
-                  <span class="cap-name">{c.name}</span>
-                </a>
-              </h3>
+            <a class="row caprow" href={c.href}>
+              <h3 class="d-m row-title">{c.name}</h3>
               <p class="body">{c.line}</p>
               <div class="cap-trk">
                 <StageTrack span={c.span} />
@@ -179,15 +202,13 @@ const path = [
                   <ul class="cap-proof" aria-label={`Projects that show ${c.name}`}>
                     {proof.map((p) => (
                       <li>
-                        <a href={hrefOf(p)}>
-                          <span class="cap-code">{p.code}</span> {p.short}
-                        </a>
+                        <span class="cap-code">{p.code}</span> {p.short}
                       </li>
                     ))}
                   </ul>
                 )}
               </div>
-            </div>
+            </a>
           ))
         }
       </div>
@@ -197,11 +218,12 @@ const path = [
   <!-- HOW WE WORK: the one full-bleed band -->
   <section class="section band" id="how-we-work">
     <div class="wrap">
-      <div class="band-head">
-        <h2 class="d-xl">From opportunity to deployment.</h2>
+      <div class="grid12 sec-head band-head">
+        <div class="band-l">
+          <h2 class="d-xl">From opportunity to deployment.</h2>
+        </div>
         <p class="body band-p">
-          Strategy and implementation stay in the same hands. Whoever studies the problem also builds, ships and measures the solution, so nothing
-          is lost in a hand-off.
+          One accountable lead stays with each project from the first study to the measured result, so nothing is lost in a hand-off.
         </p>
       </div>
       <StageLine notes={stageNotes} links={stageLinks} />
@@ -320,7 +342,7 @@ const path = [
                     {p.summary}
                   </p>
                   {shot && (
-                    <figure class:list={['proof', 'prow-shot', { 'm-hide': !MOBILE_SHOT.includes(p.status) }]}>
+                    <figure class:list={['proof', 'prow-shot', { 'm-hide': !MOBILE_SHOT.includes(p.status), 'shot-light': shot.light }]}>
                       <img src={shot.src} alt={shot.alt} width="800" height="500" loading="lazy" decoding="async" />
                       <figcaption>{shot.cap}</figcaption>
                     </figure>
@@ -341,14 +363,33 @@ const path = [
   <!-- COLLABORATION -->
   <section class="section collab" id="collaboration">
     <div class="wrap grid12">
-      <h2 class="d-m co-h">Projects we take on with partners.</h2>
-      <p class="d-xl co-st">
-        INNOVA takes on applied R&amp;D, software development, pilot deployment and commercialization together with technology companies, industry
-        operators, researchers, institutions and public organizations.
+      <h2 class="d-xl co-h">Projects we take on with partners.</h2>
+      <p class="co-st">
+        Applied R&amp;D, pilots and commercialization, built together with industry, researchers and public organizations.
       </p>
-      <div class="co-foot">
-        <a href="/partnerships" class="btn btn-primary">See partnership models <span class="arr" aria-hidden="true">→</span></a>
+      <div class="co-funded">
+        <h3 class="meta co-fh" id="funded-h">What a funded project with INNOVA looks like</h3>
+        <ol class="co-steps" aria-labelledby="funded-h">
+          {
+            funded.map((f, i) => (
+              <li>
+                <span class="mono co-n">{i + 1}</span>
+                <span>{f}</span>
+              </li>
+            ))
+          }
+        </ol>
+        <p class="co-ex">
+          <a href="/projects/openfield" class="co-ex-a"
+            ><strong>Example: OpenField.</strong> Prototype on demo data today; field validation planned for the 2027 season.<span
+              class="co-ex-arr"
+              aria-hidden="true">→</span
+            ></a
+          >
+        </p>
       </div>
+      <div class="co-side">
+      <h3 class="meta co-fh">Partnership models</h3>
       <ul class="co-models" aria-label="Partnership models">
         {
           PARTNERSHIP_MODELS.slice(0, 4).map((m) => (
@@ -361,13 +402,27 @@ const path = [
           ))
         }
       </ul>
+      <div class="co-foot">
+        <a href="/partnerships" class="btn btn-primary">See partnership models <span class="arr" aria-hidden="true">→</span></a>
+      </div>
+      </div>
     </div>
   </section>
 
   <!-- CREDIBILITY -->
   <section class="section cred" id="background">
     <div class="wrap grid12">
-      <h2 class="d-xl cr-h">Founder’s experience since {SITE.experienceSince}. Incorporated in {SITE.city} in {SITE.incorporated}.</h2>
+      <h2 class="d-xl cr-h">New technology. Experienced operators.</h2>
+      <p class="cr-rec">
+        <span>Federal corporation {SITE.corporationNumber}</span><span class="cr-dot" aria-hidden="true">·</span><span
+          ><abbr title="NATO Commercial and Government Entity code">NCAGE</abbr> {SITE.ncage}</span
+        ><span class="cr-dot" aria-hidden="true">·</span><span>D-U-N-S {SITE.duns}</span><span class="cr-dot" aria-hidden="true">·</span><span
+          class="xlink cr-verify"
+          role="link"
+          tabindex="0"
+          data-x={registryB64}>Verify on Corporations Canada <span aria-hidden="true">↗</span></span
+        >
+      </p>
       <ol class="cr-path">
         {
           path.map((r) => (
@@ -380,6 +435,10 @@ const path = [
       </ol>
       <div class="cr-side">
         <p class="cr-lead">INNOVA is led by its founder, Maksym Stepanenko.</p>
+        <p class="body cr-team">
+          For funded and client projects, engineering, security review and domain specialists are brought in as named
+          subcontractors or partner firms, listed in the proposal before work starts.
+        </p>
         <p class="body">
           His work with businesses across many jurisdictions and industries showed how companies run, where processes break and what it takes to
           get a new system adopted.
@@ -389,6 +448,23 @@ const path = [
     </div>
   </section>
 </BaseLayout>
+
+<script>
+  // External links without href (owner law): decode on click or Enter, open in a new tab. Same mechanism as /about.
+  document.querySelectorAll<HTMLElement>('.xlink[data-x]').forEach((el) => {
+    const go = () => {
+      const url = atob(el.dataset.x || '');
+      if (/^https:\/\//.test(url)) window.open(url, '_blank', 'noopener');
+    };
+    el.addEventListener('click', go);
+    el.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        go();
+      }
+    });
+  });
+</script>
 
 <style>
   /* Small sentence-case mono label (not a stage label, chip or INV code). */
@@ -417,41 +493,54 @@ const path = [
     grid-column: 1 / span 5;
     grid-row: 1;
     padding-top: clamp(8px, 2vw, 36px);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
   }
+  .hero-eyebrow {
+    margin-bottom: 20px;
+    animation: hfade 700ms var(--ease-out) 60ms both;
+  }
+  /* Scoped hero size: 3-4 lines at 1440 with the real Hubot Sans metrics. */
   .hero-copy :global(.d-hero) {
-    max-width: 14ch;
+    font-size: clamp(2.6rem, 1rem + 3.6vw, 4.25rem);
+    max-width: 15ch;
   }
   .hero-board {
     grid-column: 6 / span 7;
-    grid-row: 1 / span 2;
+    grid-row: 1;
     padding-top: clamp(8px, 2vw, 36px);
   }
   .hero-lede {
-    margin-top: 28px;
+    margin-top: 24px;
     animation: hfade 800ms var(--ease-out) 520ms both;
   }
   .hero-ctas {
+    order: 4;
     display: flex;
     flex-wrap: wrap;
     gap: 12px;
-    margin-top: 34px;
+    margin-top: 30px;
     animation: hfade 800ms var(--ease-out) 640ms both;
   }
   .hero-sec-arr {
     display: none;
   }
+  /* DOM order puts the trust line before the CTAs (phone order); on wider screens it sits under them. */
   .hero-trust {
-    grid-column: 1 / span 5;
-    grid-row: 2;
-    align-self: start;
-    margin: 34px 0 0;
-    padding-top: 16px;
+    order: 5;
+    align-self: stretch;
+    margin: 26px 0 0;
+    padding-top: 14px;
     border-top: 1px solid var(--rule);
     font-family: var(--font-text);
     font-size: 0.85rem;
     line-height: 1.5;
     color: var(--lichen);
     animation: hfade 800ms var(--ease-out) 760ms both;
+  }
+  .hero-trust span {
+    white-space: nowrap;
   }
   @keyframes hfade {
     from {
@@ -470,8 +559,7 @@ const path = [
   }
   @media (max-width: 1100px) {
     .hero-copy,
-    .hero-board,
-    .hero-trust {
+    .hero-board {
       grid-column: 1 / -1;
       grid-row: auto;
     }
@@ -515,11 +603,18 @@ const path = [
     .hero-sec:hover .hero-sec-arr {
       transform: translateX(4px);
     }
+    .hero-eyebrow {
+      margin-bottom: 18px;
+    }
     .hero-board {
       margin-top: 28px;
     }
+  }
+  @media (max-width: 640px) {
     .hero-trust {
-      margin-top: 24px;
+      order: 3;
+      margin-top: 18px;
+      padding-top: 14px;
     }
   }
 
@@ -540,6 +635,13 @@ const path = [
     line-height: 1.6;
     color: var(--lichen);
   }
+  .brief-a {
+    color: var(--frost);
+    background-size: 100% 1px;
+  }
+  .brief-a:hover {
+    color: var(--signal);
+  }
   .brief-p strong {
     color: var(--frost);
     font-weight: 600;
@@ -558,38 +660,14 @@ const path = [
   }
 
   /* ── What we do ───────────────────────────────────────────────────── */
-  .caprow {
-    position: relative;
+  /* Each capability row is one link to its page; the shared a.row rule gives the 6px title shift and the trailing arrow. */
+  .caprow h3 {
+    margin: 0;
   }
-  .cap-link {
-    text-decoration: none;
-    color: inherit;
-  }
-  .cap-link::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-  }
-  .cap-link:focus-visible {
-    outline: none;
-  }
-  .cap-link:focus-visible::after {
-    outline: 2px solid var(--signal);
-    outline-offset: -2px;
-  }
-  /* Shift the name, never the h3: a transform on an ancestor of the stretched
-     ::after would shrink the row's click/focus area down to the title. */
-  .cap-name {
-    display: inline-block;
-    transition: transform 320ms var(--ease-out);
-  }
-  .caprow:hover .cap-name,
-  .caprow:focus-within .cap-name {
-    transform: translateX(6px);
+  .caprow .cap-trk {
+    padding-right: 28px;
   }
   .cap-proof {
-    position: relative;
-    z-index: 1;
     list-style: none;
     margin: 16px 0 0;
     padding: 0;
@@ -597,27 +675,22 @@ const path = [
     flex-wrap: wrap;
     gap: 0 18px;
   }
-  .cap-proof a {
+  .cap-proof li {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    min-height: 32px;
+    min-height: 28px;
     font-family: var(--font-mono);
     font-size: 0.75rem;
     letter-spacing: 0.02em;
     color: var(--lichen);
-    text-decoration: none;
-    transition: color var(--t-micro) var(--ease-out);
-  }
-  .cap-proof a:hover {
-    color: var(--frost);
   }
   .cap-code {
     color: var(--frost);
   }
-  @media (pointer: coarse) {
-    .cap-proof a {
-      min-height: 44px;
+  @media (max-width: 860px) {
+    .caprow .cap-trk {
+      padding-right: 0;
     }
   }
 
@@ -630,15 +703,30 @@ const path = [
   .band + .section {
     border-top: 0;
   }
+  /* Same left-aligned head as the other sections: H2 cols 1-6, text cols 8-12. */
   .band-head {
-    max-width: 880px;
-    margin: 0 auto clamp(48px, 5vw, 80px);
-    text-align: center;
+    margin-bottom: clamp(48px, 5vw, 80px);
+    text-align: left;
+  }
+  .band-l {
+    grid-column: 1 / span 6;
   }
   .band-p {
-    margin: 22px auto 0;
-    max-width: 58ch;
-    text-wrap: balance;
+    grid-column: 8 / span 5;
+    align-self: end;
+    padding-bottom: 0.4em;
+    font-size: 1.125rem;
+    max-width: 44ch;
+  }
+  @media (max-width: 860px) {
+    .band-l,
+    .band-p {
+      grid-column: 1 / -1;
+      padding-bottom: 0;
+    }
+    .band-p {
+      font-size: 1rem;
+    }
   }
   .band :global(.sl-dot) {
     background: var(--plate);
@@ -838,6 +926,23 @@ const path = [
   .prow:focus-visible .prow-shot img {
     filter: none;
   }
+  /* Light (cream/white) product screenshots: matted on the plate and dimmed so they don't glare on the dark page. */
+  .prow-shot.shot-light {
+    padding: 10px;
+    background: var(--plate);
+    border: 1px solid var(--rule);
+  }
+  .prow-shot.shot-light img {
+    filter: brightness(0.9) saturate(0.95);
+    transition: filter 300ms var(--ease-out);
+  }
+  .prow:hover .prow-shot.shot-light img,
+  .prow:focus-visible .prow-shot.shot-light img {
+    filter: none;
+  }
+  .prow-shot.shot-light figcaption {
+    padding: 0 4px 2px;
+  }
   .prow-shot figcaption {
     font-size: 0.8rem;
     line-height: 1.45;
@@ -865,44 +970,103 @@ const path = [
     }
   }
 
-  /* ── Collaboration: one statement ─────────────────────────────────── */
+  /* ── Collaboration: heading + statement, then the funded-project shape beside the models ── */
   .co-h {
-    grid-column: 1 / -1;
-    color: var(--lichen);
-    margin-bottom: clamp(20px, 2vw, 32px);
+    grid-column: 1 / span 7;
+    color: var(--frost);
   }
   .co-st {
-    grid-column: 1 / span 10;
-    max-width: none;
+    grid-column: 8 / span 5;
+    align-self: end;
+    margin: 0;
+    padding-bottom: 0.3em;
+    max-width: 60ch;
+    font-size: 1.25rem;
+    line-height: 1.5;
+    color: var(--lichen);
     text-wrap: pretty;
   }
-  .co-foot {
-    grid-column: 1 / span 4;
+  .co-funded {
+    grid-column: 1 / span 6;
     margin-top: clamp(40px, 4vw, 64px);
-    align-self: end;
+  }
+  .co-side {
+    grid-column: 8 / span 5;
+    margin-top: clamp(40px, 4vw, 64px);
+  }
+  .co-fh {
+    color: var(--frost);
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--rule-strong);
+  }
+  .co-steps {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .co-steps li {
+    display: grid;
+    grid-template-columns: 2.25rem minmax(0, 1fr);
+    align-items: baseline;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--rule);
+    color: var(--frost);
+    line-height: 1.45;
+  }
+  .co-n {
+    color: var(--lichen);
+  }
+  .co-ex {
+    margin: 18px 0 0;
+  }
+  .co-ex-a {
+    display: inline-block;
+    padding-block: 10px;
+    color: var(--lichen);
+    text-decoration: none;
+    line-height: 1.5;
+    transition: color var(--t-micro) var(--ease-out);
+  }
+  .co-ex-a strong {
+    color: var(--frost);
+    font-weight: 600;
+  }
+  .co-ex-arr {
+    display: inline-block;
+    margin-left: 8px;
+    color: var(--frost);
+    transition: transform var(--t-micro) var(--ease-out);
+  }
+  .co-ex-a:hover {
+    color: var(--frost);
+  }
+  .co-ex-a:hover .co-ex-arr {
+    transform: translateX(4px);
   }
   .co-models {
-    grid-column: 6 / span 7;
     list-style: none;
-    margin: clamp(40px, 4vw, 64px) 0 0;
+    margin: 0;
     padding: 0;
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    column-gap: clamp(16px, 2vw, 32px);
-    border-bottom: 1px solid var(--rule);
   }
   .co-models li {
-    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
   }
   .co-models a {
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 12px;
-    min-height: 56px;
+    min-height: 52px;
     font-weight: 600;
     text-decoration: none;
     color: var(--frost);
+  }
+  .co-models a span:first-child {
+    transition: transform 320ms var(--ease-out);
+  }
+  .co-models a:hover span:first-child,
+  .co-models a:focus-visible span:first-child {
+    transform: translateX(6px);
   }
   .co-models a span:last-child {
     color: var(--lichen);
@@ -914,31 +1078,25 @@ const path = [
     transform: translateX(4px);
     color: var(--frost);
   }
+  .co-foot {
+    margin-top: 28px;
+  }
   @media (max-width: 980px) {
+    .co-h,
     .co-st,
-    .co-foot,
-    .co-models {
+    .co-funded,
+    .co-side {
       grid-column: 1 / -1;
     }
-    .co-models {
-      order: 3;
-      margin-top: 36px;
-    }
-    .co-foot {
-      order: 4;
-      margin-top: 32px;
-    }
-  }
-  @media (max-width: 720px) {
     .co-st {
-      font-size: clamp(1.5rem, 1.1rem + 1.6vw, 1.9rem);
-      line-height: 1.08;
+      margin-top: 20px;
+      font-size: 1.125rem;
+    }
+    .co-side {
+      margin-top: 44px;
     }
   }
   @media (max-width: 560px) {
-    .co-models {
-      grid-template-columns: 1fr;
-    }
     .co-foot .btn {
       width: 100%;
       justify-content: space-between;
@@ -948,10 +1106,63 @@ const path = [
   /* ── Credibility: plain ruled rows ────────────────────────────────── */
   .cr-h {
     grid-column: 1 / span 9;
-    margin-bottom: clamp(36px, 4vw, 64px);
+  }
+  /* Corporate record strip: the funder's due-diligence line, in record mono. */
+  .cr-rec {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 12px;
+    margin: 22px 0 clamp(36px, 4vw, 56px);
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    letter-spacing: 0.02em;
+    color: var(--frost);
+  }
+  .cr-rec abbr {
+    text-decoration: none;
+  }
+  .cr-dot {
+    color: var(--lichen);
+  }
+  .cr-verify {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    color: var(--lichen);
+    cursor: pointer;
+    text-decoration: underline;
+    text-decoration-color: var(--rule-strong);
+    text-underline-offset: 4px;
+    transition:
+      color var(--t-micro) var(--ease-out),
+      text-decoration-color var(--t-micro) var(--ease-out);
+  }
+  .cr-verify:hover {
+    color: var(--frost);
+    text-decoration-color: currentColor;
+  }
+  .cr-team {
+    margin-bottom: 14px;
+  }
+  @media (max-width: 640px) {
+    .cr-rec {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 6px;
+    }
+    .cr-dot {
+      display: none;
+    }
+    .cr-verify {
+      min-height: 44px;
+    }
   }
   .cr-path {
     grid-column: 1 / span 7;
+    align-self: start;
     list-style: none;
     margin: 0;
     padding: 0;

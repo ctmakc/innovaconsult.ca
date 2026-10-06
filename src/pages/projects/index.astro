@@ -59,7 +59,7 @@ const itemList = {
     </div>
   </section>
 
-  <section class="section" aria-labelledby="pr-list-h">
+  <section class="section pr-list" aria-labelledby="pr-list-h">
     <div class="wrap">
       <h2 id="pr-list-h" class="sr-only">All projects</h2>
       <div class="rows">
@@ -80,13 +80,15 @@ const itemList = {
                     {p.name}
                   </h2>
                   {p.tagline && <p class="prow-tag">{p.tagline}</p>}
-                </div>
-                <div>
                   {shot && (
                     <span class="prow-shot" aria-hidden="true">
-                      <img src={shot.src800} width="800" height={Math.round((800 * shot.h) / shot.w)} alt="" loading="lazy" decoding="async" />
+                      <span class="prow-win">
+                        <img src={shot.src800} width="800" height={Math.round((800 * shot.h) / shot.w)} alt="" loading="lazy" decoding="async" />
+                      </span>
                     </span>
                   )}
+                </div>
+                <div>
                   <p id={`${p.slug}-d`} class="body">
                     {p.summary}
                   </p>
@@ -131,6 +133,11 @@ const itemList = {
 </BaseLayout>
 
 <style>
+  /* The rows carry their own top rule; the board section above already gives the space. */
+  .section.pr-list {
+    border-top: 0;
+    padding-top: 0;
+  }
   .prow-code {
     color: var(--lichen);
     margin: 0 0 8px;
@@ -153,39 +160,42 @@ const itemList = {
     gap: 12px;
   }
 
-  /* Screenshot plate: pinned over columns 10–12, opens on hover or keyboard focus. */
+  /* Screenshot: a dimmed window on the plate under the subtitle; it brightens and leans in on hover or focus. */
   .prow-shot {
-    position: absolute;
-    z-index: 2;
-    right: 0;
-    top: clamp(22px, 2.4vw, 34px);
-    width: min(320px, 25%);
-    aspect-ratio: 16 / 10;
+    display: block;
+    width: 100%;
+    max-width: 360px;
+    margin-top: 20px;
+    padding: 10px;
     background: var(--plate);
-    border: 1px solid var(--rule-strong);
-    overflow: hidden;
-    pointer-events: none;
-    clip-path: inset(100% 0 0 0);
-    transition: clip-path 320ms cubic-bezier(0.16, 1, 0.3, 1);
+    border: 1px solid var(--rule);
+    transition: border-color var(--t-micro) var(--ease-out);
   }
-  .prow-shot img {
+  .prow-win {
+    display: block;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+  }
+  .prow-win img {
+    display: block;
     width: 100%;
     height: 100%;
     object-fit: cover;
     object-position: top center;
+    filter: brightness(0.9) saturate(0.95);
+    transform-origin: top center;
+    transition:
+      transform 300ms cubic-bezier(0.16, 1, 0.3, 1),
+      filter 300ms cubic-bezier(0.16, 1, 0.3, 1);
   }
-  a.prow.has-shot:hover .prow-shot,
-  a.prow.has-shot:focus-visible .prow-shot {
-    clip-path: inset(0 0 0 0);
+  a.prow:hover .prow-shot,
+  a.prow:focus-visible .prow-shot {
+    border-color: var(--rule-strong);
   }
-  a.prow.has-shot:hover::after,
-  a.prow.has-shot:focus-visible::after {
-    opacity: 0;
-  }
-  @media (hover: none) {
-    .prow-shot {
-      display: none;
-    }
+  a.prow:hover .prow-win img,
+  a.prow:focus-visible .prow-win img {
+    filter: none;
+    transform: scale(1.03);
   }
 
   .pr-legend {
@@ -207,17 +217,8 @@ const itemList = {
     color: var(--lichen);
   }
   @media (max-width: 860px) {
-    /* Phone: the screenshot sits inline under the title as a 16:9 thumbnail. */
-    .prow-shot,
-    a.prow.has-shot:hover .prow-shot {
-      display: block;
-      position: static;
-      width: 100%;
-      aspect-ratio: 16 / 9;
-      clip-path: none;
-      transition: none;
-      margin: 4px 0 16px;
-      border-color: var(--rule);
+    .prow-shot {
+      margin: 16px 0 4px;
     }
     .legend {
       grid-column: 1 / -1 !important;

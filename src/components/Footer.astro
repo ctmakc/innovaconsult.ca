@@ -31,9 +31,9 @@ const STATIONS = [69, 228, 405, 581, 743, 909];
       <div>
         <p class="ftr-h">Capabilities</p>
         <ul>
-          <li><a class="ulink" href="/ai-transformation">AI Transformation</a></li>
-          <li><a class="ulink" href="/software">Software &amp; Products</a></li>
           <li><a class="ulink" href="/innovation">Innovation &amp; R&amp;D</a></li>
+          <li><a class="ulink" href="/software">Software &amp; Products</a></li>
+          <li><a class="ulink" href="/ai-transformation">AI Transformation</a></li>
         </ul>
       </div>
       <div>
@@ -60,6 +60,11 @@ const STATIONS = [69, 228, 405, 581, 743, 909];
     <div class="ftr-word" aria-hidden="true">
       <svg class="ftr-big" viewBox="0 0 1000 176" preserveAspectRatio="xMidYMax meet">
         <text x="0" y="168" textLength="1000" lengthAdjust="spacingAndGlyphs">INNOVA</text>
+      </svg>
+      <!-- Phones: a taller cut of the same wordmark (narrowest width axis, larger size, same letter centres)
+           that runs edge to edge, so it still reads as the footer's signature at 390px. -->
+      <svg class="ftr-big ftr-big--m" viewBox="0 0 1000 224" preserveAspectRatio="xMidYMax meet">
+        <text x="0" y="216" textLength="1000" lengthAdjust="spacingAndGlyphs">INNOVA</text>
       </svg>
       <span class="ftr-line">
         {STAGES.map((_, i) => <i style={`left:${STATIONS[i] / 10}%`}></i>)}
@@ -159,6 +164,9 @@ const STATIONS = [69, 228, 405, 581, 743, 909];
     height: auto;
     overflow: visible;
   }
+  .ftr-big--m {
+    display: none;
+  }
   .ftr-big text {
     font-family: var(--font-display);
     font-weight: 600;
@@ -228,6 +236,23 @@ const STATIONS = [69, 228, 405, 581, 743, 909];
     }
   }
   @media (max-width: 560px) {
+    .ftr-word {
+      margin-inline: calc(-1 * var(--gutter));
+    }
+    .ftr-big {
+      display: none;
+    }
+    .ftr-big--m {
+      display: block;
+    }
+    .ftr-big--m text {
+      font-stretch: 100%;
+      font-weight: 700;
+      font-size: 290px;
+    }
+    .ftr-line {
+      top: calc(216 / 224 * 100%);
+    }
     .ftr-record {
       grid-column: 1 / -1;
     }

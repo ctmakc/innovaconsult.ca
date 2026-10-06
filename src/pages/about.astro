@@ -8,12 +8,21 @@ const REC = SITE as typeof SITE & { ncage?: string; duns?: string };
 
 const why = ['How companies operate', 'Economics', 'Processes', 'Regulation', 'Users', 'Implementation', 'Commercialization'];
 
+// The incorporation year sits on its own station; the products on the later stations date from 2026.
 const evolution: { label: string; year?: string }[] = [
   { label: 'Business operations', year: SITE.experienceSince },
   { label: 'Digital systems' },
+  { label: SITE.legalName, year: `${SITE.incorporated} · incorporated` },
   { label: 'Software' },
   { label: 'Applied AI' },
-  { label: 'Applied innovation', year: `${SITE.incorporated} · incorporated` }
+  { label: 'Applied innovation', year: 'now' }
+];
+
+const founderRecord = [
+  'Founder & director',
+  `Business practice since ${SITE.experienceSince}`,
+  `Incorporated ${SITE.legalName} ${SITE.incorporated}`,
+  'MA, Economic Theory (honours)'
 ];
 
 // Owner law (external-links-hidden): outside links render without <a href>; the address sits base64-encoded in a data attribute.
@@ -72,7 +81,7 @@ const jsonLd = [
           That work moved step by step from business operations to digital systems, to software products, to applied AI. {SITE.legalName} was incorporated federally in {SITE.incorporated} and is based in Ottawa, where it now focuses on applied innovation: building its own products and preparing joint projects with Canadian organizations.
         </p>
       </div>
-      <ol class="evo" data-draw aria-label="How the work evolved">
+      <ol class="evo" data-draw aria-label="How the work evolved" style={`--n:${evolution.length}`}>
         {
           evolution.map((s, i, a) => (
             <li class:list={['evo-st', { now: i === a.length - 1 }]} style={`--i:${i}`}>
@@ -106,16 +115,20 @@ const jsonLd = [
   <section class="section" id="founder" aria-labelledby="founder-h">
     <div class="wrap grid12">
       <div class="ab-l">
-        <h2 id="founder-h" class="d-l">Founder.</h2>
+        <div class="fd-pin">
+          <h2 id="founder-h" class="d-l">Founder.</h2>
+          <ul class="fd-rec" aria-label="Founder record">
+            {founderRecord.map((r) => <li>{r}</li>)}
+          </ul>
+        </div>
       </div>
       <div class="ab-r">
         <p class="fd-name">Maksym Stepanenko</p>
-        <p class="mono fd-role">Founder and Director</p>
         <p class="body fd-bio">
           Since {SITE.experienceSince} Maksym has helped thousands of small and mid-sized businesses in more than 50 countries grow and protect themselves through strategy, legal structure, tax and marketing. In recent years he has brought applied AI into those businesses and into INNOVA’s own products. He incorporated {SITE.legalName} in Ottawa in {SITE.incorporated}. Master’s degree in Economic Theory, with honours.
         </p>
         <p class="fd-staff">
-          INNOVA is founder-led. Engineering, security review and domain specialists join each project as contractors and partner firms, named in the proposal before work starts.
+          INNOVA is founder-led. For funded and client projects, engineering, security review and domain specialists are brought in as named subcontractors or partner firms, listed in the proposal before work starts.
         </p>
       </div>
     </div>
@@ -217,7 +230,6 @@ const jsonLd = [
 
   /* Evolution: one line, five stations, the last one is now */
   .evo {
-    --n: 5;
     grid-column: 1 / -1;
     list-style: none;
     margin: clamp(48px, 5vw, 80px) 0 0;
@@ -311,7 +323,29 @@ const jsonLd = [
     color: var(--signal);
   }
 
-  /* Founder */
+  /* Founder: the left column carries a pinned record, the right column the bio */
+  .fd-pin {
+    position: sticky;
+    top: 120px;
+  }
+  .fd-rec {
+    list-style: none;
+    margin: clamp(28px, 3vw, 40px) 0 0;
+    padding: 0;
+    max-width: 380px;
+    border-bottom: 1px solid var(--rule);
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    line-height: 1.45;
+    color: var(--frost);
+  }
+  .fd-rec li {
+    padding: 11px 0;
+    border-top: 1px solid var(--rule);
+  }
+  .fd-rec li:first-child {
+    border-top-color: var(--rule-strong);
+  }
   .fd-name {
     margin: 0;
     font-family: var(--font-display);
@@ -320,10 +354,6 @@ const jsonLd = [
     font-size: clamp(1.6rem, 1.2rem + 1.2vw, 2.4rem);
     line-height: 1.02;
     letter-spacing: -0.024em;
-  }
-  .fd-role {
-    margin: 10px 0 0;
-    color: var(--lichen);
   }
   .fd-bio {
     margin: 22px 0 0;
@@ -391,6 +421,9 @@ const jsonLd = [
     }
     .ab-r {
       margin-top: 24px;
+    }
+    .fd-pin {
+      position: static;
     }
     .rec > div {
       grid-template-columns: 1fr;

@@ -26,9 +26,9 @@ export const NAV = [
     label: 'Capabilities',
     children: [
       { href: '/capabilities', label: 'All capabilities' },
-      { href: '/ai-transformation', label: 'AI Transformation' },
+      { href: '/innovation', label: 'Innovation & R&D' },
       { href: '/software', label: 'Software & Products' },
-      { href: '/innovation', label: 'Innovation & R&D' }
+      { href: '/ai-transformation', label: 'AI Transformation' }
     ]
   },
   { href: '/workflow-os', label: 'Workflow OS' },
