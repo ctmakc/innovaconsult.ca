@@ -3,14 +3,41 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHead from '../components/PageHead.astro';
 import StageTrack from '../components/StageTrack.astro';
 import { PARTNERSHIP_MODELS } from '../data/partnerships';
+import { SITE } from '../data/site';
 
-const audiences = ['Founders', 'Research groups', 'Technical teams', 'Foreign technology companies', 'Canadian companies', 'Public organizations'];
+const audiences = ['Founders', 'Research groups', 'Technical teams', 'International technology companies entering Canada', 'Canadian companies', 'Public organizations'];
+
+// A real sequence, so it is numbered.
+const steps = [
+  'Tell us in writing what you bring and what you need.',
+  'If there is a fit, we send a one-page scope: the question, what each side brings, the first milestone and a stop condition.',
+  'IP, confidentiality and publication terms are agreed in writing before any work starts.',
+  'First bounded stage, for example a prototype or a feasibility answer, then a joint decision on the next one.'
+];
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    '@id': `${SITE.url}/partnerships#page`,
+    url: `${SITE.url}/partnerships`,
+    name: 'Innovation partnerships with INNOVA',
+    inLanguage: 'en-CA',
+    isPartOf: { '@id': `${SITE.url}/#website` },
+    about: { '@id': `${SITE.url}/#org` }
+  }
+];
 ---
 
 <BaseLayout
-  title="Partnerships — co-development, applied R&D, pilots | INNOVA, Ottawa"
-  description="Partner with INNOVA on co-development, applied R&D, commercialization, technology integration, pilot deployments, Canadian market collaboration and joint innovation funding applications."
+  title="Innovation Partnerships & Joint R&D in Canada | INNOVA"
+  description="Eight ways to partner with INNOVA: co-development, applied R&D, commercialization, integration, pilots, Canadian adaptation and joint funding applications."
   path="/partnerships"
+  jsonLd={jsonLd}
+  breadcrumbs={[
+    { name: 'Home', path: '/' },
+    { name: 'Partnerships', path: '/partnerships' }
+  ]}
 >
   <PageHead
     crumb="Partnerships"
@@ -22,11 +49,20 @@ const audiences = ['Founders', 'Research groups', 'Technical teams', 'Foreign te
     </div>
   </PageHead>
 
+  <section class="brief" aria-labelledby="brief-h">
+    <div class="wrap grid12">
+      <h2 id="brief-h" class="mono brief-h">In brief</h2>
+      <p class="brief-p">
+        INNOVA joins Canadian innovation projects as the software and AI partner: co-development, applied R&amp;D, pilots and consortium funding applications. Partners bring domain expertise, data, users or technology. INNOVA brings product design, engineering and AI.
+      </p>
+    </div>
+  </section>
+
   <section class="section" id="models">
     <div class="wrap">
       <div class="grid12 sec-head">
         <div class="sh-l"><h2 class="d-l">Eight ways to work together.</h2></div>
-        <p class="body sh-r">Most real projects combine two of them, for example applied R&amp;D followed by a pilot.</p>
+        <p class="body sh-r">A project often combines two of them, for example applied R&amp;D followed by a pilot.</p>
       </div>
       <div class="rows">
         {
@@ -35,6 +71,11 @@ const audiences = ['Founders', 'Research groups', 'Technical teams', 'Foreign te
               <div>
                 <h3 class="d-m">{m.name}</h3>
                 <p class="body pm-line">{m.line}</p>
+                {m.example && (
+                  <p class="pm-exw">
+                    <a class="pm-ex" href={m.example.href}>{m.example.label}<span class="pm-arr" aria-hidden="true">→</span></a>
+                  </p>
+                )}
               </div>
               <dl class="pm-dl">
                 <div>
@@ -54,12 +95,36 @@ const audiences = ['Founders', 'Research groups', 'Technical teams', 'Foreign te
     </div>
   </section>
 
+  <section class="section" id="start" aria-labelledby="start-h">
+    <div class="wrap grid12">
+      <div class="st-l">
+        <h2 id="start-h" class="d-l">How a partnership starts.</h2>
+        <p class="body st-p">Four steps, from the first message to the first shared result.</p>
+      </div>
+      <ol class="steps">
+        {
+          steps.map((s, i) => (
+            <li>
+              <span class="mono st-n" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+              <p>{s}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
   <section class="section">
     <div class="wrap grid12">
       <div class="au-l">
         <h2 class="d-l">Who we partner with.</h2>
         <p class="body au-p">
-          INNOVA is based in Ottawa and works with partners in Canada and abroad. We are glad to join consortium applications to Canadian innovation programs as the software and AI partner.
+          INNOVA is based in Ottawa and is open to partners in Canada and abroad. We are glad to join consortium applications to Canadian innovation programs as the software and AI partner.
+        </p>
+        <p class="body au-p2">Eligibility rules differ by program. We check them for INNOVA before we commit to an application.</p>
+        <p class="body au-p2">
+          How INNOVA runs research questions, prototypes and commercialization is on the
+          <a class="ulink au-a" href="/innovation">Innovation &amp; R&amp;D</a> page.
         </p>
       </div>
       <ul class="au">{audiences.map((a) => <li>{a}</li>)}</ul>
@@ -71,8 +136,58 @@ const audiences = ['Founders', 'Research groups', 'Technical teams', 'Foreign te
   .pa-aside {
     margin-top: 26px;
   }
+
+  .brief {
+    padding-block: clamp(28px, 3vw, 44px);
+    border-bottom: 1px solid var(--rule);
+    background: var(--plate);
+  }
+  .brief .grid12 {
+    align-items: baseline;
+    row-gap: 10px;
+  }
+  .brief-h {
+    grid-column: 1 / span 4;
+    margin: 0;
+    color: var(--lichen);
+    font-weight: 400;
+  }
+  .brief-p {
+    grid-column: 5 / span 8;
+    margin: 0;
+    max-width: 64ch;
+    color: var(--frost);
+    text-wrap: pretty;
+  }
+
   .pm-line {
     margin-top: 10px;
+  }
+  .pm-exw {
+    margin: 12px 0 0;
+    font-size: 0.92rem;
+    line-height: 1.45;
+    max-width: 40ch;
+    text-wrap: balance;
+  }
+  .pm-ex {
+    line-height: 1.45;
+    color: var(--frost);
+    text-decoration: underline;
+    text-decoration-color: var(--rule-strong);
+    text-underline-offset: 4px;
+    transition: text-decoration-color var(--t-micro) var(--ease-out);
+  }
+  .pm-ex:hover {
+    text-decoration-color: currentColor;
+  }
+  .pm-arr {
+    display: inline-block;
+    margin-left: 6px;
+    transition: transform var(--t-micro) var(--ease-out);
+  }
+  .pm-ex:hover .pm-arr {
+    transform: translateX(4px);
   }
   .pm-dl {
     margin: 0;
@@ -86,11 +201,51 @@ const audiences = ['Founders', 'Research groups', 'Technical teams', 'Foreign te
   .pm-dl dd {
     margin: 0;
   }
+
+  .st-l {
+    grid-column: 1 / span 5;
+  }
+  .st-p {
+    margin-top: 20px;
+  }
+  .steps {
+    grid-column: 7 / span 6;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .steps li {
+    display: grid;
+    grid-template-columns: 56px minmax(0, 1fr);
+    gap: 16px;
+    padding: 20px 0;
+    border-top: 1px solid var(--rule);
+  }
+  .st-n {
+    color: var(--lichen);
+    padding-top: 0.35em;
+  }
+  .steps p {
+    margin: 0;
+    max-width: 52ch;
+  }
+
   .au-l {
     grid-column: 1 / span 6;
   }
   .au-p {
     margin-top: 20px;
+  }
+  .au-p2 {
+    margin-top: 14px;
+  }
+  .au-a {
+    color: var(--frost);
+    background-size: 100% 1px;
+  }
+  .au-a:hover {
+    color: var(--signal);
   }
   .au {
     grid-column: 8 / span 5;
@@ -106,14 +261,27 @@ const audiences = ['Founders', 'Research groups', 'Technical teams', 'Foreign te
     font-stretch: 108%;
     font-size: clamp(1.1rem, 1rem + 0.4vw, 1.4rem);
     letter-spacing: -0.015em;
+    line-height: 1.25;
+    text-wrap: balance;
   }
   @media (max-width: 980px) {
     .au-l,
-    .au {
+    .au,
+    .st-l,
+    .steps,
+    .brief-h,
+    .brief-p {
       grid-column: 1 / -1;
     }
-    .au {
+    .au,
+    .steps {
       margin-top: 28px;
+    }
+  }
+  @media (max-width: 600px) {
+    .steps li {
+      grid-template-columns: 40px minmax(0, 1fr);
+      gap: 10px;
     }
   }
 </style>

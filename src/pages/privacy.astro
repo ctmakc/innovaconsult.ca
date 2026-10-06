@@ -1,0 +1,146 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHead from '../components/PageHead.astro';
+import { SITE } from '../data/site';
+
+// Every line below describes what the code does: src/pages/contact.astro (form), functions/api/contact.js (delivery),
+// src/layouts/BaseLayout.astro (no analytics, no third-party scripts), public/fonts (self-hosted fonts).
+const items: { h: string; body: string[] }[] = [
+  {
+    h: 'What the contact form collects',
+    body: [
+      'Your name, your organization if you give one, your email address, the topic you choose and your message.',
+      'With them the form sends the address of the page you sent it from. Our hosting network adds the country your connection comes from.',
+      'The form also measures how long the page was open before you pressed send. That number is used only to filter automated spam and is left out of the message we receive.'
+    ]
+  },
+  {
+    h: 'Why',
+    body: ['To read your message and reply to you. Your email address is set as the reply address, so our answer goes straight to you.']
+  },
+  {
+    h: 'Where it goes',
+    body: [
+      'The form sends one email to INNOVA through an email delivery provider. The website itself keeps no database of messages.'
+    ]
+  },
+  {
+    h: 'Cookies and analytics',
+    body: ['The site’s own code sets no cookies and loads no analytics or advertising scripts. Fonts are served from this website.']
+  },
+  {
+    h: 'Your requests',
+    body: [`To ask what we hold about you, or to have your messages deleted, write to ${SITE.email}.`]
+  },
+  {
+    h: 'Who is responsible',
+    body: [`${SITE.legalName}, federal corporation ${SITE.corporationNumber}, ${SITE.city}, ${SITE.region}, ${SITE.country}.`]
+  }
+];
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    '@id': `${SITE.url}/privacy#page`,
+    url: `${SITE.url}/privacy`,
+    name: 'Privacy',
+    inLanguage: 'en-CA',
+    isPartOf: { '@id': `${SITE.url}/#website` },
+    publisher: { '@id': `${SITE.url}/#org` }
+  }
+];
+---
+
+<BaseLayout
+  title="Privacy | INNOVA"
+  description="What the innovaconsult.ca contact form collects, why INNOVA uses it, where it goes and how to ask for your messages to be deleted."
+  path="/privacy"
+  jsonLd={jsonLd}
+  footerCta={false}
+  breadcrumbs={[
+    { name: 'Home', path: '/' },
+    { name: 'Privacy', path: '/privacy' }
+  ]}
+>
+  <PageHead crumb="Privacy" title="Privacy." lede="What this website collects when you write to us, and what happens to it." />
+
+  <section class="section">
+    <div class="wrap grid12">
+      <dl class="pv">
+        {
+          items.map((it) => (
+            <div class="pv-row">
+              <dt class="pv-h">{it.h}</dt>
+              <dd>
+                {it.body.map((b) =>
+                  b.includes(SITE.email) ? (
+                    <p>{b.split(SITE.email)[0]}<a class="ulink pv-a" href={`mailto:${SITE.email}`}>{SITE.email}</a>{b.split(SITE.email)[1]}</p>
+                  ) : (
+                    <p>{b}</p>
+                  )
+                )}
+              </dd>
+            </div>
+          ))
+        }
+      </dl>
+      <p class="mono pv-date">Updated October 2026</p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .pv {
+    grid-column: 1 / span 10;
+    margin: 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .pv-row {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    column-gap: clamp(16px, 2vw, 32px);
+    padding-block: clamp(20px, 2.2vw, 30px);
+    border-top: 1px solid var(--rule);
+  }
+  .pv-h {
+    font-family: var(--font-display);
+    font-stretch: 108%;
+    font-weight: 520;
+    font-size: clamp(1.15rem, 1rem + 0.5vw, 1.45rem);
+    line-height: 1.15;
+    letter-spacing: -0.016em;
+    text-wrap: balance;
+  }
+  .pv dd {
+    margin: 0;
+  }
+  .pv dd p {
+    margin: 0;
+    color: var(--lichen);
+    max-width: 62ch;
+  }
+  .pv dd p + p {
+    margin-top: 12px;
+  }
+  .pv-a {
+    color: var(--frost);
+    background-size: 100% 1px;
+  }
+  .pv-date {
+    grid-column: 1 / -1;
+    margin: 22px 0 0;
+    color: var(--lichen);
+  }
+  @media (max-width: 980px) {
+    .pv {
+      grid-column: 1 / -1;
+    }
+  }
+  @media (max-width: 760px) {
+    .pv-row {
+      grid-template-columns: 1fr;
+      row-gap: 10px;
+    }
+  }
+</style>

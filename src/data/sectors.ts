@@ -3,7 +3,7 @@ export type Engagement = 'building' | 'researching' | 'exploring';
 export const ENGAGEMENT_LABEL: Record<Engagement, string> = {
   building: 'Building',
   researching: 'Researching',
-  exploring: 'Exploring with partners'
+  exploring: 'Exploring'
 };
 
 export interface Sector {
@@ -17,13 +17,13 @@ export const SECTORS: Sector[] = [
   {
     name: 'AI & agentic systems',
     engagement: 'building',
-    line: 'Agents that work inside business records under human approval, with every action logged and reversible.',
-    evidence: 'AICRMIUS, Workflow OS, FinMozg'
+    line: 'Agents that work inside business records under human approval, with each action logged for review.',
+    evidence: 'AICRMIUS, Workflow OS, FINMOZG'
   },
   {
-    name: 'Enterprise software',
+    name: 'Business software',
     engagement: 'building',
-    line: 'Operations back offices, registers and portals that replace spreadsheets and inbox workflows.',
+    line: 'Back offices, registers and portals that replace spreadsheets and inbox workflows.',
     evidence: 'UAFest ecosystem'
   },
   {
@@ -33,15 +33,16 @@ export const SECTORS: Sector[] = [
     evidence: 'FoundWall, UAFest'
   },
   {
+    name: 'Data & knowledge systems',
+    engagement: 'building',
+    line: 'Turning mailboxes, documents and operating history into searchable, auditable records.',
+    evidence: 'UAFest mail archive, AICRMIUS knowledge base'
+  },
+  {
     name: 'AgriTech',
     engagement: 'researching',
     line: 'Records and reporting for mixed fleets of agricultural robots, built for dealers and growers.',
     evidence: 'OpenField'
-  },
-  {
-    name: 'Data & knowledge systems',
-    engagement: 'researching',
-    line: 'Turning documents, registers and operational history into searchable, auditable knowledge.'
   },
   {
     name: 'HealthTech & PharmaTech',
@@ -56,6 +57,6 @@ export const SECTORS: Sector[] = [
   {
     name: 'Dual-use technology',
     engagement: 'exploring',
-    line: 'Software and AI for defence-adjacent programs, scoped with Canadian and allied partners.'
+    line: 'Software and AI for defence-adjacent programs, at the research and proposal stage.'
   }
 ];

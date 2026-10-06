@@ -1,31 +1,125 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHead from '../components/PageHead.astro';
+import StageTrack from '../components/StageTrack.astro';
+import { STAGES, type Span } from '../data/stages';
 
-const steps = [
-  ['Process discovery', 'We map departments, roles, systems, documents and the processes that connect them, with volumes and pain points.'],
-  ['Opportunity mapping', 'Each process is scored on time spent, volume, repetition, errors, delays, cost, risk, data readiness and integration effort.'],
-  ['Prioritization', 'We rank opportunities by value and feasibility and agree on the first two or three to act on.'],
-  ['Solution architecture', 'For each chosen process we pick the simplest approach that works, from deterministic software to supervised agents.'],
-  ['Implementation', 'We build, integrate and test inside the tools your team already uses.'],
-  ['Governance', 'Approvals, permissions, audit trails and data controls are designed in from the first sprint.'],
-  ['Measurement', 'We compare cycle time, cost, error rate and adoption against the baseline taken during discovery.']
+// Seven method steps, each mapped to the master stage line and to the Workflow OS module that carries it.
+const steps: { t: string; d: string; stage: number; module: [number, string] }[] = [
+  {
+    t: 'Process discovery',
+    d: 'We map departments, roles, systems, documents and the processes that connect them, with volumes and pain points.',
+    stage: 0,
+    module: [1, 'Process discovery']
+  },
+  {
+    t: 'Opportunity mapping',
+    d: 'Each process is scored for value, feasibility and strategic fit, minus a risk penalty. Every score shows the reasons behind it.',
+    stage: 0,
+    module: [2, 'Automation opportunity map']
+  },
+  {
+    t: 'Prioritization',
+    d: 'We rank opportunities by value and feasibility and agree on the first two or three to act on.',
+    stage: 0,
+    module: [2, 'Automation opportunity map']
+  },
+  {
+    t: 'Solution architecture',
+    d: 'For each chosen process we pick the simplest approach that works, from deterministic software to supervised agents.',
+    stage: 1,
+    module: [3, 'Automation designer']
+  },
+  {
+    t: 'Implementation',
+    d: 'We build, integrate and test inside the tools your team already uses.',
+    stage: 3,
+    module: [4, 'Implementation workspace']
+  },
+  {
+    t: 'Governance',
+    d: 'Approvals, permissions, audit trails and data controls are designed in from the first sprint.',
+    stage: 4,
+    module: [4, 'Implementation workspace']
+  },
+  {
+    t: 'Measurement',
+    d: 'We compare cycle time, cost, error rate and adoption against the baseline taken during discovery.',
+    stage: 5,
+    module: [5, 'Impact & ROI']
+  }
 ];
-const approaches = [
-  ['Deterministic software', 'Rules are clear and stable. Plain code is cheaper, faster and fully predictable.'],
-  ['Conventional automation', 'Data moves between known systems on known triggers.'],
-  ['AI assistant', 'People stay in charge; AI drafts, summarizes and looks things up.'],
-  ['AI agent', 'A bounded task with tools, permissions and a person who approves the result.'],
-  ['Multi-agent workflow', 'Several specialised agents hand work to each other under one supervisor.'],
-  ['Human-in-the-loop system', 'High-stakes steps always pass through a named person before they take effect.']
+
+const approaches: { t: string; d: string; ex?: { name: string; href: string } }[] = [
+  { t: 'Deterministic software', d: 'Rules are clear and stable. Plain code is cheaper, faster and fully predictable.' },
+  { t: 'Conventional automation', d: 'Data moves between known systems on known triggers.' },
+  { t: 'AI assistant', d: 'People stay in charge; AI drafts, summarizes and looks things up.' },
+  {
+    t: 'AI agent',
+    d: 'A bounded task with tools, permissions and a person who approves the result.',
+    ex: { name: 'AICRMIUS', href: '/projects/aicrmius' }
+  },
+  {
+    t: 'Multi-agent workflow',
+    d: 'Several specialized agents hand work to each other under one supervisor.',
+    ex: { name: 'FINMOZG', href: '/projects/finmozg' }
+  },
+  {
+    t: 'Human-in-the-loop system',
+    d: 'High-stakes steps always pass through a named person before they take effect.',
+    ex: { name: 'AICRMIUS', href: '/projects/aicrmius' }
+  }
 ];
+
+const engagement: { t: string; d: string; span: Span }[] = [
+  {
+    t: 'Opportunity assessment',
+    d: 'Fixed scope. You get a process inventory, a scored opportunity register, technology options for each process, a privacy and security constraint map and a sequenced roadmap.',
+    span: [0, 1]
+  },
+  {
+    t: 'Proof of concept on your historical data',
+    d: 'About three weeks. It answers the feasibility question before any build budget is committed.',
+    span: [1, 2]
+  },
+  {
+    t: 'Single-process pilot',
+    d: 'About 12 to 15 weeks from discovery to a supported production process. Measured results arrive 4 to 6 weeks after go-live.',
+    span: [2, 4]
+  },
+  {
+    t: 'Support',
+    d: 'Monthly monitoring, fixes, model-version regression tests and small improvements.',
+    span: [4, 5]
+  }
+];
+
+const security = [
+  [
+    'Where your data lives',
+    'By default we build inside your own cloud tenant, for example Microsoft 365 and Azure in Canada Central or Canada East, under your licences. Data, backups and logs stay in your environment, and INNOVA keeps no copy. If a service you need runs only outside Canada, we say so at design stage. Data leaves Canada only with your written approval.'
+  ],
+  ['Access', 'We work under accounts you issue, time-limited and least-privilege, and you revoke them when the engagement ends.'],
+  ['Models', 'Your data is never used to train or fine-tune a model. Model versions are pinned, and a version change is retested before it goes live.'],
+  ['Documents are data', 'Instructions hidden in a document are treated as text. Agent tools are allow-listed step by step.'],
+  ['Human approval', 'Any action that changes a record or affects a person passes a named approver, and every step is logged.'],
+  ['Privacy review', 'Where personal information is involved, a privacy impact assessment is planned into the pilot from the start.']
+];
+
 const outcomes = ['Shorter cycle time', 'Fewer repetitive tasks', 'Lower operating cost', 'Faster response to clients', 'Visibility into every process', 'Better-informed decisions', 'Fewer manual errors'];
+
 ---
 
 <BaseLayout
-  title="AI Transformation — process-first applied AI | INNOVA, Ottawa"
-  description="INNOVA's AI transformation method: map how work happens, score where automation pays, choose the simplest architecture that works, implement with governance, and measure the result."
+  title="AI Transformation & Automation in Ottawa | INNOVA"
+  description="Process-first AI transformation: INNOVA maps how work happens, scores where automation pays, builds the simplest fit with governance and measures results."
   path="/ai-transformation"
+  breadcrumbs={[
+    { name: 'Home', path: '/' },
+    { name: 'Capabilities', path: '/capabilities' },
+    { name: 'AI Transformation', path: '/ai-transformation' }
+  ]}
+  footerCta={false}
 >
   <PageHead
     crumb="AI Transformation"
@@ -33,23 +127,43 @@ const outcomes = ['Shorter cycle time', 'Fewer repetitive tasks', 'Lower operati
     lede="Companies often add AI tools one at a time, with no map of the processes underneath. We start from that map, so every automation has an owner, a reason and a number to beat."
   />
 
-  <section class="section">
+  <section class="brief" aria-labelledby="brief-h">
+    <div class="wrap grid12">
+      <p class="brief-l" id="brief-h">In brief</p>
+      <p class="brief-t">
+        INNOVA is an Ottawa company that plans and builds AI automation for organizations in Canada. Work starts with a map of real processes and
+        a measured baseline. Each process then gets the simplest approach that fits, from plain software to a supervised AI agent, with approvals
+        and audit trails built in, and results are reported against that baseline.
+      </p>
+    </div>
+  </section>
+
+  <section class="section" id="method">
     <div class="wrap">
       <div class="grid12 sec-head">
         <div class="sh-l"><h2 class="d-l">Seven steps, one baseline.</h2></div>
         <p class="body sh-r">The baseline measured in step one is the number we report against in step seven.</p>
       </div>
-      <ol class="steps">
+      <ol class="ln ln-7" data-draw>
+        <span class="ln-base" aria-hidden="true"></span>
+        <span class="ln-rail" aria-hidden="true"></span>
         {
-          steps.map(([t, d], i) => (
-            <li>
-              <span class="mono steps-n">{String(i + 1).padStart(2, '0')}</span>
-              <h3 class="d-m">{t}</h3>
-              <p class="body">{d}</p>
+          steps.map((s, i) => (
+            <li class="ln-st" style={`--i:${i}`}>
+              <span class="ln-ring" aria-hidden="true" />
+              <span class="ln-n">{i + 1}</span>
+              <h3 class="ln-h">{s.t}</h3>
+              <p class="ln-d">{s.d}</p>
+              <p class="ln-meta">
+                {`${STAGES[s.stage].label} · Module ${s.module[0]}`}
+              </p>
             </li>
           ))
         }
       </ol>
+      <p class="ln-cap">
+        Stage names follow the INNOVA stage line. Modules are those of <a class="ulink" href="/workflow-os">INNOVA AI Workflow OS</a>: 1 Process discovery, 2 Automation opportunity map, 3 Automation designer, 4 Implementation workspace, 5 Impact &amp; ROI.
+      </p>
     </div>
   </section>
 
@@ -63,11 +177,21 @@ const outcomes = ['Shorter cycle time', 'Fewer repetitive tasks', 'Lower operati
       </div>
       <div class="ap">
         {
-          approaches.map(([t, d], i) => (
+          approaches.map((a, i) => (
             <div class="ap-row">
-              <span class="ap-scale" aria-hidden="true" style={`--k:${i}`}><i /></span>
-              <h3 class="ap-t">{t}</h3>
-              <p class="body">{d}</p>
+              <span class="ap-scale" aria-hidden="true" style={`--k:${i}`}>
+                <i />
+              </span>
+              <h3 class="ap-t">{a.t}</h3>
+              <p class="body">{a.d}</p>
+              <p class="ap-ex">
+                {a.ex && (
+                  <a class="arrow-link" href={a.ex.href}>
+                    <span>{a.ex.name}</span>
+                    <span aria-hidden="true">→</span>
+                  </a>
+                )}
+              </p>
             </div>
           ))
         }
@@ -76,45 +200,286 @@ const outcomes = ['Shorter cycle time', 'Fewer repetitive tasks', 'Lower operati
     </div>
   </section>
 
+  <section class="section" id="agents">
+    <div class="wrap grid12">
+      <div class="ag-l"><h2 class="d-l">How we build AI agents</h2></div>
+      <div class="ag-r">
+        <p class="lede ag-lede">Each INNOVA agent gets a bounded task, named tools and permissions, and a person who approves its output.</p>
+        <p class="body">
+          In <a class="ulink ag-a" href="/projects/aicrmius">AICRMIUS</a>, agents follow one cycle: propose, validate, approve, apply, undo, with
+          every step in an audit trail. In <a class="ulink ag-a" href="/projects/finmozg">FINMOZG</a>, deterministic accounting engines keep the ledger
+          correct, and every posting lands in a hash-chained audit log.
+        </p>
+        <ol class="ag-cycle" aria-label="AICRMIUS agent cycle">
+          <li>Propose</li>
+          <li>Validate</li>
+          <li>Approve</li>
+          <li>Apply</li>
+          <li>Undo</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="engagement">
+    <div class="wrap">
+      <div class="grid12 sec-head">
+        <div class="sh-l"><h2 class="d-l">How an engagement starts</h2></div>
+        <p class="body sh-r">Four steps. Each one ends in a result you can review before the next one is agreed.</p>
+      </div>
+      <ol class="rows en-rows">
+        {
+          engagement.map((e, i) => (
+            <li class="row en-row">
+              <div>
+                <p class="en-n">Step {i + 1}</p>
+                <h3 class="d-m">{e.t}</h3>
+              </div>
+              <p class="body">{e.d}</p>
+              <StageTrack span={e.span} />
+            </li>
+          ))
+        }
+      </ol>
+      <p class="en-cav">Timelines are for one bounded process. Integration, the number of exceptions, privacy review depth and data readiness move them most.</p>
+
+      <div class="grid12 en-blocks">
+        <div class="en-b en-need">
+          <h3 class="d-m">What we need from you</h3>
+          <p class="body">
+            A process owner and two or three of the people who do the work, about 2 to 4 hours each during discovery; one 3-hour workshop; 4 to 8
+            hours of acceptance testing; real sample transactions, including the awkward ones; and a named person inside your company who owns the
+            automation.
+          </p>
+        </div>
+        <div class="en-b en-keep">
+          <h3 class="d-m">What you keep</h3>
+          <p class="body">Licences stay in your name and your tenant. You own the output.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="security">
+    <div class="wrap">
+      <div class="grid12 sec-head">
+        <div class="sh-l"><h2 class="d-l">Security and your data</h2></div>
+        <p class="body sh-r">How data, access and models are handled by default.</p>
+      </div>
+      <dl class="sec-rows">
+        {
+          security.map(([t, d]) => (
+            <div class="sec-row">
+              <dt class="d-m">{t}</dt>
+              <dd class="body">{d}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+  </section>
+
   <section class="section">
     <div class="wrap grid12">
       <div class="oc-l">
         <h2 class="d-l">What we measure.</h2>
         <p class="body oc-p">Outcomes are agreed before the build starts and reported against the discovery baseline.</p>
-        <a href="/workflow-os" class="btn btn-primary">See AI Workflow OS <span class="arr" aria-hidden="true">→</span></a>
+        <a href="/workflow-os" class="btn btn-ghost">See AI Workflow OS <span class="arr" aria-hidden="true">→</span></a>
       </div>
       <ul class="oc">{outcomes.map((o) => <li>{o}</li>)}</ul>
+    </div>
+  </section>
+
+  <section class="section cta">
+    <div class="wrap grid12">
+      <p class="d-l cta-h">Send us the process that takes the most hours.</p>
+      <div class="cta-r">
+        <p class="body">We reply in writing with whether and how we would start.</p>
+        <a href="/contact?topic=automation" class="btn btn-primary">Send a process <span class="arr" aria-hidden="true">→</span></a>
+      </div>
     </div>
   </section>
 </BaseLayout>
 
 <style>
-  .steps {
+  /* In brief */
+  .brief {
+    padding-block: clamp(36px, 4vw, 60px);
+    border-bottom: 1px solid var(--rule);
+  }
+  .brief-l {
+    grid-column: 1 / span 3;
+    margin: 0;
+    padding-top: 5px;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: var(--lichen);
+  }
+  .brief-t {
+    grid-column: 4 / span 7;
+    margin: 0;
+    max-width: 64ch;
+    color: var(--frost);
+    font-size: clamp(1.02rem, 0.96rem + 0.25vw, 1.15rem);
+    line-height: 1.6;
+  }
+
+  /* The line: 2px signal rail through 10px rings, last station filled. Vertical at ≤980. */
+  .ln {
+    --n: 7;
     list-style: none;
     margin: 0;
     padding: 0;
+    position: relative;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 0 clamp(20px, 3vw, 48px);
+    grid-template-columns: repeat(var(--n), minmax(0, 1fr));
   }
-  .steps li {
-    padding: 26px 0 30px;
-    border-top: 1px solid var(--rule);
+  .ln-base,
+  .ln-rail {
+    position: absolute;
+    top: 4px;
+    left: 5px;
+    right: calc(100% / var(--n) - 5px);
+    height: 2px;
   }
-  .steps-n {
-    color: var(--signal);
+  .ln-base {
+    background: var(--rule-strong);
+  }
+  .ln-rail {
+    background: var(--signal);
+    transform-origin: left center;
+  }
+  .ln-st {
+    position: relative;
+    padding: 30px clamp(14px, 1.6vw, 26px) 0 0;
+  }
+  .ln-ring {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid var(--signal);
+    background: var(--ground);
+  }
+  .ln-st:last-child .ln-ring {
+    background: var(--signal);
+  }
+  .ln-n {
     display: block;
-    margin-bottom: 14px;
+    margin-bottom: 10px;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--lichen);
   }
-  .steps h3 {
-    margin-bottom: 12px;
+  .ln-h {
+    margin: 0 0 10px;
+    font-family: var(--font-display);
+    font-stretch: 110%;
+    font-weight: 500;
+    font-size: clamp(1.1rem, 0.95rem + 0.4vw, 1.35rem);
+    letter-spacing: -0.015em;
+    line-height: 1.1;
   }
+  .ln-d {
+    margin: 0 0 14px;
+    color: var(--lichen);
+    font-size: 0.9375rem;
+    line-height: 1.55;
+  }
+  .ln-meta {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    line-height: 1.45;
+    color: var(--frost);
+  }
+  .ln-cap {
+    margin: 34px 0 0;
+    font-size: 0.9375rem;
+    color: var(--lichen);
+  }
+  .ln-cap a {
+    color: var(--frost);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .ln-rail {
+      transition: transform var(--t-draw) var(--ease-in-out);
+    }
+    .ln-ring {
+      transition: border-color 300ms var(--ease-out);
+      transition-delay: calc(var(--i) * 160ms + 160ms);
+    }
+    :global(.js) .ln:not(.is-in) .ln-rail {
+      transform: scaleX(0);
+    }
+    .ln-st:last-child .ln-ring {
+      transition-property: border-color, background-color;
+    }
+    :global(.js) .ln:not(.is-in) .ln-ring {
+      border-color: var(--rule-strong);
+      background: var(--ground);
+    }
+  }
+  @media (max-width: 980px) {
+    .ln {
+      grid-template-columns: 1fr;
+      padding-left: 36px;
+    }
+    /* Vertical: one segment per gap, ring centre to ring centre, so the line never floats free. */
+    .ln-base,
+    .ln-rail {
+      display: none;
+    }
+    .ln-st {
+      padding: 0 0 30px;
+    }
+    .ln-st:last-child {
+      padding-bottom: 0;
+    }
+    .ln-st:not(:last-child)::before,
+    .ln-st:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      left: -28px;
+      top: 9px;
+      bottom: -9px;
+      width: 2px;
+    }
+    .ln-st:not(:last-child)::before {
+      background: var(--rule-strong);
+    }
+    .ln-st:not(:last-child)::after {
+      background: var(--signal);
+      transform-origin: center top;
+    }
+    .ln-ring {
+      left: -32px;
+      top: 4px;
+      z-index: 1;
+    }
+    .ln-d {
+      max-width: 60ch;
+    }
+  }
+  @media (max-width: 980px) and (prefers-reduced-motion: no-preference) {
+    .ln-st::after {
+      transition: transform 420ms var(--ease-in-out);
+      transition-delay: calc(var(--i) * 160ms);
+    }
+    :global(.js) .ln:not(.is-in) .ln-st::after {
+      transform: scaleY(0);
+    }
+  }
+
+  /* Tool ladder */
   .ap {
     border-bottom: 1px solid var(--rule);
   }
   .ap-row {
     display: grid;
-    grid-template-columns: 120px minmax(0, 4fr) minmax(0, 6fr);
+    grid-template-columns: 120px minmax(0, 4fr) minmax(0, 5fr) minmax(0, 2fr);
     gap: clamp(16px, 2vw, 32px);
     align-items: center;
     padding: 20px 0;
@@ -127,6 +492,11 @@ const outcomes = ['Shorter cycle time', 'Fewer repetitive tasks', 'Lower operati
     font-size: 1.3rem;
     letter-spacing: -0.015em;
     margin: 0;
+  }
+  .ap-ex {
+    margin: 0;
+    justify-self: end;
+    font-size: 0.9375rem;
   }
   .ap-scale {
     position: relative;
@@ -146,6 +516,102 @@ const outcomes = ['Shorter cycle time', 'Fewer repetitive tasks', 'Lower operati
     color: var(--lichen);
     margin: 16px 0 0;
   }
+
+  /* Agents */
+  .ag-l {
+    grid-column: 1 / span 5;
+  }
+  .ag-r {
+    grid-column: 7 / span 6;
+  }
+  .ag-lede {
+    margin-bottom: 20px;
+  }
+  .ag-a {
+    color: var(--frost);
+  }
+  .ag-cycle {
+    list-style: none;
+    margin: 28px 0 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 0;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--frost);
+  }
+  .ag-cycle li {
+    display: inline-flex;
+    align-items: center;
+  }
+  .ag-cycle li + li::before {
+    content: '→';
+    margin: 0 12px;
+    color: var(--lichen);
+  }
+
+  /* Engagement */
+  .en-rows {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .en-n {
+    margin: 0 0 8px;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--lichen);
+  }
+  .en-row .body {
+    color: var(--frost);
+  }
+  .en-cav {
+    margin: 22px 0 0;
+    max-width: 72ch;
+    font-size: 0.9375rem;
+    color: var(--lichen);
+  }
+  .en-blocks {
+    margin-top: clamp(48px, 5vw, 80px);
+    row-gap: 36px;
+  }
+  .en-b {
+    padding-top: 22px;
+    border-top: 1px solid var(--rule-strong);
+  }
+  .en-b h3 {
+    margin-bottom: 14px;
+  }
+  .en-need {
+    grid-column: 1 / span 7;
+  }
+  .en-keep {
+    grid-column: 9 / span 4;
+  }
+
+  /* Security */
+  .sec-rows {
+    margin: 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .sec-row {
+    display: grid;
+    grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+    column-gap: clamp(16px, 2vw, 32px);
+    padding-block: clamp(20px, 2.2vw, 30px);
+    border-top: 1px solid var(--rule);
+  }
+  .sec-row dt {
+    margin: 0;
+  }
+  .sec-row dd {
+    margin: 0;
+    color: var(--frost);
+    max-width: 64ch;
+  }
+
+  /* Outcomes */
   .oc-l {
     grid-column: 1 / span 5;
   }
@@ -167,13 +633,64 @@ const outcomes = ['Shorter cycle time', 'Fewer repetitive tasks', 'Lower operati
     font-size: clamp(1.15rem, 1rem + 0.5vw, 1.5rem);
     letter-spacing: -0.015em;
   }
+
+  /* Closing CTA */
+  .cta {
+    background: var(--plate);
+  }
+  .cta .grid12 {
+    align-items: end;
+    row-gap: 24px;
+  }
+  .cta-h {
+    grid-column: 1 / span 7;
+    margin: 0;
+    max-width: 18ch;
+  }
+  .cta-r {
+    grid-column: 9 / span 4;
+  }
+  .cta-r .body {
+    margin-bottom: 22px;
+    color: var(--frost);
+  }
+
+  @media (max-width: 980px) {
+    .brief-l,
+    .brief-t,
+    .ag-l,
+    .ag-r,
+    .en-need,
+    .en-keep,
+    .cta-h,
+    .cta-r {
+      grid-column: 1 / -1;
+    }
+    .brief-l {
+      margin-bottom: 12px;
+      padding-top: 0;
+    }
+    .ag-r {
+      margin-top: 24px;
+    }
+  }
   @media (max-width: 860px) {
     .ap-row {
       grid-template-columns: 1fr;
       gap: 10px;
     }
+    .ap-ex {
+      justify-self: start;
+    }
+    .ap-ex:empty {
+      display: none;
+    }
     .ap-scale {
       max-width: 160px;
+    }
+    .sec-row {
+      grid-template-columns: 1fr;
+      row-gap: 10px;
     }
     .oc-l,
     .oc {

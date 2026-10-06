@@ -4,3 +4,4 @@ dist/
 .env
 .DS_Store
 src/env.d.ts
+.proof-staging/

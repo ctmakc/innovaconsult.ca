@@ -3,78 +3,202 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHead from '../components/PageHead.astro';
 import StageTrack from '../components/StageTrack.astro';
 import { CAPABILITIES } from '../data/capabilities';
+import { STAGES } from '../data/stages';
+import { PROJECTS } from '../data/projects';
+
+// Brand spelling for names that come from shared project data.
+const brand = (s: string) => s.replace(/FinMozg/g, 'FINMOZG');
+const shownIn = (slugs: string[] = []) =>
+  slugs
+    .map((slug) => PROJECTS.find((p) => p.slug === slug && p.visible))
+    .filter((p): p is (typeof PROJECTS)[number] => Boolean(p))
+    .map((p) => ({ href: p.internal ?? `/projects/${p.slug}`, name: brand(p.short) }));
+
 ---
 
 <BaseLayout
-  title="Capabilities — applied AI, software, R&D and partnerships | INNOVA"
-  description="INNOVA capabilities: applied AI and automation, software and digital products, applied R&D and commercialization, and innovation partnerships — from first opportunity to measured impact."
+  title="Capabilities: Applied AI, Software & R&D | INNOVA Ottawa"
+  description="Four INNOVA capabilities on one line: applied AI and automation, custom software, applied R&D and commercialization, and innovation partnerships in Canada."
   path="/capabilities"
+  breadcrumbs={[
+    { name: 'Home', path: '/' },
+    { name: 'Capabilities', path: '/capabilities' }
+  ]}
 >
   <PageHead
     crumb="Capabilities"
-    title="One team from first idea to measured result."
-    lede="Four capabilities, each covering a stretch of the same line. Most projects use two or three of them together."
+    title="Applied AI, software and R&D on one line."
+    lede="Four capabilities on one line, each shown in real projects. One accountable lead stays with a project from discovery to measurement, with specialist partners where needed."
   />
 
+  <section class="brief" aria-labelledby="brief-h">
+    <div class="wrap grid12">
+      <p class="brief-l" id="brief-h">In brief</p>
+      <p class="brief-t">
+        INNOVA is an Ottawa technology company. It works across four connected capabilities: applied AI and automation, custom software,
+        applied R&amp;D and commercialization, and innovation partnerships. Each row below shows the stretch of the stage line it covers and
+        the projects where it is in use.
+      </p>
+    </div>
+  </section>
+
   {
-    CAPABILITIES.map((c, i) => (
-      <section class="section cap" id={c.key}>
-        <div class="wrap grid12">
-          <div class="cap-l">
-            <p class="mono cap-n">{String(i + 1).padStart(2, '0')} / {String(CAPABILITIES.length).padStart(2, '0')}</p>
-            <h2 class="d-l">{c.name}</h2>
-            <p class="lede cap-line">{c.line}</p>
-            <StageTrack span={c.span} />
+    CAPABILITIES.map((c) => {
+      const projects = shownIn(c.projects);
+      const compact = c.key === 'rd';
+      const span = c.span[0] === c.span[1] ? STAGES[c.span[0]].label : `${STAGES[c.span[0]].label} → ${STAGES[c.span[1]].label}`;
+      return (
+        <section class="section cap" id={c.key}>
+          <div class="wrap grid12">
+            <div class="cap-l">
+              <p class="cap-meta">
+                {c.code} · {span}
+              </p>
+              <h2 class="d-l">{c.name}</h2>
+              <p class="lede cap-line">{c.line}</p>
+              <StageTrack span={c.span} caption={false} />
+            </div>
+            <div class="cap-r">
+              {compact ? (
+                <p class="body cap-note">
+                  Scouting, proof-of-concept builds and feasibility work, with the full method on its own page.
+                </p>
+              ) : (
+                <ul class="cap-scope">
+                  {c.scope.map((s) => (
+                    <li>{s}</li>
+                  ))}
+                </ul>
+              )}
+              <a class="arrow-link" href={c.href}>
+                <span>{c.linkLabel}</span>
+                <span aria-hidden="true">→</span>
+              </a>
+              {projects.length > 0 && (
+                <p class="cap-shown">
+                  <span class="cap-shown-l">Shown in:</span>
+                  {projects.map((p) => (
+                    <a class="cap-p" href={p.href}>{p.name}</a>
+                  ))}
+                </p>
+              )}
+            </div>
           </div>
-          <div class="cap-r">
-            <ul class="cap-scope">
-              {c.scope.map((s) => (
-                <li>{s}</li>
-              ))}
-            </ul>
-            <a class="arrow-link" href={c.href}>
-              <span>{c.href === '/partnerships' ? 'Partnership models' : 'How we work here'}</span>
-              <span aria-hidden="true">→</span>
-            </a>
-          </div>
-        </div>
-      </section>
-    ))
+        </section>
+      );
+    })
   }
 </BaseLayout>
 
 <style>
+  .brief {
+    padding-block: clamp(36px, 4vw, 60px);
+    border-bottom: 1px solid var(--rule);
+  }
+  .brief-l {
+    grid-column: 1 / span 3;
+    margin: 0;
+    padding-top: 5px;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: var(--lichen);
+  }
+  .brief-t {
+    grid-column: 4 / span 7;
+    margin: 0;
+    max-width: 64ch;
+    color: var(--frost);
+    font-size: clamp(1.02rem, 0.96rem + 0.25vw, 1.15rem);
+    line-height: 1.6;
+  }
   .cap-l {
     grid-column: 1 / span 6;
   }
   .cap-r {
     grid-column: 8 / span 5;
+    align-self: center;
   }
-  .cap-n {
-    color: var(--signal);
+  .cap-meta {
     margin: 0 0 18px;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.02em;
+    color: var(--lichen);
   }
   .cap-line {
     margin: 22px 0 28px;
   }
   .cap-scope {
     list-style: none;
-    margin: 0 0 28px;
+    margin: 0 0 30px;
     padding: 0;
-    border-bottom: 1px solid var(--rule);
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px clamp(16px, 2vw, 28px);
   }
   .cap-scope li {
-    padding: 14px 0;
+    position: relative;
+    padding-left: 18px;
+    font-size: 0.9375rem;
+    line-height: 1.45;
+    color: var(--frost);
+  }
+  .cap-scope li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.5em;
+    width: 6px;
+    height: 6px;
+    background: var(--rule-strong);
+  }
+  .cap-note {
+    margin: 0 0 26px;
+  }
+  .cap-shown {
+    margin: 22px 0 0;
+    padding-top: 16px;
     border-top: 1px solid var(--rule);
-    font-size: 1.05rem;
+    font-size: 0.9375rem;
+    color: var(--frost);
+  }
+  .cap-shown {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 18px;
+  }
+  .cap-shown-l {
+    color: var(--lichen);
+  }
+  .cap-p {
+    text-decoration: underline;
+    text-decoration-color: var(--rule-strong);
+    text-underline-offset: 4px;
+    transition: text-decoration-color var(--t-micro) var(--ease-out);
+  }
+  .cap-p:hover {
+    text-decoration-color: var(--signal);
   }
   @media (max-width: 980px) {
+    .brief-l,
+    .brief-t {
+      grid-column: 1 / -1;
+    }
+    .brief-l {
+      margin-bottom: 12px;
+      padding-top: 0;
+    }
     .cap-l,
     .cap-r {
       grid-column: 1 / -1;
     }
     .cap-r {
       margin-top: 36px;
+    }
+  }
+  @media (max-width: 480px) {
+    .cap-scope {
+      grid-template-columns: 1fr;
     }
   }
 </style>

@@ -14,18 +14,36 @@ const topics = [
   ['public-sector', 'Discuss a public-sector project'],
   ['other', 'Other']
 ];
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'ContactPage',
+    '@id': `${SITE.url}/contact#page`,
+    url: `${SITE.url}/contact`,
+    name: 'Contact INNOVA',
+    inLanguage: 'en-CA',
+    isPartOf: { '@id': `${SITE.url}/#website` },
+    about: { '@id': `${SITE.url}/#org` }
+  }
+];
 ---
 
 <BaseLayout
-  title="Contact INNOVA — start a conversation | Ottawa, Canada"
-  description="Tell INNOVA what you are working on: a technology product, process automation, an AI initiative, an R&D project, commercialization or a partnership."
+  title="Contact INNOVA · Applied AI & Software, Ottawa"
+  description="Tell INNOVA about a product to build, a process to automate, an R&D project or a partnership. Every message is read by a person and answered by email."
   path="/contact"
   footerCta={false}
+  jsonLd={jsonLd}
+  breadcrumbs={[
+    { name: 'Home', path: '/' },
+    { name: 'Contact', path: '/contact' }
+  ]}
 >
   <PageHead
     crumb="Contact"
     title="Start a conversation."
-    lede="Tell us what you are working on. A person reads every message and replies within two business days."
+    lede="Tell us what you are working on. Every message is read by a person, and we reply by email."
   />
 
   <section class="section">
@@ -46,22 +64,25 @@ const topics = [
         </fieldset>
 
         <div class="cf-grid">
-          <label class="cf-f">
-            <span class="mono">Name</span>
-            <input name="name" autocomplete="name" required maxlength="120" />
-          </label>
-          <label class="cf-f">
-            <span class="mono">Organization</span>
-            <input name="organization" autocomplete="organization" maxlength="160" />
-          </label>
-          <label class="cf-f cf-wide">
-            <span class="mono">Email</span>
-            <input name="email" type="email" autocomplete="email" required maxlength="200" />
-          </label>
-          <label class="cf-f cf-wide">
-            <span class="mono">What are you working on?</span>
-            <textarea name="message" rows="6" required maxlength="4000"></textarea>
-          </label>
+          <div class="cf-f">
+            <label class="mono" for="cf-name">Name</label>
+            <input id="cf-name" name="name" autocomplete="name" required maxlength="120" />
+            <p class="cf-err" id="cf-name-err" hidden></p>
+          </div>
+          <div class="cf-f">
+            <label class="mono" for="cf-org">Organization (optional)</label>
+            <input id="cf-org" name="organization" autocomplete="organization" maxlength="160" />
+          </div>
+          <div class="cf-f cf-wide">
+            <label class="mono" for="cf-email">Email</label>
+            <input id="cf-email" name="email" type="email" autocomplete="email" required maxlength="200" inputmode="email" />
+            <p class="cf-err" id="cf-email-err" hidden></p>
+          </div>
+          <div class="cf-f cf-wide">
+            <label class="mono" for="cf-message">What are you working on?</label>
+            <textarea id="cf-message" name="message" rows="6" required maxlength="4000"></textarea>
+            <p class="cf-err" id="cf-message-err" hidden></p>
+          </div>
           <label class="cf-hp" aria-hidden="true">
             Website <input name="website" tabindex="-1" autocomplete="off" />
           </label>
@@ -69,12 +90,12 @@ const topics = [
 
         <div class="cf-foot">
           <button class="btn btn-primary" type="submit">Start a conversation <span class="arr" aria-hidden="true">→</span></button>
-          <p class="cf-note">We use your details only to reply to this message.</p>
+          <p class="cf-note">We use your details only to reply to this message. <a class="cf-note-a" href="/privacy">How we handle them</a></p>
         </div>
         <p class="cf-status" role="status" aria-live="polite" data-cf-status></p>
       </form>
 
-      <aside class="ca">
+      <aside class="ca" aria-label="Other ways to reach INNOVA">
         <div>
           <p class="mono ca-h">Email</p>
           <a class="ulink ca-v" href={`mailto:${SITE.email}`}>{SITE.email}</a>
@@ -83,9 +104,9 @@ const topics = [
           <p class="mono ca-h">Location</p>
           <p class="ca-v">{SITE.city}, {SITE.region}, {SITE.country}</p>
         </div>
-        <div>
-          <p class="mono ca-h">Company</p>
-          <p class="ca-v">{SITE.legalName}<br />Federal corporation {SITE.corporationNumber}</p>
+        <div class="ca-next">
+          <p class="mono ca-h">What happens next</p>
+          <p class="ca-v ca-note">You get a written reply: a short scope proposal, or a clear answer on why it is not a fit.</p>
         </div>
       </aside>
     </div>
@@ -103,18 +124,58 @@ const topics = [
     if (r) r.checked = true;
   }
 
+  type Field = 'name' | 'email' | 'message';
+  const fields: Field[] = ['name', 'email', 'message'];
+
+  const check = (k: Field, v: string): string => {
+    const t = v.trim();
+    if (k === 'name') return t.length < 2 ? 'Add your name.' : '';
+    if (k === 'email') {
+      if (!t) return 'Add an email address so we can reply.';
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(t) ? '' : 'Check the email address, for example name@company.ca.';
+    }
+    return t.length < 2 ? 'Add a few words about what you are working on.' : '';
+  };
+
+  const setError = (k: Field, msg: string) => {
+    const input = form?.querySelector<HTMLInputElement | HTMLTextAreaElement>(`[name="${k}"]`);
+    const err = document.getElementById(`cf-${k}-err`);
+    if (!input || !err) return;
+    if (msg) {
+      err.textContent = msg;
+      err.hidden = false;
+      input.setAttribute('aria-invalid', 'true');
+      input.setAttribute('aria-describedby', err.id);
+    } else {
+      err.textContent = '';
+      err.hidden = true;
+      input.removeAttribute('aria-invalid');
+      input.removeAttribute('aria-describedby');
+    }
+  };
+
+  fields.forEach((k) => {
+    form?.querySelector(`[name="${k}"]`)?.addEventListener('input', () => setError(k, ''));
+  });
+
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!form || !status) return;
     const fd = new FormData(form);
     const data = Object.fromEntries(fd.entries()) as Record<string, string>;
-    const missing = ['name', 'email', 'message'].filter((k) => !String(data[k] || '').trim());
-    if (missing.length || !/^\S+@\S+\.\S+$/.test(data.email || '')) {
+
+    const bad = fields.filter((k) => {
+      const msg = check(k, String(data[k] || ''));
+      setError(k, msg);
+      return Boolean(msg);
+    });
+    if (bad.length) {
       status.dataset.state = 'error';
-      status.textContent = 'Please add your name, a valid email and a few words about your project.';
-      form.querySelector<HTMLElement>(missing.length ? `[name="${missing[0]}"]` : '[name="email"]')?.focus();
+      status.textContent = bad.length === 1 ? 'One field needs attention.' : `${bad.length} fields need attention.`;
+      form.querySelector<HTMLElement>(`[name="${bad[0]}"]`)?.focus();
       return;
     }
+
     const btn = form.querySelector<HTMLButtonElement>('button[type="submit"]');
     if (btn) btn.disabled = true;
     status.dataset.state = 'sending';
@@ -129,7 +190,6 @@ const topics = [
       form.reset();
       status.dataset.state = 'ok';
       status.textContent = 'Thank you. Your message is with us, and we will reply by email.';
-      (window as any).gtag?.('event', 'generate_lead', { form: 'contact', topic: data.topic });
     } catch {
       status.dataset.state = 'error';
       status.innerHTML = 'The message did not go through. Please email <a href="mailto:info@innovaconsult.ca">info@innovaconsult.ca</a>.';
@@ -141,6 +201,8 @@ const topics = [
 
 <style>
   .cf {
+    --field-rule: var(--rule-field, rgb(150 210 205 / 0.5));
+    --err: #f2a7a0;
     grid-column: 1 / span 8;
   }
   .ca {
@@ -156,6 +218,16 @@ const topics = [
   .ca-v {
     margin: 0;
     text-decoration: none;
+  }
+  .ca-next {
+    padding-top: 22px;
+    border-top: 1px solid var(--rule);
+  }
+  .ca-note {
+    color: var(--lichen);
+    font-size: 0.95rem;
+    line-height: 1.55;
+    text-wrap: pretty;
   }
   .cf-topics {
     border: 0;
@@ -220,8 +292,9 @@ const topics = [
   .cf-f {
     display: grid;
     gap: 8px;
+    align-content: start;
   }
-  .cf-f .mono {
+  .cf-f label {
     color: var(--lichen);
   }
   .cf-f input,
@@ -230,7 +303,7 @@ const topics = [
     font: inherit;
     color: var(--frost);
     background: var(--plate);
-    border: 1px solid var(--rule-strong);
+    border: 1px solid var(--field-rule);
     border-radius: 0;
     padding: 13px 14px;
     min-height: 50px;
@@ -249,6 +322,31 @@ const topics = [
     outline: none;
     border-color: var(--signal);
     box-shadow: 0 0 0 1px var(--signal);
+  }
+  .cf-f [aria-invalid='true'],
+  .cf-f [aria-invalid='true']:hover {
+    border-color: var(--err);
+  }
+  .cf-f [aria-invalid='true']:focus {
+    border-color: var(--err);
+    box-shadow: 0 0 0 1px var(--err);
+  }
+  .cf-err {
+    margin: 0;
+    color: var(--err);
+    font-size: 0.92rem;
+    line-height: 1.45;
+    display: flex;
+    gap: 8px;
+    align-items: baseline;
+  }
+  .cf-err::before {
+    content: '';
+    flex: none;
+    width: 8px;
+    height: 8px;
+    border: 1.5px solid currentColor;
+    transform: rotate(45deg) translateY(-1px);
   }
   .cf-hp {
     position: absolute;
@@ -273,6 +371,16 @@ const topics = [
     color: var(--lichen);
     font-size: 0.9rem;
   }
+  .cf-note-a {
+    color: var(--frost);
+    white-space: nowrap;
+    text-decoration: underline;
+    text-decoration-color: var(--rule-strong);
+    text-underline-offset: 4px;
+  }
+  .cf-note-a:hover {
+    text-decoration-color: currentColor;
+  }
   .cf-status {
     margin: 18px 0 0;
     min-height: 1.6em;
@@ -281,7 +389,7 @@ const topics = [
     color: var(--live);
   }
   .cf-status[data-state='error'] {
-    color: #f2a7a0;
+    color: var(--err);
   }
   .cf-status a {
     color: inherit;
@@ -298,6 +406,22 @@ const topics = [
   @media (max-width: 640px) {
     .cf-grid {
       grid-template-columns: 1fr;
+    }
+  }
+  @media (max-width: 600px) {
+    .cf-opts {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .cf-opt span {
+      display: flex;
+      width: 100%;
+      height: 100%;
+      min-height: 52px;
+      padding: 8px 12px;
+      font-size: 15px;
+      line-height: 1.3;
     }
   }
 </style>

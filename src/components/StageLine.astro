@@ -3,8 +3,10 @@
 import { STAGES } from '../data/stages';
 interface Props {
   notes: string[];
+  /** Optional links under each station's note, one array per stage. */
+  links?: { label: string; href: string }[][];
 }
-const { notes } = Astro.props;
+const { notes, links } = Astro.props;
 ---
 
 <ol class="sl" data-draw>
@@ -13,10 +15,21 @@ const { notes } = Astro.props;
     STAGES.map((s, i) => (
       <li class="sl-st" style={`--i:${i}`}>
         <span class="sl-dot" aria-hidden="true" />
-        <span class="sl-n mono">{String(i + 1).padStart(2, '0')}</span>
+        <span class="sl-n">{String(i + 1).padStart(2, '0')}</span>
         <h3 class="sl-h">{s.label}</h3>
         <p class="sl-line">{s.line}</p>
-        <p class="sl-note">{notes[i]}</p>
+        {notes[i] && <p class="sl-note">{notes[i]}</p>}
+        {links?.[i]?.length ? (
+          <ul class="sl-links">
+            {links[i].map((l) => (
+              <li>
+                <a href={l.href}>
+                  <span class="ulink">{l.label}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        ) : null}
       </li>
     ))
   }
@@ -32,12 +45,13 @@ const { notes } = Astro.props;
     grid-template-columns: repeat(6, minmax(0, 1fr));
     gap: 0 clamp(14px, 1.6vw, 28px);
   }
+  /* Unlit line under the rail. */
   .sl::before {
     content: '';
     position: absolute;
     left: 0;
     right: 0;
-    top: 7px;
+    top: 4.5px;
     height: 1px;
     background: var(--rule-strong);
   }
@@ -45,36 +59,37 @@ const { notes } = Astro.props;
     position: absolute;
     left: 0;
     right: 0;
-    top: 6px;
-    height: 3px;
+    top: 4px;
+    height: 2px;
     background: var(--signal);
     transform-origin: left center;
     transition: transform var(--t-draw) var(--ease-in-out);
   }
   .sl-st {
     position: relative;
-    padding-top: 34px;
+    padding-top: 30px;
   }
   .sl-dot {
     position: absolute;
     top: 0;
     left: 0;
-    width: 15px;
-    height: 15px;
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
     background: var(--ground);
     border: 2px solid var(--signal);
-    transition: background-color 300ms var(--ease-out);
-    transition-delay: calc(var(--i) * 200ms + 200ms);
   }
-  :global(.js) .sl.is-in .sl-dot,
-  :global(html:not(.js)) .sl-dot {
+  .sl-st:last-child .sl-dot {
     background: var(--signal);
   }
   .sl-n {
-    color: var(--signal);
     display: block;
     margin-bottom: 10px;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    line-height: 1.3;
+    color: var(--signal);
   }
   .sl-h {
     font-family: var(--font-display);
@@ -98,6 +113,57 @@ const { notes } = Astro.props;
     font-size: 0.92rem;
     line-height: 1.55;
   }
+  .sl-links {
+    list-style: none;
+    margin: 12px 0 0;
+    padding: 0;
+    display: grid;
+    gap: 4px;
+  }
+  .sl-links a {
+    display: inline-block;
+    font-family: var(--font-text);
+    font-size: 0.875rem;
+    line-height: 1.4;
+    color: var(--lichen);
+    text-decoration: none;
+    transition: color var(--t-micro) var(--ease-out);
+  }
+  .sl-links a:hover,
+  .sl-links a:focus-visible {
+    color: var(--frost);
+  }
+  .sl-links a:hover .ulink,
+  .sl-links a:focus-visible .ulink {
+    background-size: 100% 1px;
+  }
+  @media (pointer: coarse) {
+    .sl-links {
+      gap: 0;
+    }
+    .sl-links a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+    }
+  }
+
+  /* Stations light in sequence as the rail reaches them; reduced motion gets the final state. */
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.js) .sl:not(.is-in) .sl-dot {
+      border-color: var(--rule-strong);
+    }
+    :global(.js) .sl:not(.is-in) .sl-st:last-child .sl-dot {
+      background: var(--ground);
+    }
+    .sl-dot {
+      transition:
+        border-color 300ms var(--ease-out),
+        background-color 300ms var(--ease-out);
+      transition-delay: calc(var(--i) * 200ms + 200ms);
+    }
+  }
+
   @media (max-width: 980px) {
     .sl {
       grid-template-columns: 1fr;
@@ -105,7 +171,7 @@ const { notes } = Astro.props;
       padding-left: 40px;
     }
     .sl::before {
-      left: 7px;
+      left: 4.5px;
       right: auto;
       top: 0;
       bottom: 0;
@@ -113,28 +179,31 @@ const { notes } = Astro.props;
       height: auto;
     }
     .sl-rail {
-      left: 6px;
+      left: 4px;
       right: auto;
       top: 0;
       bottom: 0;
-      width: 3px;
+      width: 2px;
       height: auto;
       transform-origin: center top;
-    }
-    :global(.js) .sl:not(.is-in) .sl-rail {
-      transform: scaleY(0);
-    }
-    :global(.js) .sl.is-in .sl-rail {
-      transform: scaleY(1);
     }
     .sl-st {
       padding: 0 0 34px;
     }
     .sl-dot {
       left: -40px;
+      top: 2px;
     }
     .sl-n {
       margin-bottom: 6px;
+    }
+  }
+  @media (max-width: 980px) and (prefers-reduced-motion: no-preference) {
+    :global(.js) .sl:not(.is-in) .sl-rail {
+      transform: scaleY(0);
+    }
+    :global(.js) .sl.is-in .sl-rail {
+      transform: scaleY(1);
     }
   }
 </style>

@@ -1,148 +1,404 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import PageHead from '../components/PageHead.astro';
-import StatusChip from '../components/StatusChip.astro';
+import RiseHeading from '../components/RiseHeading.astro';
 import { SITE } from '../data/site';
 
-const questions = [
-  'What exactly should be automated?',
-  'Which process comes first?',
-  'Where is AI actually useful?',
-  'Does this need an agent, or ordinary automation?',
-  'What will implementation cost?',
-  'Did the automation produce measurable value?'
+// Product facts are traceable to /data/projects/innova-workflow-os (README.md, docs/SCORING.md,
+// src/domain/types.ts, src/domain/patterns.ts; vitest run 2026-10-01: 226 passed) and to the
+// memory note innova-workflow-os.md (invite-only deployment, 1 October 2026).
+
+const PAGE = `${SITE.url}/workflow-os`;
+
+const shot = (name: string) => ({
+  src: `/proof/workflow-os-${name}-1440-1600.webp`,
+  srcset: `/proof/workflow-os-${name}-1440-800.webp 800w, /proof/workflow-os-${name}-1440-1600.webp 1600w`,
+  width: 1600,
+  height: 1000
+});
+
+// Alt and captions: .proof-staging/MANIFEST.json (captured 2026-10-01 from commit 94b14f3).
+const SHOTS = {
+  map: {
+    ...shot('opportunity-map'),
+    alt: 'Workflow OS Opportunity Map: 15 processes plotted by business value and implementation feasibility, with Client Onboarding ranked first at 88 and its score broken into value, feasibility, strategic fit and risk.',
+    caption: 'Opportunity Map for the demo company Northstar Professional Services (illustrative demo data). Every score shows its parts.'
+  },
+  overview: {
+    ...shot('overview'),
+    alt: 'Workflow OS overview for the demo company Northstar Professional Services: 30 people, 5 departments, 9 systems, 15 mapped workflows and the top-ranked automation opportunities.',
+    caption: 'Company overview with ranked opportunities (illustrative demo data).'
+  },
+  designer: {
+    ...shot('designer'),
+    alt: 'Workflow OS Automation Designer for Client Onboarding: effort per case from 100 to 40 minutes, current and proposed process flows with human, system and AI lanes.',
+    caption: 'Automation Designer: current state against proposed state, with the human approval gate kept. Illustrative demo data.'
+  },
+  impact: {
+    ...shot('impact'),
+    alt: 'Workflow OS business case for Client Onboarding: projected staff hours, payback and Year-1 ROI with every figure labelled calculated, assumption, estimated or projected.',
+    caption: 'Business case with each number tagged by origin (illustrative demo data).'
+  }
+};
+
+const technology = [
+  'React + TypeScript',
+  'Deterministic scoring engine (14 factors + risk penalty)',
+  'AI process discovery with rules-engine fallback',
+  'Architecture recommender (6 patterns, 5 human-control levels)',
+  'ROI model',
+  '226 automated tests'
 ];
-const flow = ['Company', 'Processes', 'Score', 'Select', 'Design', 'Implement', 'Measure'];
-const modules = [
+
+const qa = [
+  {
+    q: 'What exactly should be automated?',
+    a: 'Module 2 scores every process on 14 factors in three groups (value, feasibility, strategic fit), subtracts a risk penalty, and shows the reason behind each number.',
+    m: 2
+  },
+  {
+    q: 'Which process comes first?',
+    a: 'Processes are ranked by priority score, and the plan starts with the top two or three.',
+    m: 2
+  },
+  {
+    q: 'Where is AI actually useful?',
+    a: 'Where drafting, classifying, summarizing or a bounded task with tools saves real time. Stable, rule-based work goes to deterministic software.',
+    m: 3
+  },
+  {
+    q: 'Does this need an agent, or ordinary automation?',
+    a: 'Module 3 recommends one of six patterns, from traditional automation to supervised agents, with one of five levels of human control.',
+    m: 3
+  },
+  {
+    q: 'What will implementation cost?',
+    a: 'Module 4 turns the design into tasks, owners, integrations and milestones, which is the basis of the estimate.',
+    m: 4
+  },
+  {
+    q: 'Did the automation produce measurable value?',
+    a: 'Module 5 projects the return from stated assumptions, then records actual results against the baseline after go-live.',
+    m: 5
+  }
+];
+
+const flow = [
+  { t: 'Company', m: 1 },
+  { t: 'Processes', m: 1 },
+  { t: 'Score', m: 2 },
+  { t: 'Select', m: 2 },
+  { t: 'Design', m: 3 },
+  { t: 'Implement', m: 4 },
+  { t: 'Measure', m: 5 }
+];
+
+type Group = { label: string; items: string[] };
+type Module = {
+  name: string;
+  line: string;
+  shot?: (typeof SHOTS)[keyof typeof SHOTS];
+  lazy?: boolean;
+  formula?: string;
+  fields?: string[];
+  groups?: Group[];
+  phases?: string[];
+};
+
+const modules: Module[] = [
   {
     name: 'Process discovery',
-    line: 'Capture the company as it really operates, through structured input, interviews and document import.',
-    items: ['Company', 'Departments', 'Processes', 'Roles', 'Systems', 'Documents', 'Pain points', 'Process volume']
+    line: 'Capture departments, roles, systems and processes by hand, or paste a written company description and review the draft process model the AI proposes.',
+    shot: SHOTS.overview,
+    fields: ['Company', 'Departments', 'Roles', 'Systems', 'Processes', 'Process steps', 'Pain points', 'Volume and minutes per case']
   },
   {
     name: 'Automation opportunity map',
-    line: 'Score every process and show the reasons behind each score.',
-    items: ['Time spent', 'Volume', 'Repetition', 'Error rate', 'Delays', 'Cost', 'Risk', 'Data readiness', 'Integration effort', 'AI suitability', 'ROI potential']
+    line: 'Score every process on 14 factors in three groups (value, feasibility, strategic fit), subtract a risk penalty, and show the reason and evidence source behind each number.',
+    shot: SHOTS.map,
+    formula: 'Priority = Value × 0.50 + Feasibility × 0.30 + Fit × 0.20 − Risk penalty',
+    groups: [
+      { label: 'Value', items: ['Time consumed', 'Volume', 'Rework', 'Waiting time', 'Client and revenue impact'] },
+      { label: 'Feasibility', items: ['Standardization', 'Data readiness', 'System readiness', 'Rule clarity', 'Exception predictability'] },
+      { label: 'Fit', items: ['Repeatability', 'Scalability', 'Employee pain', 'Management priority'] },
+      { label: 'Risk penalty', items: ['Privacy', 'Regulatory', 'Consequence', 'Change complexity'] }
+    ]
   },
   {
     name: 'Automation designer',
-    line: 'Recommend the architecture that fits: traditional automation, assistant, agent, multi-agent, human-in-the-loop or hybrid.',
-    items: ['Systems', 'Triggers', 'Data', 'Approvals', 'Tools', 'Integrations', 'Risk controls']
+    line: 'Recommend one of six patterns for the selected process, draw its current and proposed flow, and set a level of human control for every component.',
+    shot: SHOTS.designer,
+    groups: [
+      {
+        label: 'Six patterns',
+        items: [
+          'Traditional workflow automation',
+          'AI assistant with human execution',
+          'Bounded AI agent',
+          'Multi-agent system',
+          'Human-in-the-loop AI support',
+          'Hybrid AI-assisted automation'
+        ]
+      },
+      {
+        label: 'Five levels of human control',
+        items: ['Fully automated', 'Review after execution', 'Approval before external action', 'Approval before critical action', 'Human only']
+      }
+    ]
   },
   {
     name: 'Implementation workspace',
-    line: 'Turn the design into a delivery plan a team can execute.',
-    items: ['Tasks', 'Owners', 'Integrations', 'Milestones', 'Stages', 'Controls', 'Tests']
+    line: 'Turn the design into a delivery plan in five phases, with an owner, dependencies, effort, a target date and acceptance criteria for every task.',
+    phases: ['Validate', 'Prototype', 'Pilot', 'Production', 'Optimize'],
+    fields: ['Tasks', 'Owners', 'Dependencies', 'Systems touched', 'Milestones', 'Effort in days', 'Target dates', 'Acceptance criteria']
   },
   {
     name: 'Impact & ROI',
-    line: 'Compare before and after on the numbers agreed at the start.',
-    items: ['Labour hours', 'Process cost', 'Cycle time', 'Error rate', 'Response speed', 'Automation rate', 'Adoption', 'ROI']
+    line: 'Project the return from stated assumptions, then record actual results against the baseline after go-live.',
+    shot: SHOTS.impact,
+    fields: [
+      'Monthly case volume',
+      'Baseline minutes per case',
+      'Projected minutes per case',
+      'Loaded hourly cost',
+      'Implementation and operating cost',
+      'Payback and Year-1 ROI',
+      'Actual minutes after go-live',
+      'Actual volume after go-live'
+    ]
   }
 ];
-const risk = ['Privacy', 'Security', 'Data sensitivity', 'Human approval', 'Auditability', 'Model risk', 'Permissions'];
+
+const risk = ['Privacy', 'Security', 'Regulatory', 'Financial', 'Legal', 'Reputational', 'Operational', 'Model hallucination', 'Unauthorized tool use'];
 
 const product = {
   '@context': 'https://schema.org',
   '@type': 'SoftwareApplication',
+  '@id': `${PAGE}#app`,
   name: 'INNOVA AI Workflow OS',
+  url: PAGE,
   applicationCategory: 'BusinessApplication',
-  description: 'Business-process discovery and AI automation planning: maps operations, scores processes for automation value, recommends architecture and tracks measured ROI.',
-  creator: { '@id': 'https://innovaconsult.ca/#org' },
-  operatingSystem: 'Web'
+  operatingSystem: 'Web',
+  creativeWorkStatus: 'Prototype',
+  description:
+    'Business-process discovery and AI automation planning: maps operations, scores each process for automation value, recommends the architecture, projects ROI and compares it with measured results.',
+  screenshot: `${SITE.url}${SHOTS.map.src}`,
+  creator: { '@id': `${SITE.url}/#org` }
+};
+
+const faq = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  '@id': `${PAGE}#faq`,
+  mainEntity: qa.map((x) => ({
+    '@type': 'Question',
+    name: x.q,
+    acceptedAnswer: { '@type': 'Answer', text: x.a }
+  }))
 };
 ---
 
 <BaseLayout
-  title="AI Workflow OS — from business processes to measurable AI automation | INNOVA"
-  description="INNOVA AI Workflow OS maps company operations, scores processes for automation value, recommends the right AI or automation architecture and tracks measured ROI. Working prototype."
+  title="AI Workflow OS: From Processes to Measured AI | INNOVA"
+  description="INNOVA AI Workflow OS maps operations, scores each process for automation value, recommends software, agent or human-in-the-loop design and projects ROI."
   path="/workflow-os"
-  jsonLd={[product]}
+  jsonLd={[product, faq]}
+  breadcrumbs={[
+    { name: 'Home', path: '/' },
+    { name: 'Workflow OS', path: '/workflow-os' }
+  ]}
 >
-  <PageHead crumb="AI Workflow OS" title="INNOVA AI Workflow OS" lede="From business processes to measurable AI automation.">
-    <div slot="aside" class="w-aside">
-      <StatusChip status="prototype" />
-      <p class="body">Working prototype. First demonstrations in October 2026.</p>
-      {
-        SITE.workflowDemoUrl ? (
-          <a class="btn btn-primary" href={SITE.workflowDemoUrl}>
-            Open the demo <span class="arr" aria-hidden="true">→</span>
-          </a>
-        ) : (
-          <a class="btn btn-primary" href="/contact?topic=workflow-os">
-            Request a demo <span class="arr" aria-hidden="true">→</span>
-          </a>
-        )
-      }
-    </div>
-  </PageHead>
-
-  <section class="section">
-    <div class="wrap grid12">
-      <div class="q-l">
-        <h2 class="d-l">Six questions every automation plan has to answer.</h2>
-        <p class="body q-p">Workflow OS answers them with evidence from the company’s own processes.</p>
+  <section class="wh">
+    <div class="wrap wh-grid">
+      <div class="wh-top">
+        <p class="kicker wh-crumb"><a href="/" class="ulink">INNOVA</a><span aria-hidden="true">/</span>Workflow OS</p>
+        <RiseHeading text="INNOVA AI Workflow OS" class="d-xl" delay={60} />
+        <p class="lede wh-lede">From business processes to measurable AI automation.</p>
       </div>
-      <ol class="q">
-        {
-          questions.map((q, i) => (
-            <li>
-              <span class="mono">{String(i + 1).padStart(2, '0')}</span>
-              {q}
-            </li>
-          ))
-        }
-      </ol>
-    </div>
-  </section>
 
-  <section class="section">
+      <figure class="proof wh-fig">
+        <div class="proof-frame">
+        <img
+          src={SHOTS.map.src}
+          srcset={SHOTS.map.srcset}
+          sizes="(max-width: 980px) calc(100vw - 32px), (max-width: 1472px) 56vw, 800px"
+          width={SHOTS.map.width}
+          height={SHOTS.map.height}
+          alt={SHOTS.map.alt}
+          loading="eager"
+          fetchpriority="high"
+          decoding="async"
+        />
+        </div>
+        <figcaption>Prototype · illustrative demo data on Northstar Professional Services, a fictional 30-person firm. Every score shows its formula.</figcaption>
+      </figure>
+
+      <div class="wh-act">
+        <p class="wh-status"><span class="mark" data-s="prototype" aria-hidden="true"></span>Working prototype. Invite-only demo online since 1 October 2026.</p>
+        <p class="wh-fit">Built for firms of 20 to 200 people.</p>
+        <a class="btn btn-primary" href="/contact?topic=workflow-os">Request a demo invite <span class="arr" aria-hidden="true">→</span></a>
+        <p class="wh-sub">You receive a personal link to the working prototype, preloaded with a fictional sample company. The walkthrough takes about two minutes.</p>
+      </div>
+    </div>
+
     <div class="wrap">
-      <h2 class="sr-only">Product flow</h2>
-      <ol class="wf" data-draw>
-        <span class="wf-rail trk-span" aria-hidden="true"></span>
-        {
-          flow.map((f, i) => (
-            <li style={`--i:${i}`}>
-              <span class="wf-dot" aria-hidden="true" />
-              <span class="mono">{String(i + 1).padStart(2, '0')}</span>
-              <span class="wf-t">{f}</span>
-            </li>
-          ))
-        }
-      </ol>
+      <dl class="rec">
+        <div class="rec-id">
+          <dt class="sr-only">Record</dt>
+          <dd>INV-04 · Prototype</dd>
+        </div>
+        <div class="rec-tech">
+          <dt class="sr-only">Technology</dt>
+          <dd>{technology.join(' · ')}</dd>
+        </div>
+      </dl>
     </div>
   </section>
 
-  <section class="section">
+  <section class="section" aria-labelledby="qa-h">
     <div class="wrap">
       <div class="grid12 sec-head">
-        <div class="sh-l"><h2 class="d-l">Five modules.</h2></div>
-        <p class="body sh-r">Each module hands its output to the next. Risk controls run through all five.</p>
+        <div class="sh-l"><h2 class="d-l" id="qa-h">Six questions every automation plan has to answer.</h2></div>
+        <p class="body sh-r">Workflow OS answers each one from the company’s own process data, and each answer links to the module that produces it.</p>
       </div>
-      <div class="mods">
+      <div class="qa">
         {
-          modules.map((m, i) => (
-            <div class="mod">
-              <p class="mono mod-n">Module {i + 1}</p>
-              <h3 class="d-m">{m.name}</h3>
-              <p class="body mod-l">{m.line}</p>
-              <ul class="chips">
-                {m.items.map((x) => (
-                  <li>{x}</li>
-                ))}
-              </ul>
+          qa.map((x) => (
+            <div class="qa-row">
+              <h3 class="qa-q">{x.q}</h3>
+              <p class="qa-a">{x.a}</p>
+              <a class="qa-m" href={`#module-${x.m}`}>
+                <span>Module {x.m}</span>
+                <span aria-hidden="true">↓</span>
+              </a>
             </div>
           ))
         }
-        <div class="riskbar">
-          <p class="mono">Risk &amp; governance layer · across every module</p>
-          <ul>
-            {risk.map((r) => (
-              <li>{r}</li>
-            ))}
-          </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="flow-h">
+    <div class="wrap">
+      <h2 class="sr-only" id="flow-h">Product flow</h2>
+      <p class="wf-cap">One path through the product, seven stations. Each station opens the module that handles it.</p>
+      <div class="wf" data-draw>
+        <span class="wf-track" aria-hidden="true"></span>
+        <span class="wf-rail trk-span" aria-hidden="true"></span>
+        <ol class="wf-ol">
+        {
+          flow.map((f, i) => (
+            <li style={`--i:${i}`}>
+              <a href={`#module-${f.m}`} class="wf-a">
+                <span class="wf-dot" aria-hidden="true" />
+                <span class="wf-i">{String(i + 1).padStart(2, '0')}</span>
+                <span class="wf-t">{f.t}</span>
+                <span class="sr-only">, module {f.m}</span>
+              </a>
+            </li>
+          ))
+        }
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="mods-h">
+    <div class="wrap">
+      <div class="grid12 sec-head">
+        <div class="sh-l"><h2 class="d-l" id="mods-h">Five modules.</h2></div>
+        <p class="body sh-r">Each module hands its output to the next. Risk controls run through all five.</p>
+      </div>
+
+      <div class="grid12 ms">
+        <nav class="ms-nav" aria-label="Workflow OS modules">
+          <ol>
+            {
+              modules.map((m, i) => (
+                <li>
+                  <a href={`#module-${i + 1}`} class:list={['d-m', 'ms-link', { 'is-active': i === 0 }]} data-mod={i + 1}>
+                    {m.name}
+                  </a>
+                </li>
+              ))
+            }
+          </ol>
+        </nav>
+
+        <div class="ms-body">
+          {
+            modules.map((m, i) => (
+              <article class:list={['mod', { 'is-active': i === 0 }]} id={`module-${i + 1}`} data-mod={i + 1} aria-labelledby={`module-${i + 1}-h`}>
+                <p class="mod-n">Module {i + 1} of 5</p>
+                <h3 class="mod-h" id={`module-${i + 1}-h`}>
+                  {m.name}
+                </h3>
+
+                {m.shot && (
+                  <figure class="proof mod-fig">
+                    <div class="proof-frame">
+                    <img
+                      src={m.shot.src}
+                      srcset={m.shot.srcset}
+                      sizes="(max-width: 980px) calc(100vw - 32px), (max-width: 1472px) 62vw, 900px"
+                      width={m.shot.width}
+                      height={m.shot.height}
+                      alt={m.shot.alt}
+                      loading="lazy"
+                      decoding="async"
+                    />
+                    </div>
+                    <figcaption>{m.shot.caption}</figcaption>
+                  </figure>
+                )}
+
+                {m.phases && (
+                  <ol class="ph5" aria-label="Five delivery phases">
+                    {m.phases.map((p, k) => (
+                      <li style={`--k:${k}`}>
+                        <span class="ph5-dot" aria-hidden="true" />
+                        <span class="ph5-t">{p}</span>
+                      </li>
+                    ))}
+                  </ol>
+                )}
+
+                <p class="mod-l">{m.line}</p>
+
+                {m.formula && <p class="formula">{m.formula}</p>}
+
+                {m.groups && (
+                  <div class="grp">
+                    {m.groups.map((g) => (
+                      <div class="grp-c">
+                        <h4 class="grp-h">{g.label}</h4>
+                        <ul class="ruled">
+                          {g.items.map((x) => (
+                            <li>{x}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {m.fields && (
+                  <ul class="ruled ruled-2" aria-label={`${m.name}: fields`}>
+                    {m.fields.map((x) => (
+                      <li>{x}</li>
+                    ))}
+                  </ul>
+                )}
+              </article>
+            ))
+          }
         </div>
+      </div>
+
+      <div class="riskrow">
+        <p class="riskrow-l">Risk and governance · every module</p>
+        <ul class="riskrow-r">
+          {risk.map((r) => <li>{r}</li>)}
+        </ul>
       </div>
     </div>
   </section>
@@ -154,93 +410,283 @@ const product = {
       </div>
       <div class="b-r">
         <p class="lede">
-          Workflow OS decides what to automate and how. The automations themselves run in the client’s existing platforms or in INNOVA products such as AICRMIUS.
+          Workflow OS decides what to automate and how. The automations themselves run in the client’s existing platforms or in INNOVA products such as <a class="ulink b-link" href="/projects/aicrmius">AICRMIUS</a>.
         </p>
         <p class="body b-p">That boundary keeps the planning tool independent of any single vendor, including us.</p>
+        <p class="body b-p2">The demo runs on fictional data and works without any external AI service.</p>
         <a class="arrow-link" href="/ai-transformation"><span>Our AI transformation method</span><span aria-hidden="true">→</span></a>
       </div>
     </div>
   </section>
 </BaseLayout>
 
+<script>
+  // Sticky module list: the module crossing the middle of the viewport becomes active.
+  const links = document.querySelectorAll<HTMLAnchorElement>('.ms-link');
+  const mods = document.querySelectorAll<HTMLElement>('.mod');
+  if (links.length && 'IntersectionObserver' in window) {
+    const setActive = (n: string) => {
+      links.forEach((l) => {
+        const on = l.dataset.mod === n;
+        l.classList.toggle('is-active', on);
+        if (on) l.setAttribute('aria-current', 'true');
+        else l.removeAttribute('aria-current');
+      });
+      mods.forEach((m) => m.classList.toggle('is-active', m.dataset.mod === n));
+    };
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) setActive((e.target as HTMLElement).dataset.mod || '1');
+        }
+      },
+      { rootMargin: '-45% 0px -50% 0px' }
+    );
+    mods.forEach((m) => io.observe(m));
+  }
+</script>
+
 <style>
-  .w-aside {
-    display: grid;
-    gap: 14px;
-    justify-items: start;
-    margin-top: 24px;
-  }
-  .q-l {
-    grid-column: 1 / span 5;
-  }
-  .q-p {
-    margin-top: 20px;
-  }
-  .q {
-    grid-column: 7 / span 6;
-    list-style: none;
+  /* ── Proof plate (mirrors the shared .proof contract; scoped so the page stands alone) ── */
+  .proof {
     margin: 0;
-    padding: 0;
-    border-bottom: 1px solid var(--rule);
+    border: 0;
+    background: none;
   }
-  .q li {
-    display: flex;
-    gap: 18px;
-    align-items: baseline;
-    padding: 16px 0;
-    border-top: 1px solid var(--rule);
-    font-size: clamp(1.05rem, 0.95rem + 0.35vw, 1.3rem);
+  .proof-frame {
+    background: var(--plate);
+    border: 1px solid var(--rule-strong);
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
   }
-  .q .mono {
-    color: var(--signal);
+  .proof img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top left;
+  }
+  .proof figcaption {
+    margin-top: 10px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 1.5;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--lichen);
+    max-width: 72ch;
   }
 
+  /* ── Hero: 5 / 7 split ── */
+  .wh {
+    padding-block: clamp(40px, 4.5vw, 80px) 0;
+  }
+  .wh-grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    grid-template-rows: auto 1fr;
+    column-gap: clamp(16px, 2vw, 32px);
+    row-gap: 32px;
+  }
+  .wh-top {
+    grid-column: 1 / span 5;
+    grid-row: 1;
+  }
+  .wh-act {
+    grid-column: 1 / span 5;
+    grid-row: 2;
+    align-self: end;
+    display: grid;
+    justify-items: start;
+    gap: 16px;
+  }
+  .wh-fig {
+    grid-column: 6 / span 7;
+    grid-row: 1 / span 2;
+    align-self: start;
+    margin-top: 6px;
+  }
+  .wh-crumb a {
+    color: var(--frost);
+  }
+  .wh-crumb span {
+    color: var(--rule-strong);
+  }
+  .wh-top :global(.d-xl) {
+    font-size: clamp(2.4rem, 1.4rem + 2.6vw, 4.1rem);
+    max-width: 11ch;
+  }
+  .wh-lede {
+    margin-top: 24px;
+    max-width: 28ch;
+  }
+  .wh-status {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin: 0;
+    color: var(--frost);
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+  .wh-status .mark {
+    flex: none;
+    translate: 0 1px;
+  }
+  .wh-fit {
+    margin: 0 0 6px;
+    color: var(--lichen);
+    font-size: 1rem;
+  }
+  .wh-sub {
+    margin: 0;
+    color: var(--lichen);
+    font-size: 0.94rem;
+    line-height: 1.55;
+    max-width: 46ch;
+  }
+
+  /* Record bar */
+  .rec {
+    margin: clamp(40px, 4vw, 64px) 0 0;
+    padding: 18px 0;
+    border-top: 1px solid var(--rule);
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: clamp(16px, 2vw, 32px);
+    row-gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .rec dd {
+    margin: 0;
+  }
+  .rec-id {
+    grid-column: 1 / span 3;
+    color: var(--frost);
+  }
+  .rec-tech {
+    grid-column: 4 / span 9;
+    color: var(--lichen);
+  }
+
+  /* ── Q&A: ruled rows (question · answer · module link) ── */
+  .qa {
+    border-bottom: 1px solid var(--rule);
+  }
+  .qa-row {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 5fr) minmax(0, 2fr);
+    column-gap: clamp(16px, 2vw, 32px);
+    row-gap: 10px;
+    padding-block: clamp(20px, 2.2vw, 30px);
+    border-top: 1px solid var(--rule);
+    align-items: baseline;
+  }
+  .qa-q {
+    margin: 0;
+    font-family: var(--font-display);
+    font-stretch: 108%;
+    font-weight: 500;
+    font-size: clamp(1.2rem, 1.02rem + 0.55vw, 1.6rem);
+    line-height: 1.15;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+  }
+  .qa-a {
+    margin: 0;
+    color: var(--lichen);
+    font-size: 1rem;
+    line-height: 1.6;
+    max-width: 58ch;
+  }
+  .qa-m {
+    justify-self: end;
+    display: inline-flex;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--lichen);
+    text-decoration: none;
+    padding-block: 4px;
+    transition: color var(--t-micro) var(--ease-out);
+  }
+  .qa-m:hover,
+  .qa-m:focus-visible {
+    color: var(--frost);
+  }
+  .qa-m span:last-child {
+    transition: transform var(--t-micro) var(--ease-out);
+  }
+  .qa-m:hover span:last-child {
+    transform: translateY(3px);
+  }
+
+  /* ── Product flow: shared line language ── */
+  .wf-cap {
+    margin: 0 0 clamp(28px, 3vw, 44px);
+    color: var(--lichen);
+    font-size: 1rem;
+    max-width: 52ch;
+  }
   .wf {
+    --dot: 10px;
+    position: relative;
+  }
+  .wf-ol {
     list-style: none;
     margin: 0;
     padding: 0;
-    position: relative;
     display: grid;
     grid-template-columns: repeat(7, minmax(0, 1fr));
   }
-  .wf::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 8px;
-    height: 1px;
-    background: var(--rule-strong);
-  }
+  .wf-track,
   .wf-rail {
     position: absolute;
     left: 0;
-    right: 0;
-    top: 7px;
-    height: 3px;
+    right: calc(100% / 7 - var(--dot) / 2);
+    top: calc(var(--dot) / 2 - 1px);
+    height: 2px;
+  }
+  .wf-track {
+    background: var(--rule-strong);
+  }
+  .wf-rail {
     background: var(--signal);
     transform-origin: left;
     transition: transform var(--t-draw) var(--ease-in-out);
   }
   .wf li {
     position: relative;
-    padding-top: 36px;
+  }
+  .wf-a {
+    display: block;
+    padding-top: 30px;
+    padding-right: 12px;
+    color: var(--frost);
+    text-decoration: none;
   }
   .wf-dot {
     position: absolute;
     top: 0;
     left: 0;
-    width: 17px;
-    height: 17px;
+    width: var(--dot);
+    height: var(--dot);
     border-radius: 50%;
     background: var(--ground);
     border: 2px solid var(--signal);
+    transition:
+      transform var(--t-micro) var(--ease-out),
+      background-color var(--t-micro) var(--ease-out);
   }
   .wf li:last-child .wf-dot {
     background: var(--signal);
   }
-  .wf .mono {
+  .wf-i {
     display: block;
+    font-family: var(--font-mono);
+    font-size: 12px;
     color: var(--lichen);
     margin-bottom: 8px;
   }
@@ -248,146 +694,376 @@ const product = {
     font-family: var(--font-display);
     font-stretch: 112%;
     font-weight: 480;
-    font-size: clamp(1.1rem, 0.7rem + 1.2vw, 2rem);
+    font-size: clamp(1.1rem, 0.6rem + 1.1vw, 1.9rem);
     letter-spacing: -0.02em;
+    background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
+    transition: background-size var(--t-micro) var(--ease-out);
+    padding-bottom: 2px;
+  }
+  .wf-a:hover .wf-t,
+  .wf-a:focus-visible .wf-t {
+    background-size: 100% 1px;
+  }
+  .wf-a:hover .wf-dot {
+    transform: scale(1.3);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    /* Stations ignite in sequence once the line has been drawn into view. */
+    :global(.js) .wf:not(.is-in) .wf-dot {
+      border-color: var(--rule-strong);
+    }
+    :global(.js) .wf.is-in .wf-dot {
+      transition:
+        border-color 300ms var(--ease-out) calc(200ms + var(--i) * 160ms),
+        transform var(--t-micro) var(--ease-out);
+    }
   }
 
-  .mods {
-    display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 0 clamp(16px, 2vw, 28px);
+  /* ── Five modules: sticky split ── */
+  .ms {
+    align-items: start;
   }
-  .mod {
-    padding: 24px 0 28px;
-    border-top: 2px solid var(--signal);
+  .ms-nav {
+    grid-column: 1 / span 4;
+    position: sticky;
+    top: 120px;
   }
-  .mod-n {
-    color: var(--lichen);
-    margin: 0 0 12px;
-  }
-  .mod-l {
-    margin: 12px 0 18px;
-    font-size: 0.95rem;
-  }
-  .chips {
+  .ms-nav ol {
     list-style: none;
     margin: 0;
     padding: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
+    border-left: 1px solid var(--rule);
   }
-  .chips li {
-    padding: 3px 9px;
-    border: 1px solid var(--rule-strong);
-    font-size: 0.82rem;
+  .ms-link {
+    position: relative;
+    display: block;
+    padding: 10px 0 10px 24px;
     color: var(--lichen);
+    text-decoration: none;
+    transition: color 300ms var(--ease-out);
   }
-  .riskbar {
-    grid-column: 1 / -1;
-    margin-top: 12px;
-    padding: 18px 22px;
-    background: var(--plate);
-    border: 1px solid var(--rule);
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 12px 28px;
+  .ms-link::before {
+    content: '';
+    position: absolute;
+    left: -1px;
+    top: 10px;
+    bottom: 10px;
+    width: 2px;
+    background: var(--signal);
+    transform: scaleY(0);
+    transition: transform 300ms var(--ease-out);
   }
-  .riskbar .mono {
-    margin: 0;
+  .ms-link:hover {
     color: var(--frost);
   }
-  .riskbar ul {
+  .ms-link.is-active {
+    color: var(--frost);
+  }
+  .ms-link.is-active::before {
+    transform: none;
+  }
+
+  .ms-body {
+    grid-column: 5 / span 8;
+  }
+  .mod {
+    padding-bottom: clamp(56px, 6vw, 96px);
+    scroll-margin-top: 100px;
+  }
+  .mod + .mod {
+    padding-top: clamp(28px, 3vw, 40px);
+    border-top: 1px solid var(--rule);
+  }
+  .mod-n {
+    margin: 0 0 6px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--lichen);
+  }
+  .mod-h {
+    margin: 0 0 22px;
+    font-family: var(--font-text);
+    font-weight: 600;
+    font-size: 1.2rem;
+    line-height: 1.3;
+    color: var(--frost);
+  }
+  .mod-fig img {
+    transition: opacity 300ms var(--ease-out);
+  }
+  @media (prefers-reduced-motion: no-preference) and (min-width: 981px) {
+    :global(.js) .mod:not(.is-active) .mod-fig img {
+      opacity: 0.5;
+    }
+  }
+  .mod-l {
+    margin: 26px 0 0;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--frost);
+    max-width: 62ch;
+  }
+  .formula {
+    margin: 22px 0 0;
+    padding: 14px 0;
+    border-block: 1px solid var(--rule);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--frost);
+  }
+
+  .ruled {
     list-style: none;
     margin: 0;
     padding: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px 18px;
+    font-size: 15px;
+    line-height: 1.45;
     color: var(--lichen);
   }
-  .riskbar li::before {
-    content: '';
-    display: inline-block;
-    width: 6px;
-    height: 6px;
-    margin-right: 8px;
-    border-radius: 50%;
-    background: var(--signal);
-    vertical-align: middle;
+  .ruled li {
+    padding: 9px 0;
+    border-top: 1px solid var(--rule);
+  }
+  .ruled-2 {
+    margin-top: 24px;
+    border-bottom: 1px solid var(--rule);
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: clamp(16px, 2vw, 32px);
+  }
+  .grp {
+    margin-top: 24px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px clamp(16px, 2vw, 32px);
+  }
+  .grp-h {
+    margin: 0 0 8px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--frost);
   }
 
+  /* Implementation: five phases on the line */
+  .ph5 {
+    --dot: 10px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    padding-block: 28px 30px;
+    border-block: 1px solid var(--rule);
+  }
+  .ph5::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: calc(100% / 5 - var(--dot) / 2);
+    top: calc(28px + var(--dot) / 2 - 1px);
+    height: 2px;
+    background: var(--signal);
+  }
+  .ph5 li {
+    position: relative;
+    padding-top: 26px;
+  }
+  .ph5-dot {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: var(--dot);
+    height: var(--dot);
+    border-radius: 50%;
+    background: var(--ground);
+    border: 2px solid var(--signal);
+  }
+  .ph5 li:last-child .ph5-dot {
+    background: var(--signal);
+  }
+  .ph5-t {
+    font-family: var(--font-display);
+    font-stretch: 110%;
+    font-weight: 480;
+    font-size: clamp(1rem, 0.9rem + 0.4vw, 1.25rem);
+    letter-spacing: -0.01em;
+  }
+
+  /* Risk & governance: full-width ruled row */
+  .riskrow {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: clamp(16px, 2vw, 32px);
+    row-gap: 14px;
+    padding-block: 22px 12px;
+    border-block: 1px solid var(--rule);
+    align-items: baseline;
+  }
+  .riskrow-l {
+    grid-column: 1 / span 3;
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--lichen);
+  }
+  .riskrow-r {
+    grid-column: 4 / span 9;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: clamp(16px, 2vw, 32px);
+    color: var(--frost);
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .riskrow-r li {
+    padding: 10px 0;
+    border-top: 1px solid var(--rule);
+  }
+  .riskrow-r li:nth-child(-n + 3) {
+    border-top: 0;
+    padding-top: 0;
+  }
+
+  /* Where it ends */
   .b-l {
     grid-column: 1 / span 5;
   }
   .b-r {
     grid-column: 7 / span 6;
   }
+  .b-link {
+    color: var(--frost);
+    background-size: 100% 1px;
+  }
+  .b-link:hover {
+    color: var(--signal);
+  }
   .b-p {
-    margin: 18px 0 26px;
+    margin: 18px 0 0;
+  }
+  .b-p2 {
+    margin: 12px 0 26px;
   }
 
   @media (max-width: 1100px) {
-    .mods {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+    .qa-row {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+    .qa-m {
+      grid-column: 2;
+      justify-self: start;
     }
   }
   @media (max-width: 980px) {
-    .q-l,
-    .q,
+    .wh-top,
+    .wh-act,
+    .wh-fig,
     .b-l,
     .b-r {
       grid-column: 1 / -1;
+      grid-row: auto;
     }
-    .q,
+    .wh-fig {
+      margin-top: 0;
+    }
     .b-r {
       margin-top: 28px;
     }
+    .rec-id,
+    .rec-tech {
+      grid-column: 1 / -1;
+    }
+    .ms-nav {
+      display: none;
+    }
+    .ms-body {
+      grid-column: 1 / -1;
+    }
+    .riskrow-l,
+    .riskrow-r {
+      grid-column: 1 / -1;
+    }
   }
-  @media (max-width: 760px) {
-    .wf {
+  @media (max-width: 980px) {
+    .wf-ol {
       grid-template-columns: 1fr;
-      padding-left: 36px;
+      padding-left: 30px;
     }
-    .wf::before {
-      left: 8px;
-      right: auto;
-      top: 0;
-      bottom: 0;
-      width: 1px;
-      height: auto;
-    }
+    .wf-track,
     .wf-rail {
-      left: 7px;
+      left: calc(var(--dot) / 2 - 1px);
       right: auto;
-      top: 0;
-      bottom: 0;
-      width: 3px;
+      top: 6px;
+      bottom: 38px;
+      width: 2px;
       height: auto;
       transform-origin: top;
     }
-    :global(.js) .wf:not(.is-in) .wf-rail {
-      transform: scaleY(0) !important;
+    @media (prefers-reduced-motion: no-preference) {
+      :global(.js) .wf:not(.is-in) .wf-rail {
+        transform: scaleY(0) !important;
+      }
+      :global(.js) .wf.is-in .wf-rail {
+        transform: none !important;
+      }
     }
-    :global(.js) .wf.is-in .wf-rail {
-      transform: none !important;
-    }
-    .wf li {
-      padding: 0 0 22px;
+    .wf-a {
+      padding: 0 0 18px;
       display: flex;
       align-items: baseline;
       gap: 14px;
+      min-height: 44px;
     }
     .wf-dot {
-      left: -36px;
-      top: 4px;
+      left: -30px;
+      top: 6px;
     }
-    .wf .mono {
+    .wf-i {
       margin: 0;
     }
-    .mods {
+  }
+  @media (max-width: 760px) {
+    .qa-row {
       grid-template-columns: 1fr;
+    }
+    .qa-m {
+      grid-column: 1;
+    }
+    .ruled-2,
+    .grp {
+      grid-template-columns: 1fr;
+    }
+    .ph5 {
+      grid-template-columns: 1fr;
+      padding: 18px 0 8px 30px;
+    }
+    .ph5::before {
+      left: calc(var(--dot) / 2 - 1px);
+      right: auto;
+      top: 24px;
+      bottom: 30px;
+      width: 2px;
+      height: auto;
+    }
+    .ph5 li {
+      padding: 0 0 12px;
+    }
+    .ph5-dot {
+      left: -30px;
+      top: 6px;
+    }
+    .riskrow-r {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .riskrow-r li:nth-child(3) {
+      border-top: 1px solid var(--rule);
+      padding-top: 10px;
     }
   }
 </style>

@@ -4,11 +4,24 @@ import PageHead from '../../components/PageHead.astro';
 import StatusChip from '../../components/StatusChip.astro';
 import StageTrack from '../../components/StageTrack.astro';
 import PipelineBoard from '../../components/PipelineBoard.astro';
-import { visibleProjects, STATUS_STAGE, STATUS_LABEL, DOMAINS, type ProjectStatus } from '../../data/projects';
+import { visibleProjects, STATUS_STAGE, STATUS_LABEL, DOMAINS, projectHref, type ProjectStatus } from '../../data/projects';
+import { SITE } from '../../data/site';
 
-const order: ProjectStatus[] = ['live', 'built', 'in-development', 'prototype', 'research', 'exploring', 'partner-opportunity'];
+const order: ProjectStatus[] = ['live', 'built', 'in-development', 'prototype', 'research', 'exploring'];
 const projects = [...visibleProjects].sort((a, b) => order.indexOf(a.status) - order.indexOf(b.status));
 const domainLabel = (k: string) => DOMAINS.find((d) => d.key === k)?.label ?? k;
+const entityId = (p: (typeof projects)[number]) =>
+  `${SITE.url}${projectHref(p)}#${p.domain === 'dual-use' ? 'project' : 'app'}`;
+
+const LEGEND: Record<ProjectStatus, string> = {
+  live: 'Running in production and open to the public.',
+  built: 'Complete and working; release or rollout in progress.',
+  'in-development': 'The core works; the product is being engineered toward release.',
+  prototype: 'A working version used for testing and demonstrations.',
+  research: 'Applied research: hypotheses, experiments and feasibility.',
+  exploring: 'Early scouting and program research; nothing delivered yet.',
+  'partner-opportunity': ''
+};
 
 const itemList = {
   '@context': 'https://schema.org',
@@ -17,22 +30,27 @@ const itemList = {
   itemListElement: projects.map((p, i) => ({
     '@type': 'ListItem',
     position: i + 1,
-    url: `https://innovaconsult.ca/projects/${p.slug}`,
-    name: p.name
+    url: `${SITE.url}${projectHref(p)}`,
+    name: p.name,
+    item: { '@id': entityId(p) }
   }))
 };
 ---
 
 <BaseLayout
-  title="Projects — live products, prototypes and R&D | INNOVA"
-  description="INNOVA projects with their real status: live platforms, products in development, working prototypes and applied R&D in AI, software, community platforms and AgriTech."
+  title="Projects: Live Products, Prototypes & R&D | INNOVA"
+  description="INNOVA projects with their real status: live platforms, products in development, working prototypes and R&D across applied AI, software and AgriTech."
   path="/projects"
   jsonLd={[itemList]}
+  breadcrumbs={[
+    { name: 'Home', path: '/' },
+    { name: 'Projects', path: '/projects' }
+  ]}
 >
   <PageHead
     crumb="Projects"
     title="Real work, with its real status."
-    lede="Every project carries exactly one status. Live means people use it today; Prototype means it works and is being tested; R&D and Exploring mean exactly that."
+    lede="Every project carries exactly one status. Live is open to the public today; Built is complete and rolling out; Prototype works and is being tested; R&D is testing feasibility; Exploring is early scouting with nothing delivered yet."
   />
 
   <section class="section">
@@ -41,36 +59,54 @@ const itemList = {
     </div>
   </section>
 
-  <section class="section">
+  <section class="section" aria-labelledby="pr-list-h">
     <div class="wrap">
+      <h2 id="pr-list-h" class="sr-only">All projects</h2>
       <div class="rows">
         {
-          projects.map((p) => (
-            <a class="row prow" href={`/projects/${p.slug}`} id={p.slug}>
-              <div class="row-title">
-                <p class="mono prow-code">
-                  {p.code} · {domainLabel(p.domain)}
-                </p>
-                <h2 class="d-m">{p.name}</h2>
-              </div>
-              <div>
-                <p class="body">{p.summary}</p>
-                <p class="body prow-out">
-                  <strong>Where it stands:</strong> {p.outcome}
-                </p>
-              </div>
-              <div class="prow-meta">
-                <StatusChip status={p.status} />
-                <StageTrack at={STATUS_STAGE[p.status]} status={p.status} />
-              </div>
-            </a>
-          ))
+          projects.map((p) => {
+            const shot = p.images?.find((im) => im.w > im.h);
+            return (
+              <a
+                class:list={['row prow', { 'has-shot': !!shot }]}
+                href={projectHref(p)}
+                id={p.slug}
+              >
+                <div class="row-title">
+                  <p class="mono prow-code">
+                    {p.code} · {domainLabel(p.domain)}
+                  </p>
+                  <h2 id={`${p.slug}-t`} class="d-m">
+                    {p.name}
+                  </h2>
+                  {p.tagline && <p class="prow-tag">{p.tagline}</p>}
+                </div>
+                <div>
+                  {shot && (
+                    <span class="prow-shot" aria-hidden="true">
+                      <img src={shot.src800} width="800" height={Math.round((800 * shot.h) / shot.w)} alt="" loading="lazy" decoding="async" />
+                    </span>
+                  )}
+                  <p id={`${p.slug}-d`} class="body">
+                    {p.summary}
+                  </p>
+                  <p class="body prow-out">
+                    <strong>Where it stands:</strong> {p.outcome}
+                  </p>
+                </div>
+                <div class="prow-meta" id={`${p.slug}-s`}>
+                  <StatusChip status={p.status} />
+                  <StageTrack at={STATUS_STAGE[p.status]} status={p.status} />
+                </div>
+              </a>
+            );
+          })
         }
       </div>
     </div>
   </section>
 
-  <section class="section">
+  <section class="section pr-legend">
     <div class="wrap grid12 sec-head">
       <div class="sh-l">
         <h2 class="d-l">How we label status</h2>
@@ -85,19 +121,7 @@ const itemList = {
                   {STATUS_LABEL[s]}
                 </span>
               </dt>
-              <dd>
-                {
-                  {
-                    live: 'Running in production with real users.',
-                    built: 'Complete and working; release or rollout in progress.',
-                    'in-development': 'Core works; the product is being engineered toward release.',
-                    prototype: 'A working version used for testing and demonstrations.',
-                    research: 'Applied research: hypotheses, experiments and feasibility.',
-                    exploring: 'Early scouting and partner conversations; no deliverable claimed.',
-                    'partner-opportunity': 'A defined opportunity looking for the right partner.'
-                  }[s]
-                }
-              </dd>
+              <dd>{LEGEND[s]}</dd>
             </div>
           ))
         }
@@ -114,6 +138,12 @@ const itemList = {
   .prow h2 {
     margin: 0;
   }
+  .prow-tag {
+    margin: 8px 0 0;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: var(--lichen);
+  }
   .prow-out {
     margin-top: 12px;
     font-size: 0.95rem;
@@ -121,6 +151,45 @@ const itemList = {
   .prow-meta {
     display: grid;
     gap: 12px;
+  }
+
+  /* Screenshot plate: pinned over columns 10–12, opens on hover or keyboard focus. */
+  .prow-shot {
+    position: absolute;
+    z-index: 2;
+    right: 0;
+    top: clamp(22px, 2.4vw, 34px);
+    width: min(320px, 25%);
+    aspect-ratio: 16 / 10;
+    background: var(--plate);
+    border: 1px solid var(--rule-strong);
+    overflow: hidden;
+    pointer-events: none;
+    clip-path: inset(100% 0 0 0);
+    transition: clip-path 320ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .prow-shot img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+  }
+  a.prow.has-shot:hover .prow-shot,
+  a.prow.has-shot:focus-visible .prow-shot {
+    clip-path: inset(0 0 0 0);
+  }
+  a.prow.has-shot:hover::after,
+  a.prow.has-shot:focus-visible::after {
+    opacity: 0;
+  }
+  @media (hover: none) {
+    .prow-shot {
+      display: none;
+    }
+  }
+
+  .pr-legend {
+    padding-bottom: 72px;
   }
   .legend {
     margin: 0;
@@ -138,6 +207,18 @@ const itemList = {
     color: var(--lichen);
   }
   @media (max-width: 860px) {
+    /* Phone: the screenshot sits inline under the title as a 16:9 thumbnail. */
+    .prow-shot,
+    a.prow.has-shot:hover .prow-shot {
+      display: block;
+      position: static;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      clip-path: none;
+      transition: none;
+      margin: 4px 0 16px;
+      border-color: var(--rule);
+    }
     .legend {
       grid-column: 1 / -1 !important;
     }

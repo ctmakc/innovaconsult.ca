@@ -1,16 +1,35 @@
 ---
 import { NAV } from '../data/site';
 const path = Astro.url.pathname.replace(/\.html$/, '').replace(/\/$/, '') || '/';
+const isExact = (href: string) => path === href;
 const isActive = (href: string) => (href === '/' ? path === '/' : path === href || path.startsWith(href + '/'));
-const capActive = ['/capabilities', '/ai-transformation', '/software', '/innovation'].some((h) => isActive(h));
+/** 'page' on the exact page, 'true' on the parent of the current page, nothing otherwise. */
+const current = (href: string, section = isActive(href)) => (isExact(href) ? 'page' : section ? 'true' : undefined);
+
+const capChildren = NAV.find((n) => n.children)?.children ?? [];
+const capActive = capChildren.some((c) => isActive(c.href));
+
+const mobile = [
+  { href: '/projects', label: 'Projects' },
+  { href: '/capabilities', label: 'Capabilities' },
+  { href: '/ai-transformation', label: 'AI Transformation', sub: true },
+  { href: '/software', label: 'Software & Products', sub: true },
+  { href: '/innovation', label: 'Innovation & R&D', sub: true },
+  { href: '/workflow-os', label: 'Workflow OS' },
+  { href: '/partnerships', label: 'Partnerships' },
+  { href: '/about', label: 'About' },
+  { href: '/contact', label: 'Contact' }
+];
 ---
 
+<div class="hdr-sentinel" aria-hidden="true" data-hdr-sentinel></div>
 <header class="hdr" data-hdr>
   <div class="wrap hdr-in">
-    <a href="/" class="brand" aria-label="INNOVA — home">
-      <img src="/innova-mark.png" width="34" height="34" alt="" />
+    <a href="/" class="brand">
+      <img src="/innova-mark.webp" width="34" height="34" alt="" />
       <span class="brand-word">INNOVA</span>
-      <span class="brand-desc mono">Applied Innovation<br />&amp; Technology</span>
+      <span class="brand-desc">Applied innovation<br />&amp; technology</span>
+      <span class="sr-only">, home page</span>
     </a>
 
     <nav class="nav" aria-label="Main">
@@ -18,18 +37,27 @@ const capActive = ['/capabilities', '/ai-transformation', '/software', '/innovat
         {
           NAV.map((item) =>
             item.children ? (
-              <li class="has-sub">
-                <a href={item.href} class:list={['nav-a', { on: capActive }]} aria-haspopup="true">
+              <li class="has-sub" data-sub>
+                <a
+                  href={item.href}
+                  class:list={['nav-a', 'nav-a--parent', { on: capActive }]}
+                  aria-current={current(item.href, capActive)}
+                >
                   {item.label}
-                  <span class="caret" aria-hidden="true">
-                    ↓
-                  </span>
                 </a>
-                <ul class="sub">
+                <button class="sub-toggle" type="button" aria-expanded="false" aria-controls="sub-cap" data-sub-btn>
+                  <span class="sr-only">Capabilities pages</span>
+                  <span class="caret" aria-hidden="true">
+                    <svg width="10" height="10" viewBox="0 0 10 10">
+                      <path d="M1.5 3.5 5 7l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.5" />
+                    </svg>
+                  </span>
+                </button>
+                <ul class="sub" id="sub-cap">
                   {item.children.map((c) => (
                     <li>
-                      <a href={c.href} class:list={{ on: isActive(c.href) && c.href !== '/capabilities' }}>
-                        {c.label}
+                      <a href={c.href} class:list={{ on: isExact(c.href) }} aria-current={isExact(c.href) ? 'page' : undefined}>
+                        <span class="ulink">{c.label}</span>
                       </a>
                     </li>
                   ))}
@@ -37,7 +65,7 @@ const capActive = ['/capabilities', '/ai-transformation', '/software', '/innovat
               </li>
             ) : (
               <li>
-                <a href={item.href} class:list={['nav-a', { on: isActive(item.href) }]} aria-current={isActive(item.href) ? 'page' : undefined}>
+                <a href={item.href} class:list={['nav-a', { on: isActive(item.href) }]} aria-current={current(item.href)}>
                   {item.label}
                 </a>
               </li>
@@ -47,7 +75,7 @@ const capActive = ['/capabilities', '/ai-transformation', '/software', '/innovat
       </ul>
     </nav>
 
-    <a href="/contact" class="btn btn-primary hdr-cta">Start a conversation</a>
+    <a href="/contact" class="btn btn-primary hdr-cta" aria-current={isExact('/contact') ? 'page' : undefined}>Start a conversation</a>
 
     <button class="menu-btn" type="button" aria-expanded="false" aria-controls="m-menu" data-menu-btn>
       <span class="menu-label">Menu</span>
@@ -58,53 +86,145 @@ const capActive = ['/capabilities', '/ai-transformation', '/software', '/innovat
   <div class="m-menu" id="m-menu" hidden data-menu>
     <div class="wrap">
       <ul class="m-list">
-        <li><a href="/projects">Projects</a></li>
-        <li><a href="/capabilities">Capabilities</a></li>
-        <li class="m-sub"><a href="/ai-transformation">AI Transformation</a></li>
-        <li class="m-sub"><a href="/software">Software &amp; Products</a></li>
-        <li class="m-sub"><a href="/innovation">Innovation &amp; R&amp;D</a></li>
-        <li><a href="/workflow-os">Workflow OS</a></li>
-        <li><a href="/partnerships">Partnerships</a></li>
-        <li><a href="/about">About</a></li>
-        <li><a href="/contact">Contact</a></li>
+        {
+          mobile.map((m) => (
+            <li class:list={{ 'm-sub': m.sub }}>
+              <a href={m.href} class:list={{ on: isActive(m.href) }} aria-current={current(m.href)}>
+                {m.label}
+              </a>
+            </li>
+          ))
+        }
       </ul>
-      <p class="mono m-meta">Ottawa, Ontario, Canada</p>
+      <p class="m-meta">Ottawa, Ontario, Canada</p>
     </div>
   </div>
 </header>
 
 <script>
-  const hdr = document.querySelector('[data-hdr]');
-  const onScroll = () => hdr?.classList.toggle('scrolled', window.scrollY > 8);
-  onScroll();
-  window.addEventListener('scroll', onScroll, { passive: true });
+  const hdr = document.querySelector<HTMLElement>('[data-hdr]');
 
+  // Scrolled hairline: observe a sentinel at the top of the page instead of reading scrollY.
+  const sentinel = document.querySelector<HTMLElement>('[data-hdr-sentinel]');
+  if (hdr && sentinel && 'IntersectionObserver' in window) {
+    new IntersectionObserver(([e]) => hdr.classList.toggle('scrolled', !e.isIntersecting)).observe(sentinel);
+  }
+
+  // ── Capabilities disclosure (desktop) ────────────────────────────────────
+  const sub = document.querySelector<HTMLElement>('[data-sub]');
+  const subBtn = document.querySelector<HTMLButtonElement>('[data-sub-btn]');
+  if (sub && subBtn) {
+    const st = { hover: false, toggled: false, suppressed: false };
+    const render = () => {
+      const open = !st.suppressed && (st.hover || st.toggled);
+      sub.classList.toggle('open', open);
+      subBtn.setAttribute('aria-expanded', String(open));
+    };
+    sub.addEventListener('mouseenter', () => {
+      st.hover = true;
+      render();
+    });
+    sub.addEventListener('mouseleave', () => {
+      st.hover = false;
+      st.suppressed = false;
+      render();
+    });
+    sub.addEventListener('focusout', (e) => {
+      if (!sub.contains(e.relatedTarget as Node | null)) {
+        st.toggled = false;
+        st.suppressed = false;
+        render();
+      }
+    });
+    subBtn.addEventListener('click', () => {
+      const open = sub.classList.contains('open');
+      st.toggled = !open;
+      st.suppressed = open;
+      render();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key !== 'Escape' || !sub.classList.contains('open')) return;
+      const inside = sub.contains(document.activeElement);
+      st.toggled = false;
+      st.suppressed = true;
+      render();
+      if (inside) subBtn.focus();
+    });
+  }
+
+  // ── Mobile menu ──────────────────────────────────────────────────────────
   const btn = document.querySelector<HTMLButtonElement>('[data-menu-btn]');
   const menu = document.querySelector<HTMLElement>('[data-menu]');
-  const close = () => {
+  const outside = () => [document.querySelector('main'), document.querySelector('footer')].filter(Boolean) as HTMLElement[];
+  const isOpen = () => btn?.getAttribute('aria-expanded') === 'true';
+  const links = () => Array.from(menu?.querySelectorAll<HTMLAnchorElement>('a') ?? []);
+
+  const close = (returnFocus: boolean) => {
     if (!btn || !menu) return;
     btn.setAttribute('aria-expanded', 'false');
     menu.hidden = true;
     document.documentElement.classList.remove('menu-open');
+    outside().forEach((el) => (el.inert = false));
+    if (returnFocus) btn.focus();
   };
-  btn?.addEventListener('click', () => {
-    if (!menu) return;
-    const open = btn.getAttribute('aria-expanded') === 'true';
-    if (open) return close();
+  const open = () => {
+    if (!btn || !menu) return;
     btn.setAttribute('aria-expanded', 'true');
     menu.hidden = false;
     document.documentElement.classList.add('menu-open');
-    menu.querySelector('a')?.focus();
+    outside().forEach((el) => (el.inert = true));
+    links()[0]?.focus();
+  };
+
+  btn?.addEventListener('click', () => (isOpen() ? close(true) : open()));
+  menu?.addEventListener('click', (e) => {
+    if ((e.target as Element).closest('a')) close(false);
   });
-  document.addEventListener('keydown', (e) => e.key === 'Escape' && close());
+
+  document.addEventListener('keydown', (e) => {
+    if (!btn || !isOpen()) return;
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      close(true);
+      return;
+    }
+    if (e.key !== 'Tab') return;
+    // Focus trap: the Menu button and the menu links form one loop.
+    const all = links();
+    const last = all[all.length - 1];
+    const active = document.activeElement;
+    if (!e.shiftKey && active === last) {
+      e.preventDefault();
+      btn.focus();
+    } else if (e.shiftKey && active === btn) {
+      e.preventDefault();
+      last?.focus();
+    } else if (active !== btn && !menu?.contains(active)) {
+      e.preventDefault();
+      btn.focus();
+    }
+  });
+
+  const desktop = window.matchMedia('(min-width: 1021px)');
+  desktop.addEventListener('change', (e) => {
+    if (e.matches && isOpen()) close(false);
+  });
 </script>
 
 <style>
+  .hdr-sentinel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1px;
+    height: 8px;
+    pointer-events: none;
+  }
   .hdr {
     position: sticky;
     top: 0;
     z-index: 50;
-    background: rgb(8 22 26 / 0.94);
+    background: var(--ground);
     border-bottom: 1px solid transparent;
     transition: border-color var(--t-micro) var(--ease-out);
   }
@@ -123,6 +243,7 @@ const capActive = ['/capabilities', '/ai-transformation', '/software', '/innovat
     gap: 12px;
     text-decoration: none;
     margin-right: auto;
+    min-height: 44px;
   }
   .brand-word {
     font-family: var(--font-display);
@@ -132,7 +253,9 @@ const capActive = ['/capabilities', '/ai-transformation', '/software', '/innovat
     font-size: 1.12rem;
   }
   .brand-desc {
-    font-size: 0.62rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.02em;
     color: var(--lichen);
     padding-left: 12px;
     border-left: 1px solid var(--rule-strong);
@@ -148,7 +271,7 @@ const capActive = ['/capabilities', '/ai-transformation', '/software', '/innovat
   .nav-a {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    min-height: 44px;
     padding: 10px 12px;
     font-size: 0.95rem;
     font-weight: 500;
@@ -163,22 +286,45 @@ const capActive = ['/capabilities', '/ai-transformation', '/software', '/innovat
   .nav-a.on {
     box-shadow: inset 0 -2px 0 var(--signal);
   }
-  .caret {
-    font-size: 0.7em;
-    opacity: 0.7;
-  }
   .has-sub {
     position: relative;
+    display: flex;
+    align-items: center;
+  }
+  .nav-a--parent {
+    padding-right: 4px;
+  }
+  .sub-toggle {
+    display: inline-grid;
+    place-items: center;
+    width: 32px;
+    height: 44px;
+    padding: 0;
+    background: none;
+    border: 0;
+    color: var(--lichen);
+    cursor: pointer;
+    transition: color var(--t-micro) var(--ease-out);
+  }
+  .sub-toggle:hover,
+  .has-sub.open .sub-toggle {
+    color: var(--frost);
+  }
+  .caret svg {
+    transition: transform var(--t-micro) var(--ease-out);
+  }
+  .has-sub.open .caret svg {
+    transform: rotate(180deg);
   }
   .sub {
     position: absolute;
     top: 100%;
     left: 0;
-    min-width: 240px;
+    min-width: 248px;
     display: block !important;
     padding: 8px 0 !important;
     background: var(--plate);
-    border: 1px solid var(--rule);
+    border: 1px solid var(--rule-strong);
     opacity: 0;
     visibility: hidden;
     transform: translateY(-4px);
@@ -187,24 +333,35 @@ const capActive = ['/capabilities', '/ai-transformation', '/software', '/innovat
       transform var(--t-micro) var(--ease-out),
       visibility 0s linear var(--t-micro);
   }
-  .has-sub:hover .sub,
-  .has-sub:focus-within .sub {
+  .has-sub.open .sub,
+  :global(html:not(.js)) .has-sub:hover .sub,
+  :global(html:not(.js)) .has-sub:focus-within .sub {
     opacity: 1;
     visibility: visible;
     transform: none;
     transition-delay: 0s;
   }
   .sub a {
-    display: block;
-    padding: 10px 18px;
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 8px 18px;
     text-decoration: none;
     color: var(--lichen);
     font-size: 0.95rem;
+    transition: color var(--t-micro) var(--ease-out);
   }
   .sub a:hover,
+  .sub a:focus-visible,
   .sub a.on {
     color: var(--frost);
-    background: var(--plate-hi);
+  }
+  .sub a:hover .ulink,
+  .sub a:focus-visible .ulink {
+    background-size: 100% 1px;
+  }
+  .sub a.on {
+    box-shadow: inset 2px 0 0 var(--signal);
   }
   .hdr-cta {
     min-height: 44px;
@@ -246,6 +403,7 @@ const capActive = ['/capabilities', '/ai-transformation', '/software', '/innovat
     background: var(--ground);
     border-top: 1px solid var(--rule);
     overflow-y: auto;
+    overscroll-behavior: contain;
     padding-block: 28px 48px;
   }
   .m-list {
@@ -268,9 +426,19 @@ const capActive = ['/capabilities', '/ai-transformation', '/software', '/innovat
     font-size: 1.15rem;
     font-family: var(--font-text);
     color: var(--lichen);
+    padding: 12px 0 12px 20px;
+  }
+  .m-list a[aria-current] {
+    color: var(--frost);
+    box-shadow: inset 2px 0 0 var(--signal);
+    padding-left: 14px;
+  }
+  .m-list .m-sub a[aria-current] {
     padding-left: 20px;
   }
   .m-meta {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
     color: var(--lichen);
     margin-top: 28px;
   }

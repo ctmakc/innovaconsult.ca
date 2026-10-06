@@ -6,45 +6,149 @@ import StageTrack from '../components/StageTrack.astro';
 import StatusChip from '../components/StatusChip.astro';
 import StageLine from '../components/StageLine.astro';
 import { CAPABILITIES } from '../data/capabilities';
-import { SECTORS, ENGAGEMENT_LABEL } from '../data/sectors';
-import { featuredProjects, STATUS_STAGE } from '../data/projects';
+import { SECTORS, ENGAGEMENT_LABEL, type Engagement } from '../data/sectors';
+import { PARTNERSHIP_MODELS } from '../data/partnerships';
+import { visibleProjects, featuredProjects, STATUS_STAGE, STATUS_LABEL, type Project, type ProjectStatus } from '../data/projects';
+import { STAGES } from '../data/stages';
 import { SITE } from '../data/site';
 
-const engagementMark = { building: 'building', researching: 'research', exploring: 'exploring' } as const;
-const wosFlow = ['Company', 'Processes', 'Score', 'Select', 'Design', 'Implement', 'Measure'];
+const hrefOf = (p: Project) => p.internal ?? `/projects/${p.slug}`;
+const bySlug = new Map(visibleProjects.map((p) => [p.slug, p]));
+
+/* In brief: portfolio counts come from the data, so the copy never drifts. */
+const PLURAL: Partial<Record<ProjectStatus, string>> = {
+  prototype: 'prototypes',
+  'partner-opportunity': 'partner opportunities'
+};
+const countPhrases = (Object.keys(STATUS_LABEL) as ProjectStatus[])
+  .map((s) => ({ s, n: visibleProjects.filter((p) => p.status === s).length }))
+  .filter(({ n }) => n > 0)
+  .map(({ s, n }) => {
+    const label = STATUS_LABEL[s];
+    const word = /^[A-Z&]+$/.test(label) ? label : label.toLowerCase();
+    if (s === 'research') return `${n} in ${word}`;
+    return `${n} ${n > 1 && PLURAL[s] ? PLURAL[s] : word}`;
+  });
+const counts =
+  countPhrases.length > 1 ? `${countPhrases.slice(0, -1).join(', ')} and ${countPhrases.at(-1)}` : countPhrases.join('');
+
+/* What we do: the projects that prove each capability. */
+const capRows = CAPABILITIES.map((c) => ({
+  c,
+  proof: (c.projects ?? []).map((slug) => bySlug.get(slug)).filter((p): p is Project => Boolean(p))
+}));
+
+/* How we work: one short line per station, plus the projects standing on it today. */
 const stageNotes = [
-  'We look at how the organization works and where technology would change the result.',
-  'We test the technical options against real data and constraints before anyone commits a budget.',
-  'We build a working prototype that real users can try within weeks.',
-  'We engineer the chosen solution with security, permissions and audit built in.',
-  'We roll it out inside the systems and routines people already use.',
-  'We measure time, cost, errors and adoption against the starting point.'
+  'We study how the organization works today.',
+  'We test the options against real data first.',
+  'A working version that real users can try.',
+  'Security, permissions and audit built in.',
+  'Rolled out inside the tools people already use.',
+  'Time, cost, errors and adoption against the baseline.'
+];
+const stageLinks = STAGES.map((_, i) =>
+  visibleProjects.filter((p) => STATUS_STAGE[p.status] === i).map((p) => ({ label: p.short, href: hrefOf(p) }))
+);
+
+/* Workflow OS */
+const wosFlow = ['Company', 'Processes', 'Score', 'Select', 'Design', 'Implement', 'Measure'];
+const wosFactors = [
+  'Time consumed',
+  'Volume',
+  'Rework',
+  'Waiting time',
+  'Client and revenue impact',
+  'Standardization',
+  'Data readiness',
+  'System readiness',
+  'Rule clarity',
+  'Exception predictability',
+  'Repeatability',
+  'Scalability',
+  'Employee pain',
+  'Management priority'
+];
+
+/* Domains, grouped by how far INNOVA is in each. Marks reuse the board's vocabulary. */
+const engagementMark: Record<Engagement, string> = { building: 'prototype', researching: 'research', exploring: 'exploring' };
+const domainGroups = (['building', 'researching', 'exploring'] as Engagement[])
+  .map((e) => ({ e, label: ENGAGEMENT_LABEL[e], rows: SECTORS.filter((s) => s.engagement === e) }))
+  .filter((g) => g.rows.length > 0);
+
+/* Projects: real screenshots (captured 2026-10-01, see .proof-staging/MANIFEST.json). */
+const shots: Record<string, { src: string; alt: string; cap: string }> = {
+  uafest: {
+    src: '/proof/uafest-applications-1440-800.webp',
+    alt: 'UAFest 2027 sign-up page on uafest.ca: one form with participation types for guests, volunteers, vendors, performers, sponsors, Unity Ride drivers, the Rushnyk and the organizing team.',
+    cap: 'One intake form routes every participant type into the festival back office.'
+  },
+  foundwall: {
+    src: '/proof/foundwall-home-1440-800.webp',
+    alt: 'FoundWall homepage at 1440 px: Lost, Stolen, Found headline beside sample notices for a bike, a beagle, a robotic mower and a reunited bike.',
+    cap: 'FoundWall public homepage, foundwall.com.'
+  },
+  'workflow-os': {
+    src: '/proof/workflow-os-opportunity-map-1440-800.webp',
+    alt: 'Workflow OS Opportunity Map: 15 processes plotted by business value and implementation feasibility, with Client Onboarding ranked first at 88 and its score broken into value, feasibility, strategic fit and risk.',
+    cap: 'Opportunity Map for a fictional demo company.'
+  },
+  openfield: {
+    src: '/proof/openfield-season-report-1440-800.webp',
+    alt: 'OpenField season report preview: block-by-week pass grid and report figures such as hectares completed and passes on time, each tagged with its data source.',
+    cap: 'Season report preview generated from the logbook, demo data.'
+  }
+};
+const MOBILE_SHOT: ProjectStatus[] = ['live', 'built', 'prototype'];
+
+/* Credibility */
+const path = [
+  {
+    when: `From ${SITE.experienceSince}`,
+    what: 'The founder’s business practice: strategy, legal structure, tax and marketing for small and mid-sized companies.'
+  },
+  { when: 'Then', what: 'Digital systems for client companies.' },
+  { when: 'Then', what: 'Software products built and run in-house.' },
+  { when: 'Now', what: 'Applied innovation in Canada, open to partners.', now: true }
 ];
 ---
 
 <BaseLayout
-  title="INNOVA — Applied Innovation & Technology | Ottawa, Canada"
-  description="INNOVA is an Ottawa applied-innovation company. We research, prototype, build and deploy applied AI and software with companies, researchers and public organizations."
+  title="INNOVA · Applied AI & Software Company in Ottawa, Canada"
+  description="INNOVA researches, prototypes, builds and deploys applied AI and custom software in Ottawa, with every project shown at its real stage, from R&D to live use."
   path="/"
 >
   <!-- HERO -->
   <section class="hero">
     <div class="wrap grid12 hero-grid">
       <div class="hero-copy">
-        <p class="kicker hero-kick">Applied innovation · Ottawa, Canada</p>
         <RiseHeading text="Turning complex opportunities into working technology." />
         <p class="lede hero-lede">
-          INNOVA researches, prototypes, builds and deploys applied AI and software, and brings companies, researchers and public organizations onto the same project.
+          INNOVA researches, prototypes, builds and deploys applied AI and software<span class="lede-more">, and sets up joint projects with companies, researchers and public organizations</span>.
         </p>
         <div class="hero-ctas">
           <a href="/projects" class="btn btn-primary">Explore what we build <span class="arr" aria-hidden="true">→</span></a>
-          <a href="/partnerships" class="btn btn-ghost">Work with INNOVA</a>
+          <a href="/ai-transformation#engagement" class="btn btn-ghost hero-sec"
+            ><span>Start with one process</span><span class="hero-sec-arr" aria-hidden="true">→</span></a
+          >
         </div>
-        <p class="hero-trust mono">Ottawa, Canada · 14+ years of international business and technology experience</p>
       </div>
       <div class="hero-board">
-        <PipelineBoard />
+        <PipelineBoard only="featured" />
       </div>
+      <p class="hero-trust">Founder’s experience since {SITE.experienceSince} · Incorporated in {SITE.city}, {SITE.incorporated}</p>
+    </div>
+  </section>
+
+  <!-- IN BRIEF -->
+  <section class="brief" aria-labelledby="brief-h">
+    <div class="wrap grid12">
+      <h2 id="brief-h" class="meta brief-h">In brief</h2>
+      <p class="brief-p">
+        <strong>INNOVA ({SITE.legalName})</strong> is an applied-innovation and technology company in {SITE.city}, {SITE.region}, incorporated
+        federally in {SITE.incorporated}. It researches, prototypes, builds and deploys applied AI and software. Its portfolio shows each
+        project at its real stage: {counts}.
+      </p>
     </div>
   </section>
 
@@ -56,35 +160,51 @@ const stageNotes = [
           <h2 class="d-xl">Four capabilities on one line.</h2>
         </div>
         <p class="body sh-r">
-          Each capability covers a stretch of the path from first opportunity to measured impact. The track on the right of every row shows which stretch.
+          Each capability covers a stretch of the path from first opportunity to measured impact. The track on each row shows which stretch.
         </p>
       </div>
       <div class="rows">
         {
-          CAPABILITIES.map((c) => (
-            <a class="row" href={c.href}>
-              <h3 class="d-m row-title">{c.name}</h3>
+          capRows.map(({ c, proof }) => (
+            <div class="row caprow">
+              <h3 class="d-m row-title">
+                <a class="cap-link" href={c.href}>
+                  <span class="cap-name">{c.name}</span>
+                </a>
+              </h3>
               <p class="body">{c.line}</p>
-              <StageTrack span={c.span} />
-            </a>
+              <div class="cap-trk">
+                <StageTrack span={c.span} />
+                {proof.length > 0 && (
+                  <ul class="cap-proof" aria-label={`Projects that show ${c.name}`}>
+                    {proof.map((p) => (
+                      <li>
+                        <a href={hrefOf(p)}>
+                          <span class="cap-code">{p.code}</span> {p.short}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </div>
           ))
         }
       </div>
     </div>
   </section>
 
-  <!-- OPERATING MODEL -->
-  <section class="section" id="how-we-work">
+  <!-- HOW WE WORK: the one full-bleed band -->
+  <section class="section band" id="how-we-work">
     <div class="wrap">
-      <div class="grid12 sec-head">
-        <div class="sh-l">
-          <h2 class="d-xl">From opportunity to deployment.</h2>
-        </div>
-        <p class="body sh-r">
-          Strategy and implementation stay in one team. The people who study the problem also build, ship and measure the solution, so nothing is lost in a hand-off.
+      <div class="band-head">
+        <h2 class="d-xl">From opportunity to deployment.</h2>
+        <p class="body band-p">
+          Strategy and implementation stay in the same hands. Whoever studies the problem also builds, ships and measures the solution, so nothing
+          is lost in a hand-off.
         </p>
       </div>
-      <StageLine notes={stageNotes} />
+      <StageLine notes={stageNotes} links={stageLinks} />
     </div>
   </section>
 
@@ -99,15 +219,29 @@ const stageNotes = [
         </div>
         <p class="lede">From business processes to measurable AI automation.</p>
         <p class="body">
-          Workflow OS maps a company’s operations, scores every process for automation value, recommends the right architecture, from plain software to supervised AI agents, and turns the result into an implementation plan with a measurable return.
+          Workflow OS maps a company’s operations, scores every process for automation value and recommends an architecture for each one, from
+          plain software to supervised AI agents. The result is an implementation plan with a projected return that can be checked after go-live.
         </p>
         <a href="/workflow-os" class="btn btn-primary wos-cta">Explore Workflow OS <span class="arr" aria-hidden="true">→</span></a>
       </div>
-      <div class="wos-r" aria-label="Workflow OS flow">
-        <ol class="wos-flow" data-draw>
+      <div class="wos-r">
+        <figure class="proof wos-shot">
+          <img
+            src="/proof/workflow-os-opportunity-map-1440-1600.webp"
+            srcset="/proof/workflow-os-opportunity-map-1440-800.webp 800w, /proof/workflow-os-opportunity-map-1440-1600.webp 1600w"
+            sizes="(min-width:1100px) 50vw, 100vw"
+            loading="lazy"
+            decoding="async"
+            width="1600"
+            height="1000"
+            alt={shots['workflow-os'].alt}
+          />
+          <figcaption>Opportunity Map for Northstar Professional Services, a fictional demo company. Every score shows its parts.</figcaption>
+        </figure>
+        <ol class="wos-flow" aria-label="Workflow OS flow">
           {
             wosFlow.map((step, i) => (
-              <li style={`--i:${i}`}>
+              <li>
                 <span class="mono wos-i">{String(i + 1).padStart(2, '0')}</span>
                 <span class="wos-step">{step}</span>
               </li>
@@ -115,10 +249,11 @@ const stageNotes = [
           }
         </ol>
         <div class="wos-why">
-          <p class="mono">Every score shows its reasons</p>
-          <ul>
-            {['Time spent', 'Volume', 'Repetition', 'Error rate', 'Delays', 'Cost', 'Risk', 'Data readiness', 'Integration effort', 'AI suitability', 'ROI potential'].map((f) => <li>{f}</li>)}
+          <h3 class="meta wos-why-h">What each score weighs</h3>
+          <ul class="wos-factors">
+            {wosFactors.map((f) => <li>{f}</li>)}
           </ul>
+          <p class="wos-minus">minus a risk penalty for privacy, regulation, consequence and change complexity</p>
         </div>
       </div>
     </div>
@@ -129,23 +264,27 @@ const stageNotes = [
     <div class="wrap">
       <div class="grid12 sec-head">
         <div class="sh-l">
-          <h2 class="d-xl">Technology is horizontal. Impact happens inside industries.</h2>
+          <h2 class="d-xl">Where we build, research and explore.</h2>
         </div>
-        <p class="body sh-r">Areas we build in, research and explore with partners. The mark on each row says which.</p>
+        <p class="body sh-r">Areas we build in, research or are starting to explore. The mark on each row says which.</p>
       </div>
       <div class="dom">
         {
-          SECTORS.map((s) => (
-            <div class="dom-row">
-              <span class="status dom-st">
-                <span class="mark" data-s={engagementMark[s.engagement]} aria-hidden="true" />
-                {ENGAGEMENT_LABEL[s.engagement]}
-              </span>
-              <h3 class="d-m dom-h">{s.name}</h3>
-              <p class="body dom-p">
-                {s.line}
-                {s.evidence && <span class="dom-ev mono">{s.evidence}</span>}
-              </p>
+          domainGroups.map((g) => (
+            <div class="dom-g">
+              <h3 class="status dom-gh">{g.label}</h3>
+              <ul class="dom-list">
+                {g.rows.map((s) => (
+                  <li class="dom-row">
+                    <p class="dom-h">
+                      <span class="mark" data-s={engagementMark[g.e]} aria-hidden="true" />
+                      {s.name}
+                    </p>
+                    <p class="dom-p">{s.line}</p>
+                    {s.evidence && <p class="meta dom-ev">{s.evidence}</p>}
+                  </li>
+                ))}
+              </ul>
             </div>
           ))
         }
@@ -155,101 +294,137 @@ const stageNotes = [
 
   <!-- PROJECTS -->
   <section class="section" id="projects">
-    <div class="wrap">
-      <div class="grid12 sec-head">
-        <div class="sh-l">
-          <h2 class="d-xl">Real work, with its real status.</h2>
-        </div>
-        <p class="body sh-r">
-          Live products, systems in development and early research sit side by side. Every project carries one status, and the track shows its stage.
+    <div class="wrap grid12 pj">
+      <div class="pj-l">
+        <h2 class="d-xl">Projects, each with its real status.</h2>
+        <p class="body">
+          Live products, systems in development and early research sit side by side. Every project carries one status, and the track shows its
+          stage.
         </p>
+        <a class="arrow-link pj-all" href="/projects"><span>All projects</span><span aria-hidden="true">→</span></a>
       </div>
-      <div class="rows">
+      <div class="pj-r rows">
         {
-          featuredProjects.map((p) => (
-            <a class="row prow" href={`/projects/${p.slug}`}>
-              <div class="row-title">
-                <p class="mono prow-code">{p.code}</p>
-                <h3 class="d-m">{p.name}</h3>
-              </div>
-              <p class="body">{p.summary}</p>
-              <div class="prow-meta">
-                <StatusChip status={p.status} />
-                <StageTrack at={STATUS_STAGE[p.status]} status={p.status} caption={false} />
-              </div>
-            </a>
-          ))
+          featuredProjects.map((p) => {
+            const shot = shots[p.slug];
+            return (
+              <a class="row prow" href={hrefOf(p)}>
+                <div class="row-title">
+                  <p class="mono prow-code">{p.code}</p>
+                  <h3 class="d-m" id={`pt-${p.slug}`}>
+                    {p.name}
+                  </h3>
+                </div>
+                <div class="prow-text">
+                  <p class="body" id={`ps-${p.slug}`}>
+                    {p.summary}
+                  </p>
+                  {shot && (
+                    <figure class:list={['proof', 'prow-shot', { 'm-hide': !MOBILE_SHOT.includes(p.status) }]}>
+                      <img src={shot.src} alt={shot.alt} width="800" height="500" loading="lazy" decoding="async" />
+                      <figcaption>{shot.cap}</figcaption>
+                    </figure>
+                  )}
+                </div>
+                <div class="prow-meta">
+                  <StatusChip status={p.status} />
+                  <StageTrack at={STATUS_STAGE[p.status]} status={p.status} caption={false} />
+                </div>
+              </a>
+            );
+          })
         }
       </div>
-      <p class="more">
-        <a class="arrow-link" href="/projects"><span>All projects</span><span aria-hidden="true">→</span></a>
-      </p>
     </div>
   </section>
 
   <!-- COLLABORATION -->
   <section class="section collab" id="collaboration">
     <div class="wrap grid12">
-      <div class="co-l">
-        <h2 class="d-xl">Innovation works better in collaboration.</h2>
+      <h2 class="d-m co-h">Projects we take on with partners.</h2>
+      <p class="d-xl co-st">
+        INNOVA takes on applied R&amp;D, software development, pilot deployment and commercialization together with technology companies, industry
+        operators, researchers, institutions and public organizations.
+      </p>
+      <div class="co-foot">
+        <a href="/partnerships" class="btn btn-primary">See partnership models <span class="arr" aria-hidden="true">→</span></a>
       </div>
-      <div class="co-r">
-        <p class="lede">
-          We work with technology companies, industry operators, researchers, institutions and public organizations on applied R&amp;D, software development, pilot deployment and commercialization.
-        </p>
-        <ul class="co-areas">
-          {['Applied AI', 'Industrial software', 'Agriculture technology', 'Health technology', 'Data infrastructure', 'Public-sector digital systems', 'Commercializing emerging technology'].map((a) => <li>{a}</li>)}
-        </ul>
-        <div class="co-ctas">
-          <a href="/partnerships" class="btn btn-primary">Discuss a collaboration <span class="arr" aria-hidden="true">→</span></a>
-          <a href="/partnerships#models" class="arrow-link"><span>Partnership models</span><span aria-hidden="true">→</span></a>
-        </div>
-      </div>
+      <ul class="co-models" aria-label="Partnership models">
+        {
+          PARTNERSHIP_MODELS.slice(0, 4).map((m) => (
+            <li>
+              <a href="/partnerships#models">
+                <span>{m.name}</span>
+                <span aria-hidden="true">→</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
     </div>
   </section>
 
   <!-- CREDIBILITY -->
   <section class="section cred" id="background">
     <div class="wrap grid12">
-      <div class="cr-l">
-        <h2 class="d-xl">New technology. Experienced operators.</h2>
-        <p class="body cr-p">
-          INNOVA’s focus today is applied technology, built on a longer history. Its founder has worked with businesses across many jurisdictions, industries and operating environments since {SITE.experienceSince}. That history teaches how companies run, where processes break and what it takes to get a new system adopted.
-        </p>
-        <a href="/about" class="arrow-link"><span>About INNOVA</span><span aria-hidden="true">→</span></a>
-      </div>
-      <ol class="cr-path" data-draw>
-        <span class="cr-rail trk-span" aria-hidden="true"></span>
-        <li><span class="mono">From {SITE.experienceSince}</span><strong>Business operations</strong> across jurisdictions and industries</li>
-        <li><span class="mono">Then</span><strong>Digital systems</strong> for the companies we worked with</li>
-        <li><span class="mono">Then</span><strong>Software products</strong> built and run in-house</li>
-        <li><span class="mono">Then</span><strong>Applied AI</strong> inside real business workflows</li>
-        <li><span class="mono">{SITE.incorporated} · Canada</span><strong>{SITE.legalName}</strong> incorporated federally, based in Ottawa</li>
-        <li class="now"><span class="mono">Now</span><strong>Applied innovation</strong> with Canadian partners</li>
+      <h2 class="d-xl cr-h">Founder’s experience since {SITE.experienceSince}. Incorporated in {SITE.city} in {SITE.incorporated}.</h2>
+      <ol class="cr-path">
+        {
+          path.map((r) => (
+            <li class:list={[{ now: r.now }]}>
+              <span class="meta cr-when">{r.when}</span>
+              <span class="cr-what">{r.what}</span>
+            </li>
+          ))
+        }
       </ol>
+      <div class="cr-side">
+        <p class="cr-lead">INNOVA is led by its founder, Maksym Stepanenko.</p>
+        <p class="body">
+          His work with businesses across many jurisdictions and industries showed how companies run, where processes break and what it takes to
+          get a new system adopted.
+        </p>
+        <a href="/about#founder" class="arrow-link"><span>About INNOVA</span><span aria-hidden="true">→</span></a>
+      </div>
     </div>
   </section>
 </BaseLayout>
 
 <style>
-  /* Hero */
+  /* Small sentence-case mono label (not a stage label, chip or INV code). */
+  .meta {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    line-height: 1.35;
+    color: var(--lichen);
+    margin: 0;
+  }
+  .arrow-link {
+    min-height: 44px;
+  }
+
+  /* ── Hero ─────────────────────────────────────────────────────────── */
   .hero {
-    padding-block: clamp(36px, 4vw, 64px) clamp(72px, 7vw, 120px);
+    padding-block: clamp(36px, 4vw, 64px) clamp(64px, 6vw, 104px);
   }
   .hero-grid {
     align-items: start;
-    row-gap: 48px;
+    row-gap: 0;
   }
   .hero-copy {
     grid-column: 1 / span 5;
+    grid-row: 1;
     padding-top: clamp(8px, 2vw, 36px);
+  }
+  .hero-copy :global(.d-hero) {
+    max-width: 14ch;
   }
   .hero-board {
     grid-column: 6 / span 7;
+    grid-row: 1 / span 2;
     padding-top: clamp(8px, 2vw, 36px);
-  }
-  .hero-kick {
-    animation: hfade 700ms var(--ease-out) both;
   }
   .hero-lede {
     margin-top: 28px;
@@ -262,13 +437,20 @@ const stageNotes = [
     margin-top: 34px;
     animation: hfade 800ms var(--ease-out) 640ms both;
   }
+  .hero-sec-arr {
+    display: none;
+  }
   .hero-trust {
-    margin: 30px 0 0;
-    padding-top: 18px;
+    grid-column: 1 / span 5;
+    grid-row: 2;
+    align-self: start;
+    margin: 34px 0 0;
+    padding-top: 16px;
     border-top: 1px solid var(--rule);
+    font-family: var(--font-text);
+    font-size: 0.85rem;
+    line-height: 1.5;
     color: var(--lichen);
-    font-size: 0.7rem;
-    max-width: 46ch;
     animation: hfade 800ms var(--ease-out) 760ms both;
   }
   @keyframes hfade {
@@ -288,20 +470,189 @@ const stageNotes = [
   }
   @media (max-width: 1100px) {
     .hero-copy,
-    .hero-board {
+    .hero-board,
+    .hero-trust {
       grid-column: 1 / -1;
+      grid-row: auto;
     }
-    .hero-copy .d-hero {
-      max-width: 14ch;
+    .hero-board {
+      margin-top: 44px;
+    }
+  }
+  @media (max-width: 720px) {
+    .hero {
+      padding-top: 20px;
+    }
+    .hero-copy,
+    .hero-board {
+      padding-top: 0;
+    }
+    .hero-lede {
+      margin-top: 18px;
+    }
+    .lede-more {
+      display: none;
+    }
+    .hero-ctas {
+      margin-top: 22px;
+      gap: 4px;
+    }
+    .hero-ctas .btn-primary {
+      width: 100%;
+      justify-content: space-between;
+    }
+    .hero-sec {
+      width: 100%;
+      min-height: 44px;
+      padding: 0;
+      border: 0;
+      gap: 10px;
+    }
+    .hero-sec-arr {
+      display: inline;
+      transition: transform var(--t-micro) var(--ease-out);
+    }
+    .hero-sec:hover .hero-sec-arr {
+      transform: translateX(4px);
+    }
+    .hero-board {
+      margin-top: 28px;
+    }
+    .hero-trust {
+      margin-top: 24px;
     }
   }
 
-  /* Workflow OS */
+  /* ── In brief ─────────────────────────────────────────────────────── */
+  .brief {
+    padding-block: clamp(36px, 3vw, 52px);
+    border-top: 1px solid var(--rule);
+  }
+  .brief-h {
+    grid-column: 1 / span 2;
+    padding-top: 6px;
+  }
+  .brief-p {
+    grid-column: 3 / span 8;
+    margin: 0;
+    max-width: 64ch;
+    font-size: clamp(1.02rem, 0.96rem + 0.25vw, 1.18rem);
+    line-height: 1.6;
+    color: var(--lichen);
+  }
+  .brief-p strong {
+    color: var(--frost);
+    font-weight: 600;
+  }
+  .brief + .section {
+    border-top: 1px solid var(--rule);
+  }
+  @media (max-width: 860px) {
+    .brief-h,
+    .brief-p {
+      grid-column: 1 / -1;
+    }
+    .brief-h {
+      padding: 0 0 10px;
+    }
+  }
+
+  /* ── What we do ───────────────────────────────────────────────────── */
+  .caprow {
+    position: relative;
+  }
+  .cap-link {
+    text-decoration: none;
+    color: inherit;
+  }
+  .cap-link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+  .cap-link:focus-visible {
+    outline: none;
+  }
+  .cap-link:focus-visible::after {
+    outline: 2px solid var(--signal);
+    outline-offset: -2px;
+  }
+  /* Shift the name, never the h3: a transform on an ancestor of the stretched
+     ::after would shrink the row's click/focus area down to the title. */
+  .cap-name {
+    display: inline-block;
+    transition: transform 320ms var(--ease-out);
+  }
+  .caprow:hover .cap-name,
+  .caprow:focus-within .cap-name {
+    transform: translateX(6px);
+  }
+  .cap-proof {
+    position: relative;
+    z-index: 1;
+    list-style: none;
+    margin: 16px 0 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 18px;
+  }
+  .cap-proof a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 32px;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.02em;
+    color: var(--lichen);
+    text-decoration: none;
+    transition: color var(--t-micro) var(--ease-out);
+  }
+  .cap-proof a:hover {
+    color: var(--frost);
+  }
+  .cap-code {
+    color: var(--frost);
+  }
+  @media (pointer: coarse) {
+    .cap-proof a {
+      min-height: 44px;
+    }
+  }
+
+  /* ── How we work: full-bleed band, the one centered moment ─────────── */
+  .band {
+    background: var(--plate);
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+  .band + .section {
+    border-top: 0;
+  }
+  .band-head {
+    max-width: 880px;
+    margin: 0 auto clamp(48px, 5vw, 80px);
+    text-align: center;
+  }
+  .band-p {
+    margin: 22px auto 0;
+    max-width: 58ch;
+    text-wrap: balance;
+  }
+  .band :global(.sl-dot) {
+    background: var(--plate);
+  }
+
+  /* ── Workflow OS ──────────────────────────────────────────────────── */
   .wos-l {
-    grid-column: 1 / span 6;
+    grid-column: 1 / span 5;
+    position: sticky;
+    top: 120px;
+    align-self: start;
   }
   .wos-r {
-    grid-column: 8 / span 5;
+    grid-column: 7 / span 6;
   }
   .wos-name {
     display: flex;
@@ -318,126 +669,153 @@ const stageNotes = [
   .wos-cta {
     margin-top: 30px;
   }
+  .wos-shot {
+    margin: 0 0 clamp(36px, 4vw, 56px);
+  }
   .wos-flow {
     list-style: none;
     margin: 0;
-    padding: 0 0 0 30px;
-    position: relative;
-  }
-  .wos-flow::before {
-    content: '';
-    position: absolute;
-    left: 6px;
-    top: 14px;
-    bottom: 14px;
-    width: 1px;
-    background: var(--signal);
-    transform-origin: top;
-    transition: transform 1100ms var(--ease-in-out);
-  }
-  :global(.js) .wos-flow:not(.is-in)::before {
-    transform: scaleY(0);
+    padding: 0;
+    border-top: 1px solid var(--rule);
   }
   .wos-flow li {
-    position: relative;
     display: flex;
     align-items: baseline;
-    gap: 16px;
-    padding: 9px 0;
+    gap: 18px;
+    padding: 14px 0;
     border-bottom: 1px solid var(--rule);
-  }
-  .wos-flow li::before {
-    content: '';
-    position: absolute;
-    left: -29px;
-    top: 50%;
-    width: 11px;
-    height: 11px;
-    margin-top: -5.5px;
-    border-radius: 50%;
-    background: var(--ground);
-    border: 2px solid var(--signal);
-  }
-  .wos-flow li:last-child::before {
-    background: var(--signal);
   }
   .wos-i {
     color: var(--lichen);
+    min-width: 2ch;
   }
   .wos-step {
     font-family: var(--font-display);
     font-stretch: 110%;
     font-weight: 480;
-    font-size: clamp(1.25rem, 1rem + 0.8vw, 1.75rem);
+    font-size: clamp(1.2rem, 1rem + 0.6vw, 1.55rem);
     letter-spacing: -0.02em;
+    line-height: 1.1;
   }
   .wos-why {
-    margin-top: 28px;
-    padding: 20px 22px;
-    background: var(--plate);
-    border: 1px solid var(--rule);
+    margin-top: clamp(36px, 4vw, 56px);
   }
-  .wos-why .mono {
-    margin: 0 0 14px;
+  .wos-why-h {
     color: var(--frost);
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--rule);
   }
-  .wos-why ul {
+  .wos-factors {
     list-style: none;
     margin: 0;
-    padding: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
+    padding: 12px 0 0;
+    columns: 2;
+    column-gap: 32px;
   }
-  .wos-why li {
-    font-size: 0.86rem;
+  .wos-factors li {
+    font-size: 0.95rem;
+    line-height: 1.4;
     color: var(--lichen);
-    padding: 4px 10px;
-    border: 1px solid var(--rule-strong);
+    padding: 6px 0;
+    break-inside: avoid;
+  }
+  .wos-minus {
+    margin: 14px 0 0;
+    padding-top: 14px;
+    border-top: 1px solid var(--rule);
+    font-size: 0.95rem;
+    color: var(--frost);
   }
   @media (max-width: 980px) {
     .wos-l,
     .wos-r {
       grid-column: 1 / -1;
+      position: static;
     }
     .wos-r {
       margin-top: 48px;
     }
   }
+  @media (max-width: 480px) {
+    .wos-factors {
+      columns: 1;
+    }
+  }
 
-  /* Domains: two-column ruled list */
+  /* ── Domains: three groups, the board's mark vocabulary ───────────── */
   .dom {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    column-gap: clamp(24px, 4vw, 72px);
-    border-bottom: 1px solid var(--rule);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: clamp(24px, 3vw, 48px);
+    row-gap: 40px;
+  }
+  .dom-gh {
+    display: flex;
+    color: var(--frost);
+    margin: 0;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--rule-strong);
+    font-weight: 400;
+  }
+  .dom-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
   }
   .dom-row {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 8px;
-    padding: 26px 0 28px;
-    border-top: 1px solid var(--rule);
-  }
-  .dom-st {
-    color: var(--lichen);
+    padding: 20px 0;
+    border-bottom: 1px solid var(--rule);
   }
   .dom-h {
-    margin: 2px 0 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 6px;
+    font-family: var(--font-display);
+    font-stretch: 108%;
+    font-weight: 520;
+    font-size: clamp(1.12rem, 1rem + 0.35vw, 1.3rem);
+    letter-spacing: -0.015em;
+    line-height: 1.2;
+  }
+  .dom-h .mark {
+    --sz: 11px;
+  }
+  .dom-p {
+    margin: 0;
+    color: var(--lichen);
+    font-size: 0.95rem;
+    line-height: 1.55;
   }
   .dom-ev {
-    display: block;
-    margin-top: 10px;
+    margin-top: 8px;
     color: var(--frost);
-    font-size: 0.7rem;
   }
-  @media (max-width: 860px) {
+  @media (max-width: 980px) {
     .dom {
       grid-template-columns: 1fr;
     }
   }
 
-  /* Projects */
+  /* ── Projects: sticky split 4/8 ───────────────────────────────────── */
+  .pj {
+    row-gap: 32px;
+  }
+  .pj-l {
+    grid-column: 1 / span 4;
+    position: sticky;
+    top: 120px;
+    align-self: start;
+  }
+  .pj-l .body {
+    margin-top: 22px;
+  }
+  .pj-all {
+    margin-top: 22px;
+  }
+  .pj-r {
+    grid-column: 5 / span 8;
+  }
   .prow-code {
     color: var(--lichen);
     margin: 0 0 8px;
@@ -445,131 +823,183 @@ const stageNotes = [
   .prow h3 {
     margin: 0;
   }
+  .prow-shot {
+    margin: 18px 0 0;
+    max-width: 420px;
+    overflow: hidden;
+  }
+  .prow-shot img {
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    filter: saturate(0.85) contrast(1.05);
+    transition: filter 420ms var(--ease-out);
+  }
+  .prow:hover .prow-shot img,
+  .prow:focus-visible .prow-shot img {
+    filter: none;
+  }
+  .prow-shot figcaption {
+    font-size: 0.8rem;
+    line-height: 1.45;
+  }
   .prow-meta {
     display: grid;
     gap: 12px;
   }
-  .more {
-    margin: 32px 0 0;
+  @media (max-width: 860px) {
+    .pj-l,
+    .pj-r {
+      grid-column: 1 / -1;
+      position: static;
+    }
+    .prow-text {
+      display: contents;
+    }
+    .prow-shot {
+      order: -1;
+      margin: 0 0 4px;
+      max-width: none;
+    }
+    .prow-shot.m-hide {
+      display: none;
+    }
   }
 
-  /* Collaboration */
-  .co-l {
-    grid-column: 1 / span 5;
+  /* ── Collaboration: one statement ─────────────────────────────────── */
+  .co-h {
+    grid-column: 1 / -1;
+    color: var(--lichen);
+    margin-bottom: clamp(20px, 2vw, 32px);
   }
-  .co-r {
-    grid-column: 7 / span 6;
-    padding-top: 8px;
+  .co-st {
+    grid-column: 1 / span 10;
+    max-width: none;
+    text-wrap: pretty;
   }
-  .co-areas {
+  .co-foot {
+    grid-column: 1 / span 4;
+    margin-top: clamp(40px, 4vw, 64px);
+    align-self: end;
+  }
+  .co-models {
+    grid-column: 6 / span 7;
     list-style: none;
-    margin: 32px 0 0;
+    margin: clamp(40px, 4vw, 64px) 0 0;
     padding: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px 8px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: clamp(16px, 2vw, 32px);
+    border-bottom: 1px solid var(--rule);
   }
-  .co-areas li {
-    padding: 7px 14px;
-    border: 1px solid var(--rule-strong);
-    font-size: 0.95rem;
+  .co-models li {
+    border-top: 1px solid var(--rule);
   }
-  .co-ctas {
+  .co-models a {
     display: flex;
-    flex-wrap: wrap;
+    justify-content: space-between;
     align-items: center;
-    gap: 16px 28px;
-    margin-top: 36px;
+    gap: 12px;
+    min-height: 56px;
+    font-weight: 600;
+    text-decoration: none;
+    color: var(--frost);
+  }
+  .co-models a span:last-child {
+    color: var(--lichen);
+    transition:
+      transform var(--t-micro) var(--ease-out),
+      color var(--t-micro) var(--ease-out);
+  }
+  .co-models a:hover span:last-child {
+    transform: translateX(4px);
+    color: var(--frost);
   }
   @media (max-width: 980px) {
-    .co-l,
-    .co-r {
+    .co-st,
+    .co-foot,
+    .co-models {
       grid-column: 1 / -1;
     }
-    .co-r {
-      margin-top: 24px;
+    .co-models {
+      order: 3;
+      margin-top: 36px;
+    }
+    .co-foot {
+      order: 4;
+      margin-top: 32px;
+    }
+  }
+  @media (max-width: 720px) {
+    .co-st {
+      font-size: clamp(1.5rem, 1.1rem + 1.6vw, 1.9rem);
+      line-height: 1.08;
+    }
+  }
+  @media (max-width: 560px) {
+    .co-models {
+      grid-template-columns: 1fr;
+    }
+    .co-foot .btn {
+      width: 100%;
+      justify-content: space-between;
     }
   }
 
-  /* Credibility */
-  .cr-l {
-    grid-column: 1 / span 5;
-  }
-  .cr-p {
-    margin: 28px 0 28px;
+  /* ── Credibility: plain ruled rows ────────────────────────────────── */
+  .cr-h {
+    grid-column: 1 / span 9;
+    margin-bottom: clamp(36px, 4vw, 64px);
   }
   .cr-path {
-    grid-column: 7 / span 6;
+    grid-column: 1 / span 7;
     list-style: none;
     margin: 0;
-    padding: 0 0 0 34px;
-    position: relative;
-    align-self: center;
-  }
-  .cr-path::before {
-    content: '';
-    position: absolute;
-    left: 6px;
-    top: 10px;
-    bottom: 10px;
-    width: 1px;
-    background: var(--rule-strong);
-  }
-  .cr-rail {
-    position: absolute;
-    left: 5px;
-    top: 10px;
-    bottom: 10px;
-    width: 3px;
-    background: var(--signal);
-    transform-origin: top;
-    transition: transform var(--t-draw) var(--ease-in-out);
-  }
-  :global(.js) .cr-path:not(.is-in) .cr-rail {
-    transform: scaleY(0) !important;
-  }
-  :global(.js) .cr-path.is-in .cr-rail {
-    transform: none !important;
+    padding: 0;
+    border-bottom: 1px solid var(--rule);
   }
   .cr-path li {
-    position: relative;
-    padding: 14px 0;
-    border-bottom: 1px solid var(--rule);
-    color: var(--lichen);
+    display: grid;
+    grid-template-columns: 120px minmax(0, 1fr);
+    gap: 16px;
+    align-items: baseline;
+    padding: 18px 0;
+    border-top: 1px solid var(--rule);
   }
-  .cr-path li::before {
-    content: '';
-    position: absolute;
-    left: -33px;
-    top: 50%;
-    width: 11px;
-    height: 11px;
-    margin-top: -5.5px;
-    border-radius: 50%;
-    background: var(--ground);
-    border: 2px solid var(--signal);
-  }
-  .cr-path li.now::before {
-    background: var(--signal);
-  }
-  .cr-path .mono {
-    display: block;
-    color: var(--signal);
-    font-size: 0.68rem;
-    margin-bottom: 4px;
-  }
-  .cr-path strong {
+  .cr-what {
     color: var(--frost);
-    font-weight: 600;
-    margin-right: 6px;
+  }
+  .cr-path li.now .cr-when {
+    color: var(--signal);
+  }
+  .cr-side {
+    grid-column: 9 / span 4;
+  }
+  .cr-lead {
+    margin: 0 0 14px;
+    font-family: var(--font-display);
+    font-stretch: 108%;
+    font-weight: 500;
+    font-size: clamp(1.2rem, 1rem + 0.5vw, 1.45rem);
+    letter-spacing: -0.015em;
+    line-height: 1.25;
+  }
+  .cr-side .body {
+    margin-bottom: 18px;
   }
   @media (max-width: 980px) {
-    .cr-l,
-    .cr-path {
+    .cr-h,
+    .cr-path,
+    .cr-side {
       grid-column: 1 / -1;
     }
-    .cr-path {
-      margin-top: 40px;
+    .cr-side {
+      margin-top: 36px;
+    }
+  }
+  @media (max-width: 480px) {
+    .cr-path li {
+      grid-template-columns: 1fr;
+      gap: 4px;
     }
   }
 </style>

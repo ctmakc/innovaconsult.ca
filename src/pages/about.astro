@@ -3,19 +3,61 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHead from '../components/PageHead.astro';
 import { SITE } from '../data/site';
 
+// NCAGE and D-U-N-S live in SITE (shared data); rows render only when the values are present.
+const REC = SITE as typeof SITE & { ncage?: string; duns?: string };
+
 const why = ['How companies operate', 'Economics', 'Processes', 'Regulation', 'Users', 'Implementation', 'Commercialization'];
+
+const evolution: { label: string; year?: string }[] = [
+  { label: 'Business operations', year: SITE.experienceSince },
+  { label: 'Digital systems' },
+  { label: 'Software' },
+  { label: 'Applied AI' },
+  { label: 'Applied innovation', year: `${SITE.incorporated} · incorporated` }
+];
+
+// Owner law (external-links-hidden): outside links render without <a href>; the address sits base64-encoded in a data attribute.
+const registryUrl = `https://ised-isde.canada.ca/cc/lgcy/fdrlCrpDtls.html?corpId=${SITE.corporationNumber.replace('-', '')}`;
+const registryB64 = btoa(registryUrl);
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'AboutPage',
+    '@id': `${SITE.url}/about#page`,
+    url: `${SITE.url}/about`,
+    name: 'About INNOVA CONSULT LTD.',
+    inLanguage: 'en-CA',
+    isPartOf: { '@id': `${SITE.url}/#website` },
+    mainEntity: { '@id': `${SITE.url}/#org` }
+  }
+];
 ---
 
 <BaseLayout
-  title="About INNOVA — applied innovation company in Ottawa"
-  description="INNOVA CONSULT LTD. is an Ottawa-based applied innovation and technology company, built on more than 14 years of international business and technology experience."
+  title="About INNOVA CONSULT LTD. · Ottawa Technology Company"
+  description="INNOVA CONSULT LTD. is an Ottawa applied AI and software company, incorporated federally in 2023. Its founder has worked in business and technology since 2012."
   path="/about"
+  jsonLd={jsonLd}
+  breadcrumbs={[
+    { name: 'Home', path: '/' },
+    { name: 'About', path: '/about' }
+  ]}
 >
   <PageHead
     crumb="About"
-    title="An Ottawa applied innovation and technology company."
+    title="An Ottawa applied-innovation and technology company."
     lede="INNOVA identifies high-value problems, develops technology around them and brings the right people, software and partners together to put it into use."
   />
+
+  <section class="brief" aria-labelledby="brief-h">
+    <div class="wrap grid12">
+      <h2 id="brief-h" class="mono brief-h">In brief</h2>
+      <p class="brief-p">
+        INNOVA ({SITE.legalName}) is an applied-innovation and technology company in Ottawa, Ontario, incorporated federally in {SITE.incorporated}. It researches, prototypes, builds and deploys applied AI and software, and shows each project with its real status.
+      </p>
+    </div>
+  </section>
 
   <section class="section">
     <div class="wrap grid12">
@@ -27,12 +69,20 @@ const why = ['How companies operate', 'Economics', 'Processes', 'Regulation', 'U
           INNOVA’s founder brings more than 14 years of international business and technology experience, from {SITE.experienceSince} onward, working with companies across many jurisdictions, industries and operating environments.
         </p>
         <p class="body ab-p">
-          That work moved step by step from business operations to digital systems, to software products, to applied AI. {SITE.legalName} was incorporated federally in {SITE.incorporated} and is based in Ottawa, where it now focuses on applied innovation with Canadian partners.
+          That work moved step by step from business operations to digital systems, to software products, to applied AI. {SITE.legalName} was incorporated federally in {SITE.incorporated} and is based in Ottawa, where it now focuses on applied innovation: building its own products and preparing joint projects with Canadian organizations.
         </p>
-        <ol class="evo">
-          {['Business operations', 'Digital systems', 'Software', 'Applied AI', 'Applied innovation'].map((s, i, a) => <li class:list={{ now: i === a.length - 1 }}>{s}</li>)}
-        </ol>
       </div>
+      <ol class="evo" data-draw aria-label="How the work evolved">
+        {
+          evolution.map((s, i, a) => (
+            <li class:list={['evo-st', { now: i === a.length - 1 }]} style={`--i:${i}`}>
+              <span class="evo-dot" aria-hidden="true" />
+              <span class="evo-l">{s.label}</span>
+              {s.year && <span class="evo-y">{s.year}</span>}
+            </li>
+          ))
+        }
+      </ol>
     </div>
   </section>
 
@@ -43,27 +93,92 @@ const why = ['How companies operate', 'Economics', 'Processes', 'Regulation', 'U
       </div>
       <div class="ab-r">
         <p class="lede">Technology projects succeed when the builders understand the business around the code.</p>
-        <ul class="why">{why.map((w) => <li>{w}</li>)}</ul>
-        <p class="body">That multidisciplinary view is what lets one team study a problem, build the solution and see it adopted.</p>
+        <p class="why">{why.map((w, i) => <><span>{w}{i < why.length - 1 ? ' ·' : ''}</span>{' '}</>)}</p>
+        <p class="body">That multidisciplinary view lets INNOVA study a problem, build the solution and see it adopted.</p>
+        <p class="body ab-next">
+          The <a class="ulink ab-a" href="/projects">projects</a> show where this has led so far, each at its real stage, and the
+          <a class="ulink ab-a" href="/capabilities">capabilities</a> page sets out the work INNOVA takes on.
+        </p>
       </div>
     </div>
   </section>
 
-  <section class="section">
+  <section class="section" id="founder" aria-labelledby="founder-h">
+    <div class="wrap grid12">
+      <div class="ab-l">
+        <h2 id="founder-h" class="d-l">Founder.</h2>
+      </div>
+      <div class="ab-r">
+        <p class="fd-name">Maksym Stepanenko</p>
+        <p class="mono fd-role">Founder and Director</p>
+        <p class="body fd-bio">
+          Since {SITE.experienceSince} Maksym has helped thousands of small and mid-sized businesses in more than 50 countries grow and protect themselves through strategy, legal structure, tax and marketing. In recent years he has brought applied AI into those businesses and into INNOVA’s own products. He incorporated {SITE.legalName} in Ottawa in {SITE.incorporated}. Master’s degree in Economic Theory, with honours.
+        </p>
+        <p class="fd-staff">
+          INNOVA is founder-led. Engineering, security review and domain specialists join each project as contractors and partner firms, named in the proposal before work starts.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="record">
     <div class="wrap grid12">
       <div class="ab-l">
         <h2 class="d-l">Company record.</h2>
       </div>
-      <dl class="rec ab-r">
-        <div><dt class="mono">Legal name</dt><dd>{SITE.legalName}</dd></div>
-        <div><dt class="mono">Operating name</dt><dd>INNOVA</dd></div>
-        <div><dt class="mono">Federal corporation</dt><dd>{SITE.corporationNumber} (Canada Business Corporations Act, {SITE.incorporated})</dd></div>
-        <div><dt class="mono">Location</dt><dd>{SITE.city}, {SITE.region}, {SITE.country}</dd></div>
-        <div><dt class="mono">Contact</dt><dd><a class="ulink" href={`mailto:${SITE.email}`}>{SITE.email}</a></dd></div>
-      </dl>
+      <div class="ab-r">
+        <dl class="rec">
+          <div><dt class="mono">Legal name</dt><dd>{SITE.legalName}</dd></div>
+          <div><dt class="mono">Operating name</dt><dd>INNOVA</dd></div>
+          <div>
+            <dt class="mono">Federal corporation</dt>
+            <dd>
+              {SITE.corporationNumber} (Canada Business Corporations Act, {SITE.incorporated})
+              <span class="xlink rec-verify" role="link" tabindex="0" data-x={registryB64}>Verify on Corporations Canada <span aria-hidden="true">↗</span></span>
+            </dd>
+          </div>
+          {
+            REC.ncage && (
+              <div>
+                <dt class="mono">
+                  <abbr title="NATO Commercial and Government Entity code">NCAGE</abbr>
+                </dt>
+                <dd class="rec-code">{REC.ncage}</dd>
+              </div>
+            )
+          }
+          {
+            REC.duns && (
+              <div>
+                <dt class="mono">D-U-N-S</dt>
+                <dd class="rec-code">{REC.duns}</dd>
+              </div>
+            )
+          }
+          <div><dt class="mono">Location</dt><dd>{SITE.city}, {SITE.region}, {SITE.country}</dd></div>
+          <div><dt class="mono">Contact</dt><dd><a class="ulink" href={`mailto:${SITE.email}`}>{SITE.email}</a></dd></div>
+        </dl>
+      </div>
     </div>
   </section>
 </BaseLayout>
+
+<script>
+  // External links without href (owner law): decode on click or Enter, open in a new tab.
+  document.querySelectorAll<HTMLElement>('.xlink[data-x]').forEach((el) => {
+    const go = () => {
+      const url = atob(el.dataset.x || '');
+      if (/^https:\/\//.test(url)) window.open(url, '_blank', 'noopener');
+    };
+    el.addEventListener('click', go);
+    el.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        go();
+      }
+    });
+  });
+</script>
 
 <style>
   .ab-l {
@@ -73,53 +188,160 @@ const why = ['How companies operate', 'Economics', 'Processes', 'Regulation', 'U
     grid-column: 7 / span 6;
   }
   .ab-p {
-    margin: 22px 0 30px;
+    margin: 22px 0 0;
   }
-  .evo {
-    list-style: none;
+
+  /* In brief: one quotable paragraph for readers and answer engines */
+  .brief {
+    padding-block: clamp(28px, 3vw, 44px);
+    border-bottom: 1px solid var(--rule);
+    background: var(--plate);
+  }
+  .brief .grid12 {
+    align-items: baseline;
+    row-gap: 10px;
+  }
+  .brief-h {
+    grid-column: 1 / span 5;
     margin: 0;
-    padding: 0;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 10px 0;
-  }
-  .evo li {
-    font-family: var(--font-mono);
-    font-size: 0.74rem;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
     color: var(--lichen);
-    display: inline-flex;
-    align-items: center;
+    font-weight: 400;
   }
-  .evo li + li::before {
+  .brief-p {
+    grid-column: 7 / span 6;
+    margin: 0;
+    max-width: 64ch;
+    color: var(--frost);
+    text-wrap: pretty;
+  }
+
+  /* Evolution: one line, five stations, the last one is now */
+  .evo {
+    --n: 5;
+    grid-column: 1 / -1;
+    list-style: none;
+    margin: clamp(48px, 5vw, 80px) 0 0;
+    padding: 0;
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(var(--n), minmax(0, 1fr));
+  }
+  /* The line is drawn as one segment per gap, station to station, so it runs in sequence and never wraps. */
+  .evo-st:not(:last-child)::after {
     content: '';
-    width: 28px;
-    height: 1px;
-    margin: 0 10px;
+    position: absolute;
+    top: 4px;
+    left: 10px;
+    right: 0;
+    height: 2px;
+    background: var(--signal);
+    transform-origin: left center;
+    transition: transform 520ms var(--ease-in-out);
+    transition-delay: calc(var(--i) * 260ms + 120ms);
+  }
+  :global(.js) .evo:not(.is-in) .evo-st::after {
+    transform: scaleX(0);
+  }
+  .evo-st {
+    position: relative;
+    padding-right: 16px;
+    display: grid;
+    align-content: start;
+  }
+  .evo-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid var(--signal);
+    background: var(--ground);
+    position: relative;
+    z-index: 1;
+    margin-bottom: 16px;
+    transition: background-color 300ms var(--ease-out);
+    transition-delay: calc(var(--i) * 260ms + 200ms);
+  }
+  .evo-st.now .evo-dot {
     background: var(--signal);
   }
-  .evo li.now {
+  :global(.js) .evo:not(.is-in) .evo-st.now .evo-dot {
+    background: var(--ground);
+  }
+  .evo-l {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 1.4;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--lichen);
+  }
+  .evo-st.now .evo-l {
     color: var(--frost);
   }
+  .evo-y {
+    margin-top: 6px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 1.4;
+    color: var(--lichen);
+  }
+  .evo-st.now .evo-y {
+    color: var(--frost);
+  }
+
   .why {
-    list-style: none;
-    margin: 26px 0 26px;
-    padding: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
+    margin: 22px 0 24px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--lichen);
+    text-wrap: balance;
+    max-width: 56ch;
   }
-  .why li {
-    padding: 6px 13px;
-    border: 1px solid var(--rule-strong);
+  .why span {
+    white-space: nowrap;
   }
+  .ab-next {
+    margin-top: 18px;
+  }
+  .ab-a {
+    color: var(--frost);
+    background-size: 100% 1px;
+  }
+  .ab-a:hover {
+    color: var(--signal);
+  }
+
+  /* Founder */
+  .fd-name {
+    margin: 0;
+    font-family: var(--font-display);
+    font-stretch: 112%;
+    font-weight: 480;
+    font-size: clamp(1.6rem, 1.2rem + 1.2vw, 2.4rem);
+    line-height: 1.02;
+    letter-spacing: -0.024em;
+  }
+  .fd-role {
+    margin: 10px 0 0;
+    color: var(--lichen);
+  }
+  .fd-bio {
+    margin: 22px 0 0;
+  }
+  .fd-staff {
+    margin: 26px 0 0;
+    padding-top: 18px;
+    border-top: 1px solid var(--rule);
+    max-width: 62ch;
+    color: var(--frost);
+  }
+
+  /* Company record */
   .rec {
     margin: 0;
     border-bottom: 1px solid var(--rule);
   }
-  .rec div {
+  .rec > div {
     display: grid;
     grid-template-columns: 200px 1fr;
     gap: 16px;
@@ -130,20 +352,80 @@ const why = ['How companies operate', 'Economics', 'Processes', 'Regulation', 'U
     color: var(--lichen);
     padding-top: 3px;
   }
+  .rec dt abbr {
+    text-decoration: underline dotted;
+    text-underline-offset: 3px;
+    cursor: help;
+  }
   .rec dd {
     margin: 0;
   }
+  .rec-code {
+    font-family: var(--font-mono);
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+  .rec-verify {
+    display: table;
+    margin-top: 6px;
+    color: var(--lichen);
+    cursor: pointer;
+    text-decoration: underline;
+    text-decoration-color: var(--rule-strong);
+    text-underline-offset: 4px;
+    transition:
+      color var(--t-micro) var(--ease-out),
+      text-decoration-color var(--t-micro) var(--ease-out);
+  }
+  .rec-verify:hover {
+    color: var(--frost);
+    text-decoration-color: currentColor;
+  }
+
   @media (max-width: 980px) {
     .ab-l,
-    .ab-r {
+    .ab-r,
+    .brief-h,
+    .brief-p {
       grid-column: 1 / -1;
     }
     .ab-r {
       margin-top: 24px;
     }
-    .rec div {
+    .rec > div {
       grid-template-columns: 1fr;
       gap: 4px;
+    }
+  }
+
+  @media (max-width: 700px) {
+    .evo {
+      grid-template-columns: 1fr;
+      row-gap: 26px;
+    }
+    .evo-st:not(:last-child)::after {
+      top: 14px;
+      bottom: -30px;
+      left: 4px;
+      right: auto;
+      width: 2px;
+      height: auto;
+      transform-origin: center top;
+    }
+    :global(.js) .evo:not(.is-in) .evo-st::after {
+      transform: scaleY(0);
+    }
+    .evo-st {
+      padding: 0 0 0 30px;
+    }
+    .evo-dot {
+      position: absolute;
+      left: 0;
+      top: 4px;
+      margin: 0;
+    }
+    .evo-y {
+      margin-top: 2px;
     }
   }
 </style>

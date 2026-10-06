@@ -3,52 +3,85 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHead from '../components/PageHead.astro';
 import StageTrack from '../components/StageTrack.astro';
 import StatusChip from '../components/StatusChip.astro';
-import { visibleProjects } from '../data/projects';
+import { visibleProjects, DOMAINS, STATUS_STAGE } from '../data/projects';
+import { STAGES, type Span } from '../data/stages';
 
-const tracks = [
+// Brand spelling and Canadian spelling for text that comes from shared project data.
+const fix = (s: string) => s.replace(/FinMozg/g, 'FINMOZG').replace(/specialis/g, 'specializ');
+
+const tracks: { name: string; span: Span; line: string; items: string[] }[] = [
   {
     name: 'Technology scouting',
-    span: [0, 1] as const,
+    span: [0, 1],
     line: 'Finding what already exists before building anything new.',
     items: ['Emerging technologies', 'Existing technologies worth recombining', 'Open-source components', 'Research outputs ready for use', 'Potential technical partners']
   },
   {
     name: 'Applied R&D',
-    span: [1, 2] as const,
+    span: [1, 2],
     line: 'Turning a hypothesis into evidence, fast and on a small budget.',
     items: ['A written hypothesis', 'Prototype', 'Experiments with real data', 'Validation with users', 'Technical feasibility', 'Business feasibility']
   },
   {
     name: 'Commercialization',
-    span: [2, 5] as const,
+    span: [2, 5],
     line: 'Taking what worked to the people who will pay for it.',
     items: ['MVP', 'Market validation', 'Product architecture', 'Pilots with industry partners', 'Canadian market', 'International markets']
   }
 ];
-const rd = visibleProjects.filter((p) => ['research', 'prototype', 'exploring', 'partner-opportunity'].includes(p.status));
+const spanLabel = (s: Span) => (s[0] === s[1] ? STAGES[s[0]].label : `${STAGES[s[0]].label} → ${STAGES[s[1]].label}`);
+const domainLabel = (d: string) => DOMAINS.find((x) => x.key === d)?.label ?? d;
+
+const bench = visibleProjects.filter((p) => ['prototype', 'research', 'exploring'].includes(p.status));
+
+const funded = [
+  'A written technical question and the uncertainty behind it.',
+  'A starting point and a target for the work.',
+  'Two or three milestones, each ending in something a reviewer can run.',
+  'Measured results, including the experiments that failed.'
+];
+
 const publicSector = ['Digital services', 'Workflow automation', 'Knowledge systems', 'AI-assisted operations', 'Data platforms', 'Public-facing digital tools', 'R&D pilots', 'Technology modernization', 'Dual-use technology'];
+
 ---
 
 <BaseLayout
-  title="Innovation & R&D — scouting, applied research, commercialization | INNOVA"
-  description="INNOVA runs applied R&D in Ottawa: technology scouting, rapid prototypes and experiments, and commercialization with industry, research and public-sector partners."
+  title="Applied R&D & Technology Commercialization | INNOVA"
+  description="Applied R&D in Ottawa: technology scouting, fast prototypes, experiments with real data, feasibility answers and a path to market for new software and AI."
   path="/innovation"
+  breadcrumbs={[
+    { name: 'Home', path: '/' },
+    { name: 'Capabilities', path: '/capabilities' },
+    { name: 'Innovation & R&D', path: '/innovation' }
+  ]}
+  footerCta={false}
 >
   <PageHead
     crumb="Innovation & R&D"
-    title="We explore where technology can create new economic value."
+    title="Applied R&D where technology creates new economic value."
     lede="Applied R&D at INNOVA is small, fast and evidence-first: a clear question, a working prototype and an honest answer about what to do next."
   />
 
+  <section class="brief" aria-labelledby="brief-h">
+    <div class="wrap grid12">
+      <p class="brief-l" id="brief-h">In brief</p>
+      <p class="brief-t">
+        INNOVA runs small, evidence-first applied R&amp;D from Ottawa: a written hypothesis, a working prototype, experiments with real data and a
+        technical and business feasibility answer. Work that passes moves to an MVP, pilots with industry partners and the Canadian market. Current
+        R&amp;D includes OpenField, a records system for agricultural robot fleets.
+      </p>
+    </div>
+  </section>
+
   {
-    tracks.map((t, i) => (
+    tracks.map((t) => (
       <section class="section">
         <div class="wrap grid12">
           <div class="tr-l">
-            <p class="mono tr-n">{String(i + 1).padStart(2, '0')} / 03</p>
+            <p class="tr-meta">Track · {spanLabel(t.span)}</p>
             <h2 class="d-l">{t.name}</h2>
             <p class="lede tr-line">{t.line}</p>
-            <StageTrack span={t.span} />
+            <StageTrack span={t.span} caption={false} />
           </div>
           <ul class="tr-items">
             {t.items.map((x) => (
@@ -60,19 +93,52 @@ const publicSector = ['Digital services', 'Workflow automation', 'Knowledge syst
     ))
   }
 
-  <section class="section">
+  <section class="section" id="funded">
+    <div class="wrap">
+      <div class="grid12 sec-head">
+        <div class="sh-l"><h2 class="d-l">What a funded project with INNOVA looks like</h2></div>
+        <div class="sh-r">
+          <p class="body fd-p">Four parts, written before the work starts and reported against when it ends.</p>
+          <a href="/contact?topic=rd" class="btn btn-primary">Discuss a project <span class="arr" aria-hidden="true">→</span></a>
+        </div>
+      </div>
+      <ol class="ln" data-draw>
+        <span class="ln-base" aria-hidden="true"></span>
+        <span class="ln-rail" aria-hidden="true"></span>
+        {
+          funded.map((f, i) => (
+            <li class="ln-st" style={`--i:${i}`}>
+              <span class="ln-ring" aria-hidden="true" />
+              <span class="ln-n">{i + 1}</span>
+              <span class="ln-h">{f}</span>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section class="section" id="bench">
     <div class="wrap">
       <div class="grid12 sec-head">
         <div class="sh-l"><h2 class="d-l">On the bench now.</h2></div>
-        <p class="body sh-r">Current research, prototypes and early explorations, each with its status.</p>
+        <p class="body sh-r">Current research, prototypes and early explorations, each with its status and its place on the stage line.</p>
       </div>
       <div class="rows">
         {
-          rd.map((p) => (
-            <a class="row" href={`/projects/${p.slug}`}>
-              <h3 class="d-m row-title">{p.name}</h3>
-              <p class="body">{p.summary}</p>
-              <StatusChip status={p.status} />
+          bench.map((p) => (
+            <a class="row" href={p.internal ?? `/projects/${p.slug}`}>
+              <div>
+                <p class="bn-meta">
+                  {p.code} · {domainLabel(p.domain)}
+                </p>
+                <h3 class="d-m row-title">{fix(p.name)}</h3>
+              </div>
+              <p class="body">{fix(p.summary)}</p>
+              <div class="bn-st">
+                <StatusChip status={p.status} />
+                <StageTrack at={STATUS_STAGE[p.status]} status={p.status} caption={false} />
+              </div>
             </a>
           ))
         }
@@ -85,9 +151,13 @@ const publicSector = ['Digital services', 'Workflow automation', 'Knowledge syst
       <div class="ps-l">
         <h2 class="d-l">Public sector &amp; strategic innovation.</h2>
         <p class="body ps-p">
-          Technology for complex operational environments. INNOVA is actively developing its participation in Canada’s public-sector and innovation ecosystem, through pilots, R&amp;D collaborations and innovation programs.
+          Technology for complex operational environments. INNOVA is building its place in Canada’s public-sector and innovation ecosystem through
+          innovation program applications, responses to public requests for information and proposals for joint R&amp;D.
         </p>
-        <a href="/partnerships" class="btn btn-primary">Discuss a project <span class="arr" aria-hidden="true">→</span></a>
+        <a href="/contact?topic=public-sector" class="arrow-link">
+          <span>Write to us about public-sector work</span>
+          <span aria-hidden="true">→</span>
+        </a>
       </div>
       <ul class="ps-list">{publicSector.map((x) => <li>{x}</li>)}</ul>
     </div>
@@ -95,12 +165,40 @@ const publicSector = ['Digital services', 'Workflow automation', 'Knowledge syst
 </BaseLayout>
 
 <style>
+  .brief {
+    padding-block: clamp(36px, 4vw, 60px);
+    border-bottom: 1px solid var(--rule);
+  }
+  .brief-l {
+    grid-column: 1 / span 3;
+    margin: 0;
+    padding-top: 5px;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: var(--lichen);
+  }
+  .brief-t {
+    grid-column: 4 / span 7;
+    margin: 0;
+    max-width: 64ch;
+    color: var(--frost);
+    font-size: clamp(1.02rem, 0.96rem + 0.25vw, 1.15rem);
+    line-height: 1.6;
+  }
+
   .tr-l {
     grid-column: 1 / span 6;
   }
-  .tr-n {
-    color: var(--signal);
+  .tr-meta,
+  .bn-meta {
     margin: 0 0 18px;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.02em;
+    color: var(--lichen);
+  }
+  .bn-meta {
+    margin-bottom: 10px;
   }
   .tr-line {
     margin: 22px 0 28px;
@@ -120,6 +218,155 @@ const publicSector = ['Digital services', 'Workflow automation', 'Knowledge syst
     border-top: 1px solid var(--rule);
     font-size: 1.05rem;
   }
+
+  /* The line: 2px signal rail through 10px rings, last station filled. Vertical at ≤700. */
+  .fd-p {
+    margin-bottom: 22px;
+  }
+  .ln {
+    --n: 4;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(var(--n), minmax(0, 1fr));
+  }
+  .ln-base,
+  .ln-rail {
+    position: absolute;
+    top: 4px;
+    left: 5px;
+    right: calc(100% / var(--n) - 5px);
+    height: 2px;
+  }
+  .ln-base {
+    background: var(--rule-strong);
+  }
+  .ln-rail {
+    background: var(--signal);
+    transform-origin: left center;
+  }
+  .ln-st {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding: 30px clamp(16px, 2.4vw, 40px) 0 0;
+  }
+  .ln-ring {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid var(--signal);
+    background: var(--ground);
+  }
+  .ln-st:last-child .ln-ring {
+    background: var(--signal);
+  }
+  .ln-n {
+    margin-bottom: 12px;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--lichen);
+  }
+  .ln-h {
+    font-family: var(--font-display);
+    font-stretch: 108%;
+    font-weight: 470;
+    font-size: clamp(1.15rem, 1rem + 0.5vw, 1.45rem);
+    letter-spacing: -0.015em;
+    line-height: 1.2;
+    max-width: 22ch;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .ln-rail {
+      transition: transform var(--t-draw) var(--ease-in-out);
+    }
+    .ln-ring {
+      transition:
+        border-color 300ms var(--ease-out),
+        background-color 300ms var(--ease-out);
+      transition-delay: calc(var(--i) * 260ms + 200ms);
+    }
+    :global(.js) .ln:not(.is-in) .ln-rail {
+      transform: scaleX(0);
+    }
+    :global(.js) .ln:not(.is-in) .ln-ring {
+      border-color: var(--rule-strong);
+      background: var(--ground);
+    }
+  }
+  @media (max-width: 700px) {
+    .ln {
+      grid-template-columns: 1fr;
+    }
+    .ln-base,
+    .ln-rail {
+      display: none;
+    }
+    .ln-st {
+      display: grid;
+      grid-template-columns: 28px minmax(0, 1fr);
+      padding: 0 0 26px 22px;
+    }
+    .ln-st:last-child {
+      padding-bottom: 0;
+    }
+    .ln-st:not(:last-child)::before,
+    .ln-st:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      left: 8px;
+      top: 12px;
+      bottom: -12px;
+      width: 2px;
+    }
+    .ln-st:not(:last-child)::before {
+      background: var(--rule-strong);
+    }
+    .ln-st:not(:last-child)::after {
+      background: var(--signal);
+      transform-origin: center top;
+    }
+    .ln-ring {
+      left: 4px;
+      top: 7px;
+      z-index: 1;
+    }
+    .ln-n {
+      grid-column: 1;
+      grid-row: 1;
+      margin: 0;
+      padding-top: 5px;
+    }
+    .ln-h {
+      grid-column: 2;
+      max-width: none;
+      font-size: 1.15rem;
+      font-stretch: 104%;
+      letter-spacing: -0.005em;
+      line-height: 1.3;
+    }
+  }
+  @media (max-width: 700px) and (prefers-reduced-motion: no-preference) {
+    .ln-st::after {
+      transition: transform 420ms var(--ease-in-out);
+      transition-delay: calc(var(--i) * 200ms);
+    }
+    :global(.js) .ln:not(.is-in) .ln-st::after {
+      transform: scaleY(0);
+    }
+  }
+
+  .bn-st {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
   .ps-l {
     grid-column: 1 / span 6;
   }
@@ -127,6 +374,14 @@ const publicSector = ['Digital services', 'Workflow automation', 'Knowledge syst
     margin: 22px 0 30px;
   }
   @media (max-width: 980px) {
+    .brief-l,
+    .brief-t {
+      grid-column: 1 / -1;
+    }
+    .brief-l {
+      margin-bottom: 12px;
+      padding-top: 0;
+    }
     .tr-l,
     .tr-items,
     .ps-l,

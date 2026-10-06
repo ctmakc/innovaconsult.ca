@@ -3,57 +3,282 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageHead from '../../components/PageHead.astro';
 import StatusChip from '../../components/StatusChip.astro';
 import StageTrack from '../../components/StageTrack.astro';
-import { visibleProjects, STATUS_STAGE, DOMAINS, type Project } from '../../data/projects';
+import { visibleProjects, STATUS_STAGE, STATUS_LABEL, projectHref, type Project, type ProofImage } from '../../data/projects';
 import { STAGES } from '../../data/stages';
+import { SITE } from '../../data/site';
 
 export function getStaticPaths() {
-  return visibleProjects.map((p) => ({ params: { slug: p.slug }, props: { p } }));
+  // Projects with their own product page elsewhere (Workflow OS) get no detail page here.
+  return visibleProjects.filter((p) => !p.internal).map((p) => ({ params: { slug: p.slug }, props: { p } }));
 }
 const { p } = Astro.props as { p: Project };
 const stage = STATUS_STAGE[p.status];
-const idx = visibleProjects.findIndex((x) => x.slug === p.slug);
-const next = visibleProjects[(idx + 1) % visibleProjects.length];
-const domain = DOMAINS.find((d) => d.key === p.domain)?.label;
+const path = `/projects/${p.slug}`;
+
+/* Evidence: the first screenshot leads the page, the rest sit in a row lower down. */
+const [lead, ...more] = p.images ?? [];
+const isPhone = (im: ProofImage) => im.h > im.w;
+const srcset = (im: ProofImage) => `${im.src800} ${isPhone(im) ? 400 : 800}w, ${im.src} ${isPhone(im) ? 800 : 1600}w`;
+const leadFits = lead ? Math.abs(lead.w / lead.h - 1.6) < 0.02 : false;
+
+/* Related: same domain first, then same capability, then the next project in the list. */
+const others = visibleProjects.filter((x) => x.slug !== p.slug);
+const related: Project[] = [];
+for (const x of others) if (related.length < 2 && x.domain === p.domain) related.push(x);
+for (const x of others)
+  if (related.length < 2 && !related.includes(x) && p.capability && x.capability?.href === p.capability.href) related.push(x);
+if (related.length === 0) {
+  const idx = visibleProjects.findIndex((x) => x.slug === p.slug);
+  related.push(visibleProjects[(idx + 1) % visibleProjects.length]);
+}
+
+const isProject = p.domain === 'dual-use';
+const ld = isProject
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'Project',
+      '@id': `${SITE.url}${path}#project`,
+      name: p.name,
+      description: p.seoDescription ?? p.summary,
+      url: `${SITE.url}${path}`,
+      parentOrganization: { '@id': `${SITE.url}/#org` }
+    }
+  : {
+      '@context': 'https://schema.org',
+      '@type': 'SoftwareApplication',
+      '@id': `${SITE.url}${path}#app`,
+      name: p.name,
+      description: p.seoDescription ?? p.summary,
+      url: p.url ?? `${SITE.url}${path}`,
+      mainEntityOfPage: `${SITE.url}${path}`,
+      applicationCategory: p.slug === 'babakokum' ? 'GameApplication' : 'BusinessApplication',
+      operatingSystem: ['foundwall', 'babakokum'].includes(p.slug) ? 'Web, iOS, Android' : 'Web',
+      creativeWorkStatus: STATUS_LABEL[p.status],
+      creator: { '@id': `${SITE.url}/#org` },
+      ...(lead ? { screenshot: `${SITE.url}${lead.src}` } : {})
+    };
+
+const breadcrumbs = [
+  { name: 'Home', path: '/' },
+  { name: 'Projects', path: '/projects' },
+  { name: p.name, path }
+];
+
+const CYCLE = [
+  { k: 'Propose', d: 'An agent drafts a change to a record.' },
+  { k: 'Validate', d: 'The proposed value is checked against the field’s rules.' },
+  { k: 'Approve', d: 'A person accepts or rejects it.' },
+  { k: 'Apply', d: 'The change is written, with its audit entry.' },
+  { k: 'Undo', d: 'One click reverses it.' }
+];
 ---
 
-<BaseLayout title={`${p.name} — ${domain} | INNOVA projects`} description={p.summary} path={`/projects/${p.slug}`}>
-  <PageHead crumb="Projects" title={p.name} lede={p.summary}>
+<BaseLayout
+  title={`${p.seoTitle ?? p.name} | INNOVA`}
+  description={p.seoDescription ?? p.summary}
+  path={path}
+  jsonLd={[ld]}
+  breadcrumbs={breadcrumbs}
+>
+  <PageHead crumb="Projects" crumbHref="/projects" title={p.name} lede={p.summary}>
     <div slot="aside" class="pj-aside">
+      <p class="pj-rec">{p.code}{p.tagline && <> · {p.tagline}</>}</p>
       <StatusChip status={p.status} />
       <StageTrack at={stage} status={p.status} />
-      {p.url && <a class="arrow-link" href={p.url} target="_blank" rel="noopener"><span>{p.urlLabel}</span><span aria-hidden="true">↗</span></a>}
-      {p.internal && <a class="arrow-link" href={p.internal}><span>Product page</span><span aria-hidden="true">→</span></a>}
+      {
+        p.url && (
+          <a class="arrow-link" href={p.url} target="_blank" rel="noopener">
+            <span>{p.urlLabel}<span class="sr-only"> (opens in a new tab)</span></span>
+            <span aria-hidden="true">↗</span>
+          </a>
+        )
+      }
     </div>
   </PageHead>
 
-  <section class="section">
+  {
+    lead && (
+      <div class="wrap pj-lead">
+        <figure class:list={['proof', { 'proof-mat': !leadFits }]}>
+          <a class="proof-frame" href={lead.src}>
+            <img
+              src={lead.src}
+              srcset={srcset(lead)}
+              sizes="(max-width: 1440px) 94vw, 1360px"
+              width={lead.w}
+              height={lead.h}
+              alt={lead.alt}
+              loading="eager"
+              fetchpriority="high"
+              decoding="async"
+            />
+            <span class="sr-only"> (open full-size screenshot)</span>
+          </a>
+          <figcaption>
+            <span class="proof-n">Fig. 1</span>
+            <span>{lead.caption}</span>
+          </figcaption>
+        </figure>
+      </div>
+    )
+  }
+
+  {
+    p.slug === 'aicrmius' && (
+      <div class="wrap pj-lead">
+        <figure class="proof cyc" data-draw aria-labelledby="cyc-cap">
+          <div class="cyc-board">
+            <svg class="cyc-h" viewBox="0 0 1000 96" aria-hidden="true" focusable="false">
+              <line class="cyc-base" x1="100" y1="40" x2="900" y2="40" />
+              <line class="cyc-line" x1="100" y1="40" x2="900" y2="40" pathLength="1" />
+              {CYCLE.map((c, i) => (
+                <g class="cyc-st" style={`--i:${i}`}>
+                  <circle cx={100 + i * 200} cy="40" r="10" class:list={['cyc-ring', { last: i === CYCLE.length - 1 }]} />
+                  <text x={100 + i * 200} y="84" text-anchor="middle" class="cyc-k">
+                    {c.k.toUpperCase()}
+                  </text>
+                </g>
+              ))}
+            </svg>
+            <ol class="cyc-list">
+              {CYCLE.map((c, i) => (
+                <li style={`--i:${i}`}>
+                  <strong class="cyc-lk">{c.k}</strong>
+                  <span>{c.d}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
+          <figcaption id="cyc-cap">
+            <span class="proof-n">Fig. 1</span>
+            <span>The one cycle every agent change goes through in the working build.</span>
+          </figcaption>
+        </figure>
+      </div>
+    )
+  }
+
+  <section class="section pj-body">
     <div class="wrap">
       <div class="rows">
-        <div class="row">
+        <div class="row pj-row">
           <h2 class="d-m">Problem</h2>
           <p class="body pj-t">{p.problem}</p>
-          <span></span>
         </div>
-        <div class="row">
+        <div class="row pj-row">
           <h2 class="d-m">Solution</h2>
           <p class="body pj-t">{p.solution}</p>
-          <span></span>
-        </div>
-        <div class="row">
-          <h2 class="d-m">Technology</h2>
-          <ul class="pj-tech">{p.technology.map((t) => <li>{t}</li>)}</ul>
-          <span></span>
-        </div>
-        <div class="row">
-          <h2 class="d-m">Where it stands</h2>
-          <p class="body pj-t">{p.outcome}</p>
-          <p class="mono pj-st">{p.code} · stage {String(stage + 1).padStart(2, '0')} {STAGES[stage].label}</p>
         </div>
       </div>
-      <p class="pj-next">
+
+      {
+        more.length > 0 && (
+          <div class:list={['pj-more', { 'has-phone': more.some(isPhone), solo: more.length === 1 }]}>
+            {more.map((im, i) => (
+              <figure class:list={['proof', { 'proof-phone': isPhone(im) }]}>
+                <a class="proof-frame" href={im.src}>
+                  <img
+                    src={im.src}
+                    srcset={srcset(im)}
+                    sizes={isPhone(im) ? '(max-width: 860px) 70vw, 320px' : '(max-width: 860px) 94vw, 900px'}
+                    width={im.w}
+                    height={im.h}
+                    alt={im.alt}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                  <span class="sr-only"> (open full-size screenshot)</span>
+                </a>
+                <figcaption>
+                  <span class="proof-n">Fig. {i + 2}</span>
+                  <span>{im.caption}</span>
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+        )
+      }
+
+      <div class="rows pj-rows2">
+        <div class="row pj-row">
+          <h2 class="d-m">Technology</h2>
+          <p class="pj-tech">{p.technology.join('\u00a0· ')}</p>
+        </div>
+        <div class="row pj-row">
+          <h2 class="d-m">Where it stands</h2>
+          <div>
+            <p class="body pj-t">{p.outcome}</p>
+            <p class="mono pj-st">
+              {p.code} · stage {String(stage + 1).padStart(2, '0')} {STAGES[stage].label}
+              {STATUS_LABEL[p.status] !== STAGES[stage].label && <> · {STATUS_LABEL[p.status]}</>}
+            </p>
+          </div>
+        </div>
+        {
+          (p.role || p.client) && (
+            <div class="row pj-row">
+              <h2 class="d-m">INNOVA’s role</h2>
+              <div>
+                {p.role && <p class="body pj-t">{p.role}</p>}
+                {p.client && <p class="body pj-client">{p.client}</p>}
+              </div>
+            </div>
+          )
+        }
+        {
+          p.lookingFor && (
+            <div class="row pj-row">
+              <h2 class="d-m">Looking for</h2>
+              <div>
+                <p class="body pj-t">{p.lookingFor}</p>
+                <a class="arrow-link pj-ask" href="/contact">
+                  <span>Write to INNOVA</span>
+                  <span aria-hidden="true">→</span>
+                </a>
+              </div>
+            </div>
+          )
+        }
+        {
+          p.capability && (
+            <div class="row pj-row">
+              <h2 class="d-m">Capability</h2>
+              <div>
+                <a class="arrow-link" href={p.capability.href}>
+                  <span>{p.capability.label}</span>
+                  <span aria-hidden="true">→</span>
+                </a>
+              </div>
+            </div>
+          )
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section pj-rel" aria-labelledby="rel-h">
+    <div class="wrap">
+      <div class="pj-rel-head">
+        <h2 id="rel-h" class="d-m">Related work</h2>
         <a class="arrow-link" href="/projects"><span>All projects</span><span aria-hidden="true">→</span></a>
-        <a class="arrow-link" href={`/projects/${next.slug}`}><span>Next: {next.name}</span><span aria-hidden="true">→</span></a>
-      </p>
+      </div>
+      <div class="rows">
+        {
+          related.map((r) => (
+            <a class="row pj-relrow" href={projectHref(r)}>
+              <div class="row-title">
+                <p class="mono pj-relcode">{r.code}{r.tagline && <> · {r.tagline}</>}</p>
+                <h3 id={`rel-${r.slug}`} class="d-m">{r.name}</h3>
+              </div>
+              <p id={`rel-${r.slug}-d`} class="body">{r.summary}</p>
+              <div class="pj-relmeta">
+                <StatusChip status={r.status} />
+                <StageTrack at={STATUS_STAGE[r.status]} status={r.status} caption={false} />
+              </div>
+            </a>
+          ))
+        }
+      </div>
     </div>
   </section>
 </BaseLayout>
@@ -65,31 +290,327 @@ const domain = DOMAINS.find((d) => d.key === p.domain)?.label;
     margin-top: 26px;
     justify-items: start;
   }
+  .pj-rec {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: var(--lichen);
+    letter-spacing: 0.02em;
+  }
+
+  /* ── Evidence frame ─────────────────────────────────────────────────── */
+  .pj-lead {
+    padding-top: clamp(32px, 3.4vw, 56px);
+  }
+  .proof {
+    margin: 0;
+  }
+  .proof-frame {
+    display: block;
+    position: relative;
+    background: var(--plate);
+    border: 1px solid var(--rule);
+    overflow: hidden;
+  }
+  .pj-lead .proof-frame {
+    aspect-ratio: 16 / 10;
+  }
+  .proof img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+  }
+  /* Screenshots that are not 16:10 sit on the plate at their own proportion. */
+  .proof-mat .proof-frame {
+    --pad: clamp(12px, 3vw, 48px);
+  }
+  .proof-mat img {
+    position: absolute;
+    inset: var(--pad);
+    width: calc(100% - 2 * var(--pad));
+    height: calc(100% - 2 * var(--pad));
+    object-fit: contain;
+    object-position: center;
+  }
+  a.proof-frame {
+    cursor: zoom-in;
+    transition: border-color var(--t-micro) var(--ease-out);
+  }
+  a.proof-frame:hover {
+    border-color: var(--rule-strong);
+  }
+  .proof figcaption {
+    display: grid;
+    grid-template-columns: 72px minmax(0, 1fr);
+    gap: 12px;
+    padding-top: 14px;
+    color: var(--lichen);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    max-width: 80ch;
+  }
+  .proof-n {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: var(--frost);
+    padding-top: 2px;
+    white-space: nowrap;
+  }
+  /* The lead screenshot opens like a shutter after the headline lands. */
+  .js .pj-lead .proof-frame {
+    animation: pj-shut 1000ms var(--ease-out) 420ms both;
+  }
+  @keyframes pj-shut {
+    from {
+      clip-path: inset(0 0 100% 0);
+    }
+    to {
+      clip-path: inset(0 0 0 0);
+    }
+  }
+
+  /* ── AICRMIUS cycle diagram ─────────────────────────────────────────── */
+  .cyc-board {
+    background: var(--plate);
+    border: 1px solid var(--rule);
+    padding: clamp(28px, 4vw, 56px) clamp(16px, 3vw, 48px) clamp(24px, 3vw, 40px);
+  }
+  .cyc svg {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+  .cyc-base {
+    stroke: var(--rule-strong);
+    stroke-width: 1;
+  }
+  .cyc-line {
+    stroke: var(--signal);
+    stroke-width: 2;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 1400ms var(--ease-out);
+  }
+  .cyc-ring {
+    fill: var(--plate);
+    stroke: var(--signal);
+    stroke-width: 2;
+    transition: opacity 360ms var(--ease-out) calc(var(--i) * 120ms + 200ms);
+  }
+  .cyc-ring.last {
+    fill: var(--signal);
+  }
+  .cyc-k {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    fill: var(--frost);
+  }
+  .js .cyc[data-draw]:not(.is-in) .cyc-line {
+    stroke-dashoffset: 1;
+  }
+  .js .cyc[data-draw]:not(.is-in) .cyc-ring {
+    opacity: 0.25;
+  }
+  .cyc-list {
+    list-style: none;
+    margin: clamp(8px, 1vw, 16px) 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    color: var(--lichen);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    text-align: center;
+  }
+  .cyc-list li {
+    padding-inline: clamp(6px, 1vw, 16px);
+    text-wrap: balance;
+  }
+  /* Desktop: the SVG carries the station names; the list keeps them for screen readers. */
+  .cyc-lk {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+  }
+
+  /* ── Rows: 4/8 prose split ──────────────────────────────────────────── */
+  .pj-body {
+    padding-bottom: 72px;
+  }
+  .pj-row {
+    grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+  }
   .pj-t {
     color: var(--frost);
   }
-  .pj-tech {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
+  .pj-client {
+    margin-top: 10px;
   }
-  .pj-tech li {
-    padding: 5px 12px;
-    border: 1px solid var(--rule-strong);
-    font-size: 0.92rem;
+  .pj-tech {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.75;
+    color: var(--lichen);
+    max-width: 72ch;
+    text-wrap: balance;
   }
   .pj-st {
     color: var(--lichen);
-    margin: 4px 0 0;
+    margin: 14px 0 0;
   }
-  .pj-next {
+  .pj-ask {
+    margin-top: 14px;
+  }
+
+  /* ── Further screenshots ────────────────────────────────────────────── */
+  .pj-more {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: clamp(16px, 2vw, 32px);
+    row-gap: 40px;
+    align-items: start;
+    padding-block: clamp(40px, 4.4vw, 72px);
+  }
+  .pj-more .proof {
+    grid-column: span 8;
+  }
+  .pj-more .proof-phone {
+    grid-column: 10 / span 3;
+  }
+  .pj-more.solo .proof {
+    grid-column: 5 / span 8;
+  }
+  /* A lone phone shot keeps its caption beside it instead of leaving the row empty. */
+  .pj-more.solo .proof-phone {
+    grid-column: 5 / span 8;
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(0, 5fr);
+    column-gap: clamp(16px, 2vw, 32px);
+    align-items: end;
+  }
+  .pj-more.solo .proof-phone figcaption {
+    padding-top: 0;
+  }
+  .pj-more .proof-phone figcaption {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+  .pj-rows2 {
+    border-top: 0;
+  }
+
+  /* ── Related ────────────────────────────────────────────────────────── */
+  .pj-rel {
+    padding-block: 72px;
+  }
+  .pj-rel-head {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
+    align-items: baseline;
     gap: 16px;
-    margin: 36px 0 0;
+    margin-bottom: 28px;
+  }
+  .pj-relcode {
+    color: var(--lichen);
+    margin: 0 0 8px;
+  }
+  .pj-relrow h3 {
+    margin: 0;
+  }
+  .pj-relmeta {
+    display: grid;
+    gap: 12px;
+  }
+
+  @media (max-width: 980px) {
+    .pj-more .proof,
+    .pj-more.solo .proof {
+      grid-column: 1 / -1;
+    }
+    .pj-more .proof-phone,
+    .pj-more.solo .proof-phone {
+      grid-column: 1 / span 7;
+    }
+  }
+  @media (max-width: 860px) {
+    .pj-row {
+      grid-template-columns: 1fr;
+    }
+    /* Phone: the same cycle drawn top to bottom in HTML, so labels stay readable. */
+    .cyc-h {
+      display: none !important;
+    }
+    .cyc-list {
+      grid-template-columns: 1fr;
+      text-align: left;
+      margin: 0;
+    }
+    .cyc-list li {
+      position: relative;
+      padding: 0 0 22px 40px;
+      display: grid;
+      gap: 2px;
+    }
+    .cyc-list li:last-child {
+      padding-bottom: 0;
+    }
+    .cyc-list li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 2px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 2px solid var(--signal);
+      background: var(--plate);
+      box-sizing: border-box;
+      z-index: 1;
+    }
+    .cyc-list li:last-child::before {
+      background: var(--signal);
+    }
+    .cyc-list li:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      left: 9px;
+      top: 22px;
+      bottom: 2px;
+      width: 2px;
+      background: var(--signal);
+    }
+    .cyc-lk {
+      position: static;
+      width: auto;
+      height: auto;
+      overflow: visible;
+      clip: auto;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 400;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--frost);
+    }
+    .proof figcaption {
+      grid-template-columns: 1fr;
+      gap: 4px;
+    }
+    .pj-more .proof-phone,
+    .pj-more.solo .proof-phone {
+      grid-column: 1 / -1;
+      display: block;
+      max-width: 280px;
+    }
+    .pj-more.solo .proof-phone figcaption {
+      padding-top: 14px;
+    }
   }
 </style>

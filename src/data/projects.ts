@@ -19,26 +19,42 @@ export const STATUS_LABEL: Record<ProjectStatus, string> = {
   'partner-opportunity': 'Partner opportunity'
 };
 
-/** Each status sits on exactly one stage — status and stage never disagree. */
+/**
+ * Each status sits on exactly one stage — status and stage never disagree.
+ * Deploy (4) holds only things already in users' hands, so Built stays on Build (3).
+ */
 export const STATUS_STAGE: Record<ProjectStatus, StageIndex> = {
   exploring: 0,
   'partner-opportunity': 0,
   research: 1,
   prototype: 2,
   'in-development': 3,
-  built: 4,
+  built: 3,
   live: 4
 };
 
-export type Domain = 'ai' | 'software' | 'community' | 'agritech' | 'dual-use';
+export type Domain = 'ai' | 'software' | 'community' | 'culture' | 'agritech' | 'dual-use';
 
 export const DOMAINS: { key: Domain; label: string }[] = [
   { key: 'ai', label: 'Applied AI & agents' },
   { key: 'software', label: 'Business software' },
   { key: 'community', label: 'Community platforms' },
+  { key: 'culture', label: 'Cultural games' },
   { key: 'agritech', label: 'AgriTech' },
   { key: 'dual-use', label: 'Dual-use' }
 ];
+
+/** A real, privacy-checked screenshot from public/proof (see .proof-staging/MANIFEST.json). */
+export interface ProofImage {
+  /** 1600-wide (or 800-wide for phone shots) master variant. */
+  src: string;
+  /** Half-size variant for srcset. */
+  src800: string;
+  w: number;
+  h: number;
+  alt: string;
+  caption: string;
+}
 
 export interface Project {
   slug: string;
@@ -46,6 +62,8 @@ export interface Project {
   name: string;
   /** Short label for the pipeline board. */
   short: string;
+  /** Two-to-four word product descriptor. */
+  tagline?: string;
   domain: Domain;
   status: ProjectStatus;
   /** Shown on the homepage and the board. Set false to keep a project off the site. */
@@ -56,11 +74,38 @@ export interface Project {
   solution: string;
   technology: string[];
   outcome: string;
+  /** INNOVA's part in the work. */
+  role?: string;
+  /** Who it was built for, when that is someone else. */
+  client?: string;
+  /** What the project needs next from outside (pilot sites, partners). */
+  lookingFor?: string;
+  /** Page title without the " | INNOVA" suffix (total ≤ 60 chars). */
+  seoTitle?: string;
+  /** Meta description, 140–160 chars. */
+  seoDescription?: string;
+  images?: ProofImage[];
+  capability?: { href: string; label: string };
   /** Only real, public URLs. */
   url?: string;
   urlLabel?: string;
+  /** A project with its own page elsewhere on the site gets no /projects/<slug> page. */
   internal?: string;
 }
+
+const CAP_AI = { href: '/ai-transformation', label: 'AI transformation' };
+const CAP_SOFTWARE = { href: '/software', label: 'Software & products' };
+const CAP_INNOVATION = { href: '/innovation', label: 'Innovation & R&D' };
+const CAP_PARTNERSHIPS = { href: '/partnerships', label: 'Partnerships' };
+
+const proof = (name: string, w: number, h: number, alt: string, caption: string, phone = false): ProofImage => ({
+  src: `/proof/${name}-${phone ? 800 : 1600}.webp`,
+  src800: `/proof/${name}-${phone ? 400 : 800}.webp`,
+  w,
+  h,
+  alt,
+  caption
+});
 
 export const PROJECTS: Project[] = [
   {
@@ -68,18 +113,49 @@ export const PROJECTS: Project[] = [
     code: 'INV-01',
     name: 'UAFest digital ecosystem',
     short: 'UAFest',
+    tagline: 'Festival operations platform',
     domain: 'community',
     status: 'live',
     featured: true,
     visible: true,
     summary:
-      'One connected system that runs an Ottawa cultural festival: public site, applications, volunteer cabinets, sponsor and finance registers, certificates with public verification.',
+      'One connected system that runs a Ukrainian cultural festival in Carleton Place, Ontario: public site, applications, participant cabinets, sponsor and finance registers, and certificates anyone can verify online.',
     problem:
-      'A volunteer-run festival juggled vendors, performers, volunteers, sponsors and money across spreadsheets, inboxes and chats. Nothing showed the whole picture.',
+      'A community festival run by a non-profit and its volunteers juggled vendors, performers, volunteers, sponsors and money across spreadsheets, shared inboxes and chats. Nobody could see the whole picture.',
     solution:
       'A public website joined to an operations back office: application intake for every participant type, personal cabinets, sponsor and finance registers, task assignment, and certificates anyone can verify online.',
-    technology: ['Next.js', 'Postgres with row-level security', 'Role-based CRM', 'AI-assisted triage', 'Multilingual (EN/UK)'],
-    outcome: 'In daily use by the festival team since the 2026 season.',
+    technology: [
+      'Next.js',
+      'Supabase Postgres, row-level security on every table',
+      'Role-based CRM (78 screens)',
+      'Sync of 13 shared mailboxes',
+      'Certificate verification at /verify',
+      'English, Ukrainian, French'
+    ],
+    outcome:
+      'CRM in production since August 2026; the festival ran on it on 13 September 2026. By September the system held about 300 participant applications and 199 participant cabinets, with 13 shared mailboxes synced into one record.',
+    role: 'Designed, built and operated with the festival team.',
+    client: 'Built for the Ukrainian Community of Lanark County, a non-profit co-founded by INNOVA’s founder.',
+    seoTitle: 'UAFest: Festival Operations Platform',
+    seoDescription:
+      'UAFest runs a Ukrainian festival in Carleton Place, Ontario: applications, participant cabinets, sponsor and finance registers and verifiable certificates.',
+    images: [
+      proof(
+        'uafest-applications-1440',
+        1600,
+        1000,
+        'UAFest 2027 sign-up page on uafest.ca: one form with participation types for guests, volunteers, vendors, performers, sponsors, Unity Ride drivers, the Rushnyk and the organizing team.',
+        'One intake form routes every participant type into the festival back office.'
+      ),
+      proof(
+        'uafest-certificate-check-1440',
+        1600,
+        473,
+        'UAFest certificate register on uafest.ca: a code field and Check button for verifying a printed certificate.',
+        'Anyone can check a UAFest certificate code online at uafest.ca/verify.'
+      )
+    ],
+    capability: CAP_SOFTWARE,
     url: 'https://uafest.ca',
     urlLabel: 'uafest.ca'
   },
@@ -88,18 +164,54 @@ export const PROJECTS: Project[] = [
     code: 'INV-02',
     name: 'FoundWall',
     short: 'FoundWall',
+    tagline: 'Lost & found network',
     domain: 'community',
     status: 'live',
     featured: true,
     visible: true,
     summary:
-      'A Canada-first recovery network for lost, stolen and found property: bikes, pets, tools, drones. Web platform live; iOS and Android apps in public beta.',
+      'A Canada-first recovery network for lost, stolen and found property: bikes, pets, robot mowers and drones. Web platform live; iOS and Android apps in public beta.',
     problem:
-      'Lost and found reports are scattered across social posts, police forms and classified sites, and photos often leak owners’ locations.',
+      'Lost-and-found reports are scattered across social posts, police forms and classified sites, and a phone photo can carry the owner’s home location in its metadata.',
     solution:
-      'A single public board with structured reports, privacy-first media handling (every photo is quarantined, stripped of location data and re-encoded before it is shown) and native mobile apps.',
-    technology: ['Next.js', 'React Native (Expo)', 'Postgres in ca-central-1', 'Server-side media sanitising worker'],
-    outcome: 'Web platform live at foundwall.com; mobile apps in TestFlight and Google Play testing.',
+      'One public board with structured reports, private messaging between owner and finder, and privacy-first media handling: every photo is quarantined, stripped of location data and re-encoded before anyone sees it.',
+    technology: [
+      'Next.js 16',
+      'React Native (Expo)',
+      'Supabase Postgres in Canada (ca-central-1), row-level security',
+      'Server-side media sanitizing worker',
+      'Privacy impact assessment and threat model'
+    ],
+    outcome: 'Web platform live at foundwall.com; iOS and Android apps are in store testing.',
+    role: 'Designed, built and published by INNOVA CONSULT LTD.: web platform, plus iOS and Android apps in TestFlight and Google Play testing.',
+    seoTitle: 'FoundWall: Lost & Found Recovery Network',
+    seoDescription:
+      'FoundWall is a Canada-first network for lost, stolen and found bikes, pets, robot mowers and drones; photos lose their location data before anyone sees them.',
+    images: [
+      proof(
+        'foundwall-board-1440',
+        1600,
+        1000,
+        'FoundWall public recovery board: notice cards with status bands (stolen, lost, found), area-level locations and recognition details.',
+        'Public board: area-level locations only, owner identities and full serials stay private.'
+      ),
+      proof(
+        'foundwall-notice-1440',
+        1600,
+        1000,
+        'FoundWall notice page for a found keyring: photo, area, report date and a Contact the reporter privately button.',
+        'A notice page. Owner and finder talk through FoundWall messaging, with no email or phone published.'
+      ),
+      proof(
+        'foundwall-board-390',
+        800,
+        1731,
+        'FoundWall board on a 390 px phone screen: stacked notice cards for a stolen bike and a lost cat.',
+        'The same board on a phone.',
+        true
+      )
+    ],
+    capability: CAP_SOFTWARE,
     url: 'https://foundwall.com',
     urlLabel: 'foundwall.com'
   },
@@ -108,24 +220,37 @@ export const PROJECTS: Project[] = [
     code: 'INV-03',
     name: 'AICRMIUS',
     short: 'AICRMIUS',
+    tagline: 'AI-native CRM',
     domain: 'software',
     status: 'in-development',
     featured: true,
     visible: true,
     summary:
-      'An AI-native CRM where people and AI agents work inside the same records, with every agent action reviewed, applied and reversible.',
+      'An AI-native CRM where people and AI agents work in the same records. Agent changes wait for a person’s approval and can be undone.',
     problem:
       'Teams bolt AI assistants onto CRMs they cannot audit: the assistant suggests, a person copies, and nobody can tell later who changed what.',
     solution:
       'Agents act inside the CRM through one controlled cycle: propose, validate, approve, apply, undo. Each step is written to an audit trail, so a manager can see and reverse any change.',
-    technology: ['TypeScript monorepo', 'Postgres', 'LLM agents with web grounding', 'Human-in-the-loop approval', 'Audit log'],
-    outcome: 'Core agent cycle working end to end; product in active development.'
+    technology: [
+      'Next.js + TypeScript monorepo',
+      'Postgres (Prisma)',
+      'Gemini agents with Google Search grounding',
+      'Human approval before every change',
+      'Audit trail with one-click undo'
+    ],
+    outcome:
+      'Core agent cycle (propose, validate, approve, apply, undo) runs end to end on a self-hosted build; not yet offered to customers.',
+    seoTitle: 'AICRMIUS: AI-Native CRM with Auditable Agents',
+    seoDescription:
+      'AICRMIUS is an AI-native CRM in development: Gemini agents propose changes to shared records, a person approves each one, and every change can be undone.',
+    capability: CAP_SOFTWARE
   },
   {
     slug: 'workflow-os',
     code: 'INV-04',
     name: 'INNOVA AI Workflow OS',
     short: 'Workflow OS',
+    tagline: 'Automation planning tool',
     domain: 'ai',
     status: 'prototype',
     featured: true,
@@ -136,35 +261,57 @@ export const PROJECTS: Project[] = [
       'Companies buy AI tools before they know which processes are worth automating, which approach fits, or how they will measure the result.',
     solution:
       'A guided flow from company to processes, scores, selection, design, implementation and measured ROI. Every score shows the reasons behind it.',
-    technology: ['Deterministic scoring engine', 'Process modelling', 'Architecture recommender', 'ROI model'],
-    outcome: 'Working prototype; first demonstrations in October 2026.',
+    technology: [
+      'React + TypeScript',
+      'Deterministic scoring engine (14 factors + risk penalty)',
+      'AI process discovery with rules-engine fallback',
+      'Architecture recommender (6 patterns, 5 human-control levels)',
+      'ROI model',
+      '226 automated tests'
+    ],
+    outcome:
+      'Working prototype, online since 1 October 2026 as an invite-only demo with a fictional 30-person services firm and 15 mapped workflows.',
+    capability: CAP_AI,
     internal: '/workflow-os'
   },
   {
     slug: 'finmozg',
     code: 'INV-05',
-    name: 'FinMozg',
-    short: 'FinMozg',
+    name: 'FINMOZG',
+    short: 'FINMOZG',
+    tagline: 'AI finance back office',
     domain: 'ai',
     status: 'prototype',
     featured: false,
     visible: true,
     summary:
-      'An AI finance department: specialised agents and a CFO copilot working over a real double-entry ledger.',
+      'An AI finance department: eight specialized agents and a CFO copilot working over a real double-entry ledger. Built first for Ukrainian accounting rules.',
     problem:
-      'Small companies need bookkeeping, reconciliation and reporting every month, and generic chat assistants cannot be trusted with the books.',
+      'Small companies need bookkeeping, reconciliation and reporting every month, and a general-purpose chat assistant cannot be trusted with the books.',
     solution:
       'Deterministic accounting engines keep the ledger correct; AI agents classify, reconcile and draft on top of them, and every posting lands in a tamper-evident audit chain.',
-    technology: ['Next.js', 'Postgres', 'Agent tool-calling loop', 'Hash-chained audit log', '200+ automated tests'],
-    outcome: 'Working prototype with bank import, classification and closing flows.'
+    technology: [
+      'Next.js 15 + TypeScript',
+      'Postgres (Prisma)',
+      'Agents calling read-only ledger tools',
+      'Hash-chained audit log',
+      '200+ automated tests'
+    ],
+    outcome:
+      'Working prototype with bank import, classification and closing flows, configured for Ukrainian charts of accounts and taxes.',
+    seoTitle: 'FINMOZG: AI Finance Agents on a Real Ledger',
+    seoDescription:
+      'FINMOZG is a working prototype of an AI finance back office: eight agents and a CFO copilot on a real double-entry ledger, built for Ukrainian accounting rules.',
+    capability: CAP_AI
   },
   {
     slug: 'openfield',
     code: 'INV-06',
     name: 'OpenField',
     short: 'OpenField',
+    tagline: 'Ag-robot fleet logbook',
     domain: 'agritech',
-    status: 'research',
+    status: 'prototype',
     featured: true,
     visible: true,
     summary:
@@ -173,41 +320,105 @@ export const PROJECTS: Project[] = [
       'Dealers who service farm robots from many brands have no common record of what each machine did, where it failed and what the grower must report.',
     solution:
       'A two-tap field logbook for technicians, offline-first, that turns daily records into season reports and pre-filled compliance forms.',
-    technology: ['Python', 'Offline-first PWA', 'Fleet and job model', 'Report generation (CanadaGAP, OMAFRA, Transport Canada formats)'],
-    outcome: 'Software prototype built; field validation is being scoped for the 2027 growing season.'
+    technology: [
+      'Python 3.12 + FastAPI',
+      'SQLite',
+      'Offline-first PWA with on-device queue',
+      'Exports: CanadaGAP H1, OMAFRA spray record, Transport Canada RPAS logs, AgExpert',
+      '1,000+ automated tests'
+    ],
+    outcome:
+      'Lab prototype tested on demo and simulated data. No manufacturer integration yet; field validation is planned for the 2027 growing season.',
+    lookingFor: 'Ontario dealers and growers running robots from more than one manufacturer, for field validation in the 2027 season.',
+    seoTitle: 'OpenField: Logbook for Farm Robot Fleets',
+    seoDescription:
+      'OpenField is a prototype logbook for mixed farm robot fleets: offline field records, season reports, and CanadaGAP, OMAFRA and Transport Canada RPAS exports.',
+    images: [
+      proof(
+        'openfield-season-report-1440',
+        1600,
+        1000,
+        'OpenField season report preview: block-by-week pass grid and report figures such as hectares completed and passes on time, each tagged with its data source.',
+        'Season report preview generated from the logbook (demo data).'
+      ),
+      proof(
+        'openfield-entry-390',
+        800,
+        1621,
+        'OpenField technician entry screen on a 390 px phone: open stops and a machine list for starting a walk-out record.',
+        'Technician entry on a phone (demo data).',
+        true
+      )
+    ],
+    capability: CAP_INNOVATION
   },
   {
     slug: 'babakokum',
     code: 'INV-07',
     name: 'BABA & KOKUM: Porch Print Shop',
     short: 'Porch Print Shop',
-    domain: 'community',
-    status: 'built',
+    tagline: 'Puzzle game',
+    domain: 'culture',
+    status: 'live',
     featured: false,
     visible: true,
-    summary: 'A puzzle game for children about traditional Ukrainian block printing, built for web, iOS and Android from one codebase.',
-    problem: 'Cultural education for children rarely reaches them where they already spend time: on phones and tablets.',
-    solution: 'A short, playful print-shop puzzle that works offline and ships as native store apps without network requests.',
-    technology: ['Web game engine', 'Expo native shell', 'Offline build'],
-    outcome: 'Built; store releases in preparation.'
+    summary:
+      'A cozy puzzle game about the printed floral kokum scarf, a cloth shared by Ukrainian and Plains Cree family traditions. Built for web, iOS and Android from one codebase.',
+    problem:
+      'Stories of how Ukrainian settlers and Indigenous peoples in Canada shared everyday objects rarely reach people outside museums and festivals.',
+    solution:
+      'A short print-shop puzzle with a daily scarf, nine guests and four seasons. It runs fully offline, and the store apps make no network requests.',
+    technology: [
+      'Vanilla JavaScript game, no framework',
+      'Expo shell around an offline copy',
+      'Service-worker offline play',
+      'Telegram Mini App'
+    ],
+    outcome:
+      'Playable on the web (itch.io, Game Jolt) and as a Telegram Mini App; iOS build submitted for App Store review, Android in Google Play testing.',
+    seoTitle: 'Porch Print Shop: Kokum Scarf Puzzle Game',
+    seoDescription:
+      'BABA & KOKUM: The Porch Print Shop is a cozy offline puzzle game about the kokum scarf, shared by Ukrainian and Plains Cree families. Play it in a web browser.',
+    images: [
+      {
+        src: '/proof/babakokum-rules-tablet-1600.webp',
+        src800: '/proof/babakokum-rules-tablet-800.webp',
+        w: 1600,
+        h: 1331,
+        alt: 'BABA & KOKUM rules card: six scoring patterns for placing printed tiles on a scarf grid and the five ink colours.',
+        caption: 'How the print-shop puzzle scores.'
+      }
+    ],
+    capability: CAP_SOFTWARE,
+    url: 'https://scarf.babakokum.com/game',
+    urlLabel: 'scarf.babakokum.com'
   },
   {
     slug: 'dual-use',
     code: 'INV-08',
-    name: 'Dual-use collaborations',
+    name: 'Dual-use technology',
     short: 'Dual-use',
+    tagline: 'Defence-adjacent scouting',
     domain: 'dual-use',
     status: 'exploring',
     featured: false,
     visible: true,
-    summary:
-      'Exploring where INNOVA’s software and AI work can serve dual-use and defence-adjacent programs, together with Canadian and allied partners.',
-    problem: 'Field-proven technology from allied innovators rarely meets Canadian programs that could use it.',
-    solution: 'Early-stage scouting and partner conversations; no deliverables claimed yet.',
-    technology: ['Technology scouting', 'Program readiness'],
-    outcome: 'Exploring.'
+    summary: 'Exploring where INNOVA’s software and AI work can serve Canadian dual-use and defence-adjacent programs.',
+    problem:
+      'Defence and public-safety programs need software that converts, checks and shares operational data between systems that were never built to talk to each other.',
+    solution:
+      'Early stage: program research, responses to public requests for information, and a lab prototype tested on synthetic data only. No contracts or deliverables claimed.',
+    technology: ['Program research', 'Responses to public requests for information', 'Lab prototype on synthetic data'],
+    outcome: 'Exploring. Lab work only; no contracts.',
+    seoTitle: 'Dual-Use Software and AI, Canada',
+    seoDescription:
+      'INNOVA explores where its software and AI work can serve Canadian dual-use and defence-adjacent programs. Early stage: research and lab work only, no contracts.',
+    capability: CAP_PARTNERSHIPS
   }
 ];
 
 export const visibleProjects = PROJECTS.filter((p) => p.visible);
 export const featuredProjects = visibleProjects.filter((p) => p.featured);
+
+/** Where a project lives on the site: its own product page, or its /projects detail page. */
+export const projectHref = (p: Project) => p.internal ?? `/projects/${p.slug}`;

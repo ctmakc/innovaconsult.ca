@@ -18,6 +18,7 @@
   --live: #8fd694;
   --rule: rgb(150 210 205 / 0.14);
   --rule-strong: rgb(150 210 205 / 0.26);
+  --rule-field: rgb(150 210 205 / 0.5);
 
   --font-display: 'Hubot Sans', 'Arial Narrow', Arial, sans-serif;
   --font-text: 'Instrument Sans', 'Helvetica Neue', Arial, sans-serif;
@@ -110,6 +111,11 @@ a {
 }
 
 /* ── Layout ─────────────────────────────────────────────────────────────── */
+/* Full-bleed moments (the pipeline board) run to the viewport edge; never let them add a horizontal scroll. */
+main {
+  overflow-x: clip;
+}
+
 .wrap {
   width: 100%;
   max-width: calc(var(--max) + 2 * var(--gutter));
@@ -129,9 +135,14 @@ a {
 .section + .section {
   border-top: 1px solid var(--rule);
 }
+/* The footer brings its own top space; the last section must not double it. */
+main > .section:last-child {
+  padding-bottom: clamp(40px, 4vw, 64px);
+}
 
 /* ── Type ───────────────────────────────────────────────────────────────── */
 .d-hero,
+.d-page,
 .d-xl,
 .d-l,
 .d-m {
@@ -139,23 +150,43 @@ a {
   margin: 0;
   text-wrap: balance;
   font-optical-sizing: auto;
+  overflow-wrap: break-word;
+  hyphens: manual;
+}
+/* Long words may only hyphenate on the narrowest screens, where they would otherwise overflow. */
+@media (max-width: 360px) {
+  .d-hero,
+  .d-page,
+  .d-xl,
+  .d-l,
+  .d-m {
+    hyphens: auto;
+  }
 }
 .d-hero {
-  font-size: clamp(2.5rem, 1.3rem + 3.3vw, 4.6rem);
-  font-weight: 460;
+  font-size: clamp(2.6rem, 1.1rem + 4vw, 5.2rem);
+  font-weight: 440;
   font-stretch: 110%;
-  line-height: 0.97;
+  line-height: 0.96;
+  letter-spacing: -0.035em;
+}
+/* Inner-page H1 (PageHead). */
+.d-page {
+  font-size: clamp(2.5rem, 1rem + 4.6vw, 5.25rem);
+  font-weight: 420;
+  font-stretch: 112%;
+  line-height: 0.96;
   letter-spacing: -0.035em;
 }
 .d-xl {
-  font-size: clamp(2.2rem, 1.2rem + 3.2vw, 4.6rem);
+  font-size: clamp(1.7rem, 0.6rem + 2.7vw, 3.4rem); /* keeps H1:H2 ≥ 1.5 against .d-hero at every width */
   font-weight: 450;
   font-stretch: 114%;
   line-height: 0.98;
   letter-spacing: -0.032em;
 }
 .d-l {
-  font-size: clamp(1.8rem, 1.2rem + 1.8vw, 3rem);
+  font-size: clamp(1.6rem, 1.2rem + 1.8vw, 3rem);
   font-weight: 470;
   font-stretch: 112%;
   line-height: 1.02;
@@ -189,7 +220,7 @@ a {
 
 .mono {
   font-family: var(--font-mono);
-  font-size: 0.78rem;
+  font-size: 0.78rem; /* floor: no mono text below 0.75rem anywhere */
   letter-spacing: 0.06em;
   text-transform: uppercase;
   line-height: 1.3;
@@ -197,9 +228,9 @@ a {
 
 .kicker {
   font-family: var(--font-mono);
-  font-size: 0.78rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-size: 0.8125rem;
+  letter-spacing: 0.02em;
+  text-transform: none;
   color: var(--lichen);
   margin: 0 0 22px;
   display: flex;
@@ -262,6 +293,7 @@ a {
 .arrow-link {
   display: inline-flex;
   align-items: center;
+  min-height: 44px;
   gap: 10px;
   font-weight: 600;
   text-decoration: none;
@@ -274,25 +306,53 @@ a {
   transform: translateX(4px);
 }
 
-  /* Section heads: asymmetric 7/5 */
-  .sec-head {
-    align-items: end;
-    margin-bottom: clamp(36px, 4vw, 64px);
-    row-gap: 20px;
-  }
-  .sh-l {
-    grid-column: 1 / span 7;
+/* Section heads: asymmetric 7/5 */
+.sec-head {
+  align-items: end;
+  margin-bottom: clamp(36px, 4vw, 64px);
+  row-gap: 20px;
+}
+.sh-l {
+  grid-column: 1 / span 7;
+}
+.sh-r {
+  grid-column: 8 / span 5;
+  align-self: end;
+  padding-bottom: 0.4em;
+}
+@media (max-width: 860px) {
+  .sh-l,
+  .sh-r {
+    grid-column: 1 / -1;
   }
   .sh-r {
-    grid-column: 9 / span 4;
+    padding-bottom: 0;
   }
-  @media (max-width: 860px) {
-    .sh-l,
-    .sh-r {
-      grid-column: 1 / -1;
-    }
-  }
+}
 
+
+/* ── Proof figure: the plate for every product screenshot (contract d) ──── */
+.proof {
+  margin: 0;
+  background: var(--plate);
+  border: 1px solid var(--rule-strong);
+  border-radius: 0;
+}
+.proof img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.proof figcaption {
+  margin-top: 10px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.5;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--lichen);
+  padding: 0 14px 12px;
+}
 
 /* ── Ruled stage row (the layout primitive) ─────────────────────────────── */
 .rows {
@@ -317,7 +377,7 @@ a.row:focus-visible .row-title {
   transform: translateX(6px);
 }
 a.row::after {
-  content: '→';
+  content: '→' / '';
   position: absolute;
   right: 0;
   top: clamp(22px, 2.4vw, 34px);
@@ -328,7 +388,8 @@ a.row::after {
     transform var(--t-micro) var(--ease-out);
   transform: translateX(-6px);
 }
-a.row:hover::after {
+a.row:hover::after,
+a.row:focus-visible::after {
   opacity: 1;
   transform: none;
 }
@@ -381,7 +442,7 @@ a.row:hover::after {
   align-items: center;
   gap: 9px;
   font-family: var(--font-mono);
-  font-size: 0.74rem;
+  font-size: 0.78rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--frost);
@@ -410,5 +471,57 @@ a.row:hover::after {
   .js [data-draw] .trk-span,
   .js [data-draw].trk-span {
     transform: none;
+  }
+}
+
+/* ── Print: keep every status mark, trail and rail visible ──────────────── */
+@media print {
+  .mark,
+  .trk-span,
+  .trk-tick,
+  .pb-trail,
+  .pb-mark,
+  .pb-axis-draw,
+  .pb-axis-line i,
+  .sl-rail,
+  .sl-dot,
+  .ftr-line,
+  .ftr-line i {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  [data-draw] .trk-span,
+  [data-draw].trk-span,
+  .js [data-draw] .trk-span,
+  .js [data-draw].trk-span,
+  .sl-rail,
+  .pb-trail,
+  .pb-axis-draw {
+    transform: none !important;
+  }
+  /* Paper shows the final state: no entrance is ever mid-flight in print. */
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+  .hdr {
+    position: static !important;
+  }
+  .nav,
+  .menu-btn,
+  .hdr-cta,
+  .skip,
+  .m-menu,
+  .ftr-cta,
+  .ftr-word {
+    display: none !important;
+  }
+  .pb-st {
+    opacity: 1 !important;
+  }
+  a.row::after {
+    display: none;
   }
 }

@@ -2,18 +2,47 @@
 // Signature element: every visible project drawn as a trail along the stage line,
 // ending at its real stage. Status and stage come from one table (STATUS_STAGE).
 import { STAGES } from '../data/stages';
-import { visibleProjects, STATUS_STAGE, STATUS_LABEL, DOMAINS } from '../data/projects';
+import {
+  visibleProjects,
+  featuredProjects,
+  STATUS_STAGE,
+  STATUS_LABEL,
+  DOMAINS,
+  type Project,
+  type ProjectStatus
+} from '../data/projects';
 
-const rows = [...visibleProjects]
+interface Props {
+  /** 'featured' shows only featured projects (homepage); default shows every visible project. */
+  only?: 'featured';
+}
+const { only } = Astro.props;
+
+type BoardProject = Project & { tagline?: string };
+const source: BoardProject[] = only === 'featured' ? featuredProjects : visibleProjects;
+const rows = [...source]
   .map((p) => ({ ...p, stage: STATUS_STAGE[p.status] }))
   .sort((a, b) => b.stage - a.stage);
 const domainLabel = (k: string) => DOMAINS.find((d) => d.key === k)?.label ?? k;
+
+// Legend lists only the forms that appear on this board; statuses sharing a form share an entry.
+const FORMS: { s: ProjectStatus; covers: ProjectStatus[] }[] = [
+  { s: 'live', covers: ['live', 'built'] },
+  { s: 'prototype', covers: ['in-development', 'prototype'] },
+  { s: 'research', covers: ['research'] },
+  { s: 'exploring', covers: ['exploring'] },
+  { s: 'partner-opportunity', covers: ['partner-opportunity'] }
+];
+const present = new Set(rows.map((r) => r.status));
+const legend = FORMS.map((f) => ({ s: f.s, label: f.covers.filter((c) => present.has(c)).map((c) => STATUS_LABEL[c]).join(' · ') })).filter(
+  (f) => f.label
+);
 ---
 
 <figure class="pb" aria-labelledby="pb-cap">
   <figcaption id="pb-cap" class="pb-cap">
-    <span class="mono">Portfolio · stage by stage</span>
-    <span class="pb-cap-note">Each line ends where the project really is today.</span>
+    <span class="pb-cap-t">Portfolio, stage by stage</span>
+    <span class="pb-cap-note">Each line ends where the project is today.</span>
   </figcaption>
 
   <div class="pb-head" aria-hidden="true">
@@ -38,24 +67,22 @@ const domainLabel = (k: string) => DOMAINS.find((d) => d.key === k)?.label ?? k;
     </span>
   </div>
 
-  <ul class="pb-rows">
+  <ul class="pb-rows" aria-label="Projects, most advanced first">
     {
       rows.map((p, r) => (
         <li>
-          <a
-            class="pb-row"
-            href={`/projects/${p.slug}`}
-            style={`--s:${p.stage};--r:${r}`}
-            aria-label={`${p.short}: ${STATUS_LABEL[p.status]}, stage ${STAGES[p.stage].label}`}
-          >
+          <a class="pb-row" href={p.internal ?? `/projects/${p.slug}`} style={`--s:${p.stage};--r:${r}`}>
             <span class="pb-lab">
               <span class="pb-name">{p.short}</span>
-              <span class="pb-dom">{domainLabel(p.domain)}</span>
+              <span class="pb-dom">{p.tagline ?? domainLabel(p.domain)}</span>
             </span>
             <span class="pb-track" aria-hidden="true">
               <span class="pb-trail" />
               <span class="mark pb-mark" data-s={p.status} />
               <span class="pb-st">{STATUS_LABEL[p.status]}</span>
+            </span>
+            <span class="sr-only">
+              : {STATUS_LABEL[p.status]}, stage {p.stage + 1} of {STAGES.length}, {STAGES[p.stage].label}
             </span>
           </a>
         </li>
@@ -64,38 +91,67 @@ const domainLabel = (k: string) => DOMAINS.find((d) => d.key === k)?.label ?? k;
   </ul>
 
   <p class="pb-key" aria-hidden="true">
-    {STAGES.map((st, i) => <span><b>{String(i + 1).padStart(2, '0')}</b> {st.label}</span>)}
+    {
+      STAGES.map((st, i) => (
+        <span>
+          <b>{String(i + 1).padStart(2, '0')}</b> {st.label}
+        </span>
+      ))
+    }
   </p>
 
   <ul class="pb-legend" aria-label="Status legend">
-    <li><span class="mark" data-s="live" aria-hidden="true"></span>Live · Built</li>
-    <li><span class="mark" data-s="prototype" aria-hidden="true"></span>In development · Prototype</li>
-    <li><span class="mark" data-s="research" aria-hidden="true"></span>R&amp;D</li>
-    <li><span class="mark" data-s="exploring" aria-hidden="true"></span>Exploring</li>
+    {
+      legend.map((l) => (
+        <li>
+          <span class="mark" data-s={l.s} aria-hidden="true" />
+          {l.label}
+        </li>
+      ))
+    }
   </ul>
 </figure>
 
 <style>
   .pb {
-    --lab: 168px;
+    --lab: 176px;
     --cell: calc(100% / 6);
+    --bleed: 0px;
     margin: 0;
     padding: 22px 24px 20px;
     background: var(--plate);
     border: 1px solid var(--rule);
     position: relative;
+    contain: layout paint;
+    container: pb / inline-size;
+    animation: pb-fade 500ms var(--ease-out) 100ms backwards;
+  }
+  /* Wide screens: the board runs off the right edge, so the stage line keeps going. */
+  @media (min-width: 1100px) {
+    .pb {
+      --bleed: max(var(--gutter), (100vw - var(--max)) / 2);
+      margin-right: calc(-1 * var(--bleed));
+      padding-right: var(--bleed);
+      border-right: 0;
+    }
+    .pb-axis-draw {
+      right: calc(-1 * var(--bleed)) !important;
+    }
   }
   .pb-cap {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    gap: 16px;
+    gap: 6px 16px;
     flex-wrap: wrap;
-    padding-bottom: 18px;
-    margin-bottom: 18px;
+    padding-bottom: 16px;
+    margin-bottom: 16px;
     border-bottom: 1px solid var(--rule);
   }
-  .pb-cap .mono {
+  .pb-cap-t {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    letter-spacing: 0.02em;
     color: var(--frost);
   }
   .pb-cap-note {
@@ -116,26 +172,27 @@ const domainLabel = (k: string) => DOMAINS.find((d) => d.key === k)?.label ?? k;
     padding: 0;
     display: grid;
     grid-template-columns: repeat(6, minmax(0, 1fr));
+    animation: pb-fade 500ms var(--ease-out) 300ms backwards;
   }
   .pb-stages li {
     display: grid;
     justify-items: center;
     gap: 2px;
     text-align: center;
-    animation: pb-fade 600ms var(--ease-out) both;
-    animation-delay: calc(700ms + var(--i) * 120ms);
+    min-width: 0;
   }
   .pb-n {
     font-family: var(--font-mono);
-    font-size: 0.68rem;
+    font-size: 0.75rem;
     color: var(--signal);
   }
   .pb-sl {
     font-family: var(--font-mono);
-    font-size: 0.66rem;
-    letter-spacing: 0.05em;
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
     color: var(--lichen);
+    white-space: nowrap;
   }
 
   .pb-axis {
@@ -154,8 +211,7 @@ const domainLabel = (k: string) => DOMAINS.find((d) => d.key === k)?.label ?? k;
     margin-top: -1px;
     background: var(--signal);
     transform-origin: left center;
-    animation: pb-draw var(--t-draw) var(--ease-in-out) both;
-    animation-delay: 600ms;
+    animation: pb-draw 900ms var(--ease-in-out) 300ms backwards;
   }
   .pb-axis-line i {
     position: absolute;
@@ -167,8 +223,8 @@ const domainLabel = (k: string) => DOMAINS.find((d) => d.key === k)?.label ?? k;
     border-radius: 50%;
     background: var(--plate);
     border: 2px solid var(--signal);
-    animation: pb-pop 420ms var(--ease-out) both;
-    animation-delay: calc(700ms + var(--i) * 200ms);
+    animation: pb-pop 300ms var(--ease-out) backwards;
+    animation-delay: calc(350ms + var(--i) * 80ms);
   }
 
   .pb-rows {
@@ -177,7 +233,7 @@ const domainLabel = (k: string) => DOMAINS.find((d) => d.key === k)?.label ?? k;
     padding: 0;
   }
   .pb-row {
-    min-height: 44px;
+    min-height: 48px;
     text-decoration: none;
     color: inherit;
     border-top: 1px solid var(--rule);
@@ -187,40 +243,42 @@ const domainLabel = (k: string) => DOMAINS.find((d) => d.key === k)?.label ?? k;
   .pb-row:focus-visible {
     background: var(--plate-hi);
   }
+  .pb-row:focus-visible {
+    outline-offset: -2px;
+  }
   .pb-lab {
     display: grid;
     padding: 7px 12px 7px 0;
     min-width: 0;
   }
+  .pb-rows .pb-lab {
+    animation: pb-fade 500ms var(--ease-out) 300ms backwards;
+  }
   .pb-name {
     font-weight: 600;
     font-size: 0.95rem;
-    line-height: 1.2;
+    line-height: 1.25;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
   .pb-dom {
-    font-family: var(--font-mono);
-    font-size: 0.64rem;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
+    font-size: 0.8rem;
+    line-height: 1.35;
     color: var(--lichen);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
   }
   .pb-track {
     position: relative;
-    height: 44px;
+    height: 48px;
   }
+  /* Remainder of the line the project has not reached yet. */
   .pb-track::before {
     content: '';
     position: absolute;
     top: 50%;
     left: calc(var(--cell) / 2);
     right: calc(var(--cell) / 2);
-    border-top: 1px dashed var(--rule-strong);
+    border-top: 1px dotted var(--rule);
   }
   .pb-trail {
     position: absolute;
@@ -229,51 +287,62 @@ const domainLabel = (k: string) => DOMAINS.find((d) => d.key === k)?.label ?? k;
     width: calc(var(--cell) * var(--s));
     height: 2px;
     margin-top: -1px;
-    background: var(--signal-dim);
+    background: var(--signal);
+    opacity: 0.7;
     transform-origin: left center;
-    animation: pb-draw calc(380ms + var(--s) * 110ms) var(--ease-out) both;
-    animation-delay: calc(1500ms + var(--r) * 90ms);
+    transition: opacity var(--t-micro) var(--ease-out);
+    animation: pb-draw calc(260ms + var(--s) * 70ms) var(--ease-out) backwards;
+    animation-delay: calc(800ms + var(--r) * 55ms);
   }
   .pb-mark {
     --sz: 14px;
+    --land: calc(800ms + var(--r) * 55ms + 260ms + var(--s) * 70ms);
     position: absolute;
     top: 50%;
     left: calc(var(--cell) * var(--s) + var(--cell) / 2);
     margin: -7px 0 0 -7px;
-    animation: pb-pop 360ms var(--ease-out) both;
-    animation-delay: calc(1500ms + var(--r) * 90ms + 380ms + var(--s) * 110ms);
-  }
-  .pb-mark[data-s='partner-opportunity'] {
-    margin: -7px 0 0 -7px;
+    transition: scale var(--t-micro) var(--ease-out);
+    animation: pb-pop 300ms var(--ease-out) backwards;
+    animation-delay: var(--land);
   }
   .pb-st {
     position: absolute;
     top: 50%;
-    transform: translateY(-50%);
-    left: calc(var(--cell) * var(--s) + var(--cell) / 2 + 14px);
+    translate: 0 -50%;
+    left: calc(var(--cell) * var(--s) + var(--cell) / 2 + 13px);
     font-family: var(--font-mono);
-    font-size: 0.62rem;
-    letter-spacing: 0.05em;
+    font-size: 0.75rem;
+    line-height: 1.5;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: var(--frost);
+    color: var(--lichen);
     white-space: nowrap;
     background: var(--plate);
-    padding: 1px 4px;
-    opacity: 0;
+    padding: 1px 6px;
+    opacity: 1;
     transition:
-      opacity var(--t-micro) var(--ease-out),
+      color var(--t-micro) var(--ease-out),
       background-color var(--t-micro) var(--ease-out);
+    animation: pb-fade 300ms var(--ease-out) backwards;
+    animation-delay: calc(800ms + var(--r) * 55ms + 260ms + var(--s) * 70ms + 120ms);
+  }
+  .pb-row:hover .pb-trail,
+  .pb-row:focus-visible .pb-trail {
+    opacity: 1;
+  }
+  .pb-row:hover .pb-mark,
+  .pb-row:focus-visible .pb-mark {
+    scale: 1.15;
   }
   .pb-row:hover .pb-st,
   .pb-row:focus-visible .pb-st {
-    opacity: 1;
+    color: var(--frost);
     background: var(--plate-hi);
   }
-  /* Status labels near the right edge flip to the left of the marker. */
-  .pb-row[style*='--s:4'] .pb-st,
+  /* A status label with no room on the right flips to the left of its marker. */
   .pb-row[style*='--s:5'] .pb-st {
     left: auto;
-    right: calc(var(--cell) * (5 - var(--s)) + var(--cell) / 2 + 14px);
+    right: calc(var(--cell) * (5 - var(--s)) + var(--cell) / 2 + 13px);
   }
 
   .pb-legend {
@@ -283,10 +352,10 @@ const domainLabel = (k: string) => DOMAINS.find((d) => d.key === k)?.label ?? k;
     border-top: 1px solid var(--rule);
     display: flex;
     flex-wrap: wrap;
-    gap: 10px 22px;
+    gap: 8px 20px;
     font-family: var(--font-mono);
-    font-size: 0.66rem;
-    letter-spacing: 0.05em;
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
     color: var(--lichen);
   }
@@ -294,6 +363,7 @@ const domainLabel = (k: string) => DOMAINS.find((d) => d.key === k)?.label ?? k;
     display: inline-flex;
     align-items: center;
     gap: 8px;
+    white-space: nowrap;
   }
   .pb-legend .mark {
     --sz: 11px;
@@ -303,37 +373,41 @@ const domainLabel = (k: string) => DOMAINS.find((d) => d.key === k)?.label ?? k;
     from {
       transform: scaleX(0);
     }
-    to {
-      transform: scaleX(1);
-    }
   }
   @keyframes pb-pop {
     from {
       opacity: 0;
       scale: 0.4;
     }
-    to {
-      opacity: 1;
-      scale: 1;
-    }
   }
   @keyframes pb-fade {
     from {
       opacity: 0;
-      translate: 0 6px;
-    }
-    to {
-      opacity: 1;
-      translate: 0 0;
     }
   }
   @media (prefers-reduced-motion: reduce) {
+    .pb,
     .pb *,
     .pb *::before {
       animation: none !important;
     }
   }
 
+  /* A narrow board (tablet, or the hero column on small laptops) gives the stage names
+     more room: a slimmer label column, wrapping names, no extra tracking. */
+  @container pb (max-width: 700px) {
+    .pb-head,
+    .pb-axis,
+    .pb-row {
+      grid-template-columns: 136px minmax(0, 1fr);
+    }
+    .pb-sl {
+      letter-spacing: 0;
+    }
+    .pb-name {
+      white-space: normal;
+    }
+  }
   @media (max-width: 720px) {
     .pb {
       --lab: 0px;
@@ -349,26 +423,26 @@ const domainLabel = (k: string) => DOMAINS.find((d) => d.key === k)?.label ?? k;
       display: none;
     }
     .pb-sl {
-      font-size: 0.56rem;
       letter-spacing: 0.02em;
     }
     .pb-row {
-      padding-top: 8px;
+      padding-top: 10px;
     }
     .pb-lab {
-      grid-template-columns: auto 1fr;
+      grid-template-columns: auto minmax(0, 1fr);
       align-items: baseline;
       gap: 10px;
       padding: 0;
     }
     .pb-track {
-      height: 30px;
+      height: 34px;
     }
   }
   .pb-key {
     display: none;
   }
-  @media (max-width: 420px) {
+  /* Narrow boards: stage names move to a numbered key under the rows. */
+  @media (max-width: 600px) {
     .pb-sl {
       display: none;
     }
@@ -378,7 +452,7 @@ const domainLabel = (k: string) => DOMAINS.find((d) => d.key === k)?.label ?? k;
       gap: 6px 14px;
       margin: 14px 0 0;
       font-family: var(--font-mono);
-      font-size: 0.64rem;
+      font-size: 0.75rem;
       letter-spacing: 0.04em;
       text-transform: uppercase;
       color: var(--lichen);
@@ -386,6 +460,12 @@ const domainLabel = (k: string) => DOMAINS.find((d) => d.key === k)?.label ?? k;
     .pb-key b {
       color: var(--signal);
       font-weight: 400;
+    }
+  }
+  @media (max-width: 420px) {
+    .pb-row[style*='--s:3'] .pb-st {
+      left: auto;
+      right: calc(var(--cell) * (5 - var(--s)) + var(--cell) / 2 + 13px);
     }
   }
 </style>

@@ -2,23 +2,32 @@
 import RiseHeading from './RiseHeading.astro';
 interface Props {
   crumb: string;
+  /** When given, the crumb text links to this path. */
+  crumbHref?: string;
   title: string;
   lede?: string;
 }
-const { crumb, title, lede } = Astro.props;
+const { crumb, crumbHref, title, lede } = Astro.props;
+const hasAside = Astro.slots.has('aside');
 ---
 
 <section class="ph">
   <div class="wrap grid12">
     <div class="ph-l">
-      <p class="kicker ph-crumb"><a href="/" class="ulink">INNOVA</a><span aria-hidden="true">/</span>{crumb}</p>
-      <RiseHeading text={title} class="d-xl" delay={60} />
+      <p class="kicker ph-crumb">
+        <a href="/" class="ulink">INNOVA</a><span aria-hidden="true">/</span>{crumbHref ? <a href={crumbHref} class="ulink">{crumb}</a> : crumb}
+      </p>
+      <RiseHeading text={title} class="d-page" delay={60} />
     </div>
     {
-      lede && (
+      (lede || hasAside) && (
         <div class="ph-r">
-          <p class="lede">{lede}</p>
-          <slot name="aside" />
+          {lede && <p class="lede">{lede}</p>}
+          {hasAside && (
+            <div class="ph-aside">
+              <slot name="aside" />
+            </div>
+          )}
         </div>
       )
     }
@@ -31,18 +40,24 @@ const { crumb, title, lede } = Astro.props;
     border-bottom: 1px solid var(--rule);
   }
   .ph .grid12 {
-    align-items: end;
+    align-items: start;
     row-gap: 28px;
   }
   .ph-l {
     grid-column: 1 / span 7;
+    min-width: 0;
   }
-  .ph-l :global(.d-xl) {
-    max-width: 16ch;
+  .ph-l :global(.d-page) {
+    max-width: 15ch;
   }
+  /* The first lede line sits level with the H1 cap line (crumb height + its margin). */
   .ph-r {
     grid-column: 9 / span 4;
+    padding-top: 46px;
     animation: phf 800ms var(--ease-out) 380ms both;
+  }
+  .ph-aside {
+    margin-top: 28px;
   }
   .ph-crumb a {
     color: var(--frost);
@@ -69,6 +84,9 @@ const { crumb, title, lede } = Astro.props;
     .ph-l,
     .ph-r {
       grid-column: 1 / -1;
+    }
+    .ph-r {
+      padding-top: 0;
     }
   }
 </style>

@@ -4,6 +4,9 @@ export const SITE = {
   legalName: 'INNOVA CONSULT LTD.',
   descriptor: 'Applied Innovation & Technology',
   corporationNumber: '1522612-1',
+  /** NATO Commercial and Government Entity code, assigned by DND on 2026-10-01. */
+  ncage: 'L15L3',
+  duns: '241954189',
   incorporated: '2023',
   experienceSince: '2012',
   city: 'Ottawa',
@@ -13,7 +16,7 @@ export const SITE = {
   /** Public URL of the Workflow OS demo. Leave empty until the demo is published. */
   workflowDemoUrl: '',
   defaultDescription:
-    'INNOVA is an Ottawa applied-innovation company. We research, prototype, build and deploy applied AI and software with companies, researchers and public organizations.'
+    'INNOVA is an Ottawa applied-innovation company. We research, prototype, build and deploy applied AI and software, and set up joint projects with companies, researchers and public organizations.'
 };
 
 export const NAV = [

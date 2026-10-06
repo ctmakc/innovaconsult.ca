@@ -6,9 +6,13 @@ interface Props {
 }
 const { showCta = true } = Astro.props;
 const year = new Date().getFullYear();
+// NCAGE and D-U-N-S come from site.ts; render the lines only once they are present.
+const rec = SITE as typeof SITE & { ncage?: string; duns?: string };
+// Station x-positions (viewBox units) under the centre of each letter of INNOVA; the last sits under the final A.
+const STATIONS = [69, 228, 405, 581, 743, 909];
 ---
 
-<footer class="ftr">
+<footer class:list={["ftr", { "ftr--nocta": !showCta }]}>
   <div class="wrap">
     {showCta && <div class="ftr-cta">
       <p class="d-l">Have a problem worth solving or technology worth building around?</p>
@@ -17,7 +21,7 @@ const year = new Date().getFullYear();
 
     <div class="ftr-cols">
       <div>
-        <p class="mono ftr-h">Work</p>
+        <p class="ftr-h">Work</p>
         <ul>
           <li><a class="ulink" href="/projects">Projects</a></li>
           <li><a class="ulink" href="/workflow-os">AI Workflow OS</a></li>
@@ -25,7 +29,7 @@ const year = new Date().getFullYear();
         </ul>
       </div>
       <div>
-        <p class="mono ftr-h">Capabilities</p>
+        <p class="ftr-h">Capabilities</p>
         <ul>
           <li><a class="ulink" href="/ai-transformation">AI Transformation</a></li>
           <li><a class="ulink" href="/software">Software &amp; Products</a></li>
@@ -33,30 +37,33 @@ const year = new Date().getFullYear();
         </ul>
       </div>
       <div>
-        <p class="mono ftr-h">Company</p>
+        <p class="ftr-h">Company</p>
         <ul>
           <li><a class="ulink" href="/about">About</a></li>
           <li><a class="ulink" href="/contact">Contact</a></li>
+          <li><a class="ulink" href="/privacy">Privacy</a></li>
           <li><a class="ulink" href={`mailto:${SITE.email}`}>{SITE.email}</a></li>
         </ul>
       </div>
       <div class="ftr-record">
-        <p class="mono ftr-h">Corporate record</p>
+        <p class="ftr-h">Corporate record</p>
         <p>
           {SITE.legalName}<br />
           Federal corporation {SITE.corporationNumber}<br />
+          {rec.ncage && <><abbr title="NATO Commercial and Government Entity code">NCAGE</abbr> {rec.ncage}<br /></>}
+          {rec.duns && <>D-U-N-S {rec.duns}<br /></>}
           {SITE.city}, {SITE.region}, {SITE.country}
         </p>
       </div>
     </div>
 
     <div class="ftr-word" aria-hidden="true">
-      <span class="ftr-line">
-        {STAGES.map((s) => <i title={s.label}></i>)}
-      </span>
       <svg class="ftr-big" viewBox="0 0 1000 176" preserveAspectRatio="xMidYMax meet">
         <text x="0" y="168" textLength="1000" lengthAdjust="spacingAndGlyphs">INNOVA</text>
       </svg>
+      <span class="ftr-line">
+        {STAGES.map((_, i) => <i style={`left:${STATIONS[i] / 10}%`}></i>)}
+      </span>
     </div>
 
     <div class="ftr-meta">
@@ -74,8 +81,14 @@ const year = new Date().getFullYear();
 <style>
   .ftr {
     border-top: 1px solid var(--rule);
-    padding-top: clamp(72px, 8vw, 128px);
+    padding-top: clamp(56px, 5vw, 88px);
     overflow: hidden;
+  }
+  .ftr--nocta {
+    padding-top: 0;
+  }
+  .ftr--nocta .ftr-cols {
+    border-top: 0;
   }
   .ftr-cta {
     display: grid;
@@ -98,22 +111,38 @@ const year = new Date().getFullYear();
     border-top: 1px solid var(--rule);
   }
   .ftr-h {
+    font-family: var(--font-text);
+    font-size: 0.875rem;
+    font-weight: 500;
     color: var(--lichen);
-    margin: 0 0 16px;
+    margin: 0 0 8px;
   }
   .ftr ul {
     list-style: none;
     margin: 0;
     padding: 0;
     display: grid;
-    gap: 10px;
+    gap: 0;
+  }
+  .ftr ul li {
+    line-height: 1.3;
   }
   .ftr ul a {
+    display: inline-block;
+    padding-block: 10px;
     text-decoration: none;
     color: var(--frost);
+    background-position: 0 calc(100% - 8px);
+  }
+  .ftr ul a:hover {
+    background-size: 100% 1px;
+  }
+  .ftr-record abbr {
+    text-decoration: none;
   }
   .ftr-record p:last-child {
     margin: 0;
+    padding-top: 10px;
     color: var(--lichen);
     font-size: 0.95rem;
     line-height: 1.7;
@@ -122,7 +151,7 @@ const year = new Date().getFullYear();
     position: relative;
     margin-top: 24px;
     display: block;
-    padding-bottom: 18px;
+    margin-bottom: clamp(18px, 2.4vw, 32px);
   }
   .ftr-big {
     display: block;
@@ -137,24 +166,26 @@ const year = new Date().getFullYear();
     font-size: 232px;
     fill: var(--plate-hi);
   }
+  /* The stage line is the wordmark's baseline (y 168 of 176), so the letters stand on it. */
   .ftr-line {
     position: absolute;
     left: 0;
     right: 0;
-    top: 50%;
-    height: 1px;
-    background: var(--signal-dim);
-    display: flex;
-    justify-content: space-between;
+    top: calc(168 / 176 * 100%);
+    height: 2px;
+    margin-top: -1px;
+    background: var(--signal);
     z-index: 1;
   }
   .ftr-line i {
-    width: 9px;
-    height: 9px;
+    position: absolute;
+    top: 50%;
+    width: clamp(9px, 0.9vw, 13px);
+    aspect-ratio: 1;
     border-radius: 50%;
-    margin-top: -4px;
+    transform: translate(-50%, -50%);
     background: var(--ground);
-    border: 1.5px solid var(--signal);
+    border: 2px solid var(--signal);
   }
   .ftr-line i:last-child {
     background: var(--signal);
@@ -194,6 +225,14 @@ const year = new Date().getFullYear();
     }
     .ftr-cols {
       grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 560px) {
+    .ftr-record {
+      grid-column: 1 / -1;
+    }
+    .ftr-record p:last-child {
+      white-space: nowrap;
     }
   }
 </style>

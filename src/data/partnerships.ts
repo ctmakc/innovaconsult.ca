@@ -6,6 +6,8 @@ export interface PartnershipModel {
   span: Span;
   youBring: string;
   weBring: string;
+  /** Optional link to a real project that shows this model in practice. */
+  example?: { href: string; label: string };
 }
 
 export const PARTNERSHIP_MODELS: PartnershipModel[] = [
@@ -21,7 +23,8 @@ export const PARTNERSHIP_MODELS: PartnershipModel[] = [
     line: 'A defined research question, a prototype and an honest feasibility answer.',
     span: [1, 2],
     youBring: 'Research results, data or a technical hypothesis',
-    weBring: 'Rapid prototyping, experiments, validation'
+    weBring: 'Rapid prototyping, experiments, validation',
+    example: { href: '/projects/openfield', label: 'Example: OpenField, a robot-fleet logbook prototype' }
   },
   {
     name: 'Product commercialization',
@@ -42,21 +45,22 @@ export const PARTNERSHIP_MODELS: PartnershipModel[] = [
     line: 'A time-boxed pilot with real users and agreed success measures.',
     span: [4, 5],
     youBring: 'An operational environment and users',
-    weBring: 'Configuration, rollout, measurement'
+    weBring: 'Configuration, rollout, measurement',
+    example: { href: '/projects/openfield', label: 'Example: OpenField, field validation now being scoped for 2027' }
   },
   {
-    name: 'Canadian market collaboration',
-    line: 'Helping proven technology find Canadian users, partners and programs.',
+    name: 'Canadian adaptation and integration',
+    line: 'Fitting technology proven elsewhere to Canadian users and the systems they run.',
     span: [0, 4],
-    youBring: 'Technology with traction elsewhere',
-    weBring: 'Local product adaptation, partners, program navigation'
+    youBring: 'Technology proven in other markets',
+    weBring: 'Engineering to adapt it to Canadian data, languages, regulation and the software already in place'
   },
   {
     name: 'Joint funding applications',
     line: 'Building the project and the consortium behind an innovation program application.',
     span: [0, 2],
     youBring: 'Expertise, co-funding or an industry need',
-    weBring: 'Project design, technical work plan, delivery capacity'
+    weBring: 'Project design, the technical work plan and budget, and the software build with named subcontractors'
   },
   {
     name: 'Industry + technology consortium',

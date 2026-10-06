@@ -56,14 +56,17 @@ const label =
   }
   .trk-span {
     position: absolute;
-    top: 5.5px;
-    height: 3px;
+    top: 6px;
+    height: 2px;
     left: calc(var(--cell) * var(--from) + var(--cell) / 2);
     width: calc(var(--cell) * (var(--to) - var(--from)));
     min-width: 3px;
     background: var(--signal);
+    opacity: 0.7;
     transform-origin: left center;
-    transition: transform 900ms var(--ease-out);
+    transition:
+      transform 900ms var(--ease-out),
+      opacity var(--t-micro) var(--ease-out);
   }
   .trk-span.is-marker {
     left: calc(var(--cell) / 2);
@@ -72,7 +75,7 @@ const label =
   }
   .trk-tick {
     position: absolute;
-    top: 3px;
+    top: 3.5px;
     left: calc(var(--cell) * var(--i) + var(--cell) / 2 - 3.5px);
     width: 7px;
     height: 7px;
@@ -88,11 +91,21 @@ const label =
     position: absolute;
     top: 0.5px;
     left: calc(var(--cell) * var(--i) + var(--cell) / 2 - 6.5px);
+    transition: scale var(--t-micro) var(--ease-out);
+  }
+  /* The whole ruled row is the hover target: its track brightens and its marker lifts. */
+  :global(a.row:hover) .trk-span,
+  :global(a.row:focus-visible) .trk-span {
+    opacity: 1;
+  }
+  :global(a.row:hover) .trk-mark,
+  :global(a.row:focus-visible) .trk-mark {
+    scale: 1.15;
   }
   .trk-cap {
     margin: 10px 0 0;
     color: var(--lichen);
-    font-size: 0.7rem;
+    font-size: 0.75rem;
   }
   @media (max-width: 860px) {
     .trk {
