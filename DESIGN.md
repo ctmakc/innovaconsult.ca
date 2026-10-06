@@ -69,3 +69,14 @@ uniform fade-up on every block, centered hero, rounded cards with shadows, «not
 - Board on the homepage shows featured projects only; /projects shows all. Hero board bleeds to the right viewport edge on purpose (the line continues).
 - Homepage gains: Ottawa eyebrow, partner CTA, "What a funded project with INNOVA looks like", corporate record strip (corp. no., NCAGE L15L3, D-U-N-S, hidden registry link).
 - Section heads are always left-aligned 7/5; the operating-model band is no longer centered.
+
+## Page extension — Canada–LATAM Desk (`/latam`, `/latam/canexport`), 2026-10-06
+Inherits every token, face and the ruled-row primitive above (brand law). The page adds one signature of its own.
+
+Directions considered:
+- (A) **«LATITUDE CORRIDOR»** — chosen. The hero band is a two-rail corridor laid out by real geography: Ottawa (45.4°N) at the north end, each market's capital placed at its true latitude (Mexico City 19.4°N, Santo Domingo 18.5°N, Guatemala City 14.6°N, Bogotá 4.7°N, Lima 12.0°S, Brasília 15.8°S), the equator as one hairline tick. Upper rail = Canada → LATAM (draws north→south), lower rail = LATAM → Canada (draws south→north). Priority markets (MX, CO, PE, BR) = filled turquoise ring; also-in-focus corridors (GT, DO) = dashed ring. Desktop horizontal, phone vertical (north at top — the map's own orientation).
+- (B) «Trade manifest» — every service as a bill-of-lading record in mono. Rejected: mono wallpaper, breaks the site's mono rule.
+- (C) «Flag stripes» — country colours as row accents. Rejected: rainbow, violates status-by-form and ≤3 signal per viewport.
+
+Motion: the two rails draw in opposite directions (1.4s expo-out, lower rail +240ms), stations ignite in latitude order (60ms × position). Engagement path rows draw their own 5-station track on scroll (`data-draw`). Reduced motion: final state.
+Copy law for this page: local partners only (no offices, no in-house Spanish/Portuguese staff), corporation 2023 / founder experience since 2012, no client names, no defence.

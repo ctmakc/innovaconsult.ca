@@ -1,0 +1,588 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHead from '../../components/PageHead.astro';
+import Corridor from '../../components/Corridor.astro';
+import { SITE } from '../../data/site';
+
+const directions = [
+  {
+    id: 'LAT-01',
+    title: 'Canada → Latin America',
+    line: 'For Canadian companies entering Mexico, Colombia, Peru or Brazil.',
+    items: [
+      'Market prioritization and market-entry strategy',
+      'Local partner, distributor and B2B mapping',
+      'Corporate, legal, tax and regulatory coordination with local partners',
+      'Government and IFI procurement opportunity mapping',
+      'Localization, marketing, sales and AI-enabled workflows',
+      'Local hiring and operating setup, arranged through local partners'
+    ]
+  },
+  {
+    id: 'LAT-02',
+    title: 'Latin America → Canada',
+    line: 'For Latin American companies and institutions building a presence in Canada.',
+    items: [
+      'Canadian soft-landing and market-entry planning',
+      'Incorporation, operating setup and compliance coordination',
+      'Market access, import/export and channel readiness',
+      'CanadaBuys and public-procurement readiness',
+      'Buyer, distributor and strategic-partner development',
+      'Marketing, digital launch and AI implementation'
+    ]
+  },
+  {
+    id: 'LAT-03',
+    title: 'Government, IFI and development projects',
+    line: 'For development partners and program implementers that need a Canadian specialist workstream.',
+    items: [
+      'SME export-readiness programs, trade facilitation and business-capacity development',
+      'Market studies, feasibility assessments, ecosystem mapping and investment-attraction support',
+      'Business-enabling environment, regulatory and process reviews, implementation playbooks',
+      'AI and digital-transformation programs for SMEs, institutions and professional-service organizations',
+      'Procurement and tender readiness, consortium building and bid support',
+      'Workshops, technical assistance, training and short- or medium-term expert assignments'
+    ]
+  }
+];
+
+const focus = [
+  { h: 'Priority corridors', items: ['Mexico', 'Colombia', 'Peru', 'Brazil', 'Guatemala', 'Dominican Republic'] },
+  {
+    h: 'Public and IFI channels we follow',
+    items: ['Global Affairs Canada / Trade Commissioner Service', 'Inter-American Development Bank', 'World Bank', 'UN procurement', 'CanadaBuys', 'Development-program implementers']
+  },
+  {
+    h: 'Commercial themes',
+    items: ['Market entry', 'Professional services', 'AI and digital transformation', 'SME development', 'Trade facilitation', 'Investment attraction', 'Procurement readiness']
+  }
+];
+
+// A real sequence, so it is numbered.
+const path = [
+  { h: 'Discovery', t: 'Discovery and market prioritization.' },
+  { h: 'Map', t: 'Regulatory, commercial and stakeholder map for the target market.' },
+  { h: 'Outreach', t: 'Outreach to local partners, buyers and institutions.' },
+  { h: 'Implementation', t: 'Market-entry or technical-assistance implementation.' },
+  { h: 'Coordination', t: 'Ongoing local coordination, reporting and a measurable pipeline.' }
+];
+
+const why = [
+  {
+    h: 'Integrated delivery',
+    t: 'Corporate structuring, compliance, marketing, technology, hiring and operational execution run as one coordinated workplan, with local legal and accounting partners in each market.'
+  },
+  {
+    h: 'Cross-border experience',
+    t: `INNOVA CONSULT LTD. is a federal corporation since ${SITE.incorporated}. Its founder has worked on cross-border advisory and market-entry matters since ${SITE.experienceSince}, across more than 50 jurisdictions.`
+  },
+  {
+    h: 'Built around SME constraints',
+    t: 'Limited management time, fragmented providers, compliance risk and the need to generate revenue quickly shape how each engagement is scoped.'
+  },
+  {
+    h: 'AI-enabled execution',
+    t: 'We design and run AI-assisted research, marketing, lead-generation, workflow and knowledge-management systems to lower delivery cost and shorten timelines.'
+  },
+  {
+    h: 'Partner-friendly model',
+    t: 'We can work behind an institutional lead, inside a consortium, or as a specialist workstream provider.'
+  }
+];
+
+const roles = ['Implementation partner or subcontractor', 'Expert-advisor team', 'Consortium participant', 'Market-entry operator', 'Technical-assistance provider', 'Project-based advisory desk'];
+
+const docs = [
+  { lang: 'EN', title: 'Canada–LATAM Capability Statement', meta: '2 pages · PDF · 88 KB', href: '/latam/INNOVA-Canada-LATAM-Capability-Statement-EN.pdf', hreflang: 'en' },
+  { lang: 'ES', title: 'Declaración de capacidades Canadá–LATAM', meta: '2 páginas · PDF · 59 KB', href: '/latam/INNOVA-Canada-LATAM-Declaracion-de-Capacidades-ES.pdf', hreflang: 'es' },
+  { lang: 'PT', title: 'Canadá–Brasil: tecnologia, IA e entrada no mercado', meta: '1 página · PDF · 50 KB', href: '/latam/INNOVA-Canada-Brasil-PT.pdf', hreflang: 'pt' }
+];
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    '@id': `${SITE.url}/latam#page`,
+    url: `${SITE.url}/latam`,
+    name: 'INNOVA Canada–LATAM Desk',
+    inLanguage: 'en-CA',
+    isPartOf: { '@id': `${SITE.url}/#website` },
+    about: { '@id': `${SITE.url}/#org` }
+  }
+];
+---
+
+<BaseLayout
+  title="Canada–LATAM Desk: Market Entry & Trade Facilitation | INNOVA"
+  description="INNOVA Canada–LATAM Desk, Ottawa: market entry between Canada and Mexico, Colombia, Peru and Brazil, trade facilitation, procurement readiness and technical assistance for development projects."
+  path="/latam"
+  jsonLd={jsonLd}
+  footerCta={false}
+  breadcrumbs={[
+    { name: 'Home', path: '/' },
+    { name: 'Canada–LATAM Desk', path: '/latam' }
+  ]}
+>
+  <PageHead
+    crumb="Canada–LATAM Desk"
+    title="From a market-entry plan to a working operation."
+    lede="INNOVA Canada–LATAM Desk helps companies, institutions and development partners carry out cross-border expansion between Canada and Latin America, with local partners in each market."
+  >
+    <div slot="aside" class="la-aside">
+      <a class="btn btn-primary" href="/contact?topic=latam">Discuss a Canada–LATAM project <span class="arr" aria-hidden="true">→</span></a>
+      <a class="arrow-link" href="#documents">Capability statement in EN, ES, PT <span aria-hidden="true">↓</span></a>
+    </div>
+  </PageHead>
+
+  <section class="cor-band" aria-label="Canada–LATAM corridor">
+    <div class="wrap">
+      <Corridor />
+    </div>
+  </section>
+
+  <section class="section" id="directions">
+    <div class="wrap">
+      <div class="grid12 sec-head">
+        <div class="sh-l"><h2 class="d-l">Three directions, one desk.</h2></div>
+        <p class="body sh-r">Strategy, corporate and compliance coordination, marketing and technology run as one workplan from Ottawa, with local partners carrying the in-country work.</p>
+      </div>
+      <div class="rows">
+        {
+          directions.map((d) => (
+            <div class="row dr">
+              <div>
+                <p class="mono dr-id">{d.id}</p>
+                <h3 class="d-m">{d.title}</h3>
+                <p class="body dr-line">{d.line}</p>
+              </div>
+              <ul class="dr-list">
+                {d.items.map((i) => (
+                  <li>{i}</li>
+                ))}
+              </ul>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="focus-h">
+    <div class="wrap">
+      <div class="grid12 sec-head">
+        <div class="sh-l"><h2 id="focus-h" class="d-l">Current focus.</h2></div>
+        <p class="body sh-r">Where we look for projects, programs and tenders now. Mexico, Colombia, Peru and Brazil come first.</p>
+      </div>
+      <div class="fx">
+        {
+          focus.map((f) => (
+            <div class="fx-col">
+              <h3 class="mono fx-h">{f.h}</h3>
+              <ul>
+                {f.items.map((i) => (
+                  <li>{i}</li>
+                ))}
+              </ul>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="path-h">
+    <div class="wrap">
+      <div class="grid12 sec-head">
+        <div class="sh-l"><h2 id="path-h" class="d-l">How an engagement runs.</h2></div>
+        <p class="body sh-r">A typical engagement, for a company entering a new market or for a technical-assistance assignment.</p>
+      </div>
+      <div class="pth" data-draw>
+        <span class="pth-line" aria-hidden="true"><span class="trk-span"></span></span>
+        <ol class="pth-ol">
+        {
+          path.map((p, i) => (
+            <li style={`--i:${i}`}>
+              <span class="pth-dot" aria-hidden="true" />
+              <span class="mono pth-n">{String(i + 1).padStart(2, '0')}</span>
+              <h3 class="pth-h">{p.h}</h3>
+              <p>{p.t}</p>
+            </li>
+          ))
+        }
+        </ol>
+      </div>
+
+      <div class="grid12 roles">
+        <div class="ro-l">
+          <h3 class="d-m">Where we fit in a project.</h3>
+          <p class="body ro-p">The role depends on who leads the project and what the program allows.</p>
+        </div>
+        <ul class="ro">{roles.map((r) => <li>{r}</li>)}</ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="why-h">
+    <div class="wrap">
+      <div class="grid12 sec-head">
+        <div class="sh-l"><h2 id="why-h" class="d-l">Why INNOVA.</h2></div>
+      </div>
+      <div class="rows">
+        {
+          why.map((w) => (
+            <div class="row wy">
+              <h3 class="d-m">{w.h}</h3>
+              <p class="body">{w.t}</p>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="cx" aria-labelledby="cx-h">
+    <div class="wrap grid12">
+      <div class="cx-l">
+        <p class="mono cx-k">For Canadian exporters</p>
+        <h2 id="cx-h" class="d-l">CanExport SMEs can share half of the cost.</h2>
+      </div>
+      <div class="cx-r">
+        <p class="body">
+          Export market studies, regulatory analysis, key-contact identification, distributor search and B2B matchmaking can be scoped to fit a CanExport SMEs project. The exporting company applies; INNOVA prepares the quote and workplan and delivers the work once the project is approved.
+        </p>
+        <a class="btn btn-ghost cx-btn" href="/latam/canexport">CanExport-compatible services <span class="arr" aria-hidden="true">→</span></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="documents" aria-labelledby="doc-h">
+    <div class="wrap">
+      <div class="grid12 sec-head">
+        <div class="sh-l"><h2 id="doc-h" class="d-l">Capability statement.</h2></div>
+        <p class="body sh-r">For program officers, procurement teams and partners. English, Spanish and a Portuguese one-pager for Brazil.</p>
+      </div>
+      <div class="rows">
+        {
+          docs.map((d) => (
+            <a class="row doc" href={d.href} hreflang={d.hreflang} download>
+              <span class="doc-lang mono">{d.lang}</span>
+              <span class="d-m row-title doc-t" lang={d.hreflang}>{d.title}</span>
+              <span class="mono doc-meta" lang={d.hreflang}>{d.meta}</span>
+            </a>
+          ))
+        }
+      </div>
+      <div class="doc-cta">
+        <a class="btn btn-primary" href="/contact?topic=latam">Discuss a Canada–LATAM project <span class="arr" aria-hidden="true">→</span></a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .la-aside {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px 24px;
+  }
+
+  .cor-band {
+    border-bottom: 1px solid var(--rule);
+  }
+
+  /* Directions */
+  .dr {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  }
+  .dr-id {
+    margin: 0 0 12px;
+    color: var(--lichen);
+  }
+  .dr-line {
+    margin-top: 12px;
+    max-width: 40ch;
+  }
+  .dr-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 clamp(16px, 2vw, 32px);
+  }
+  .dr-list li {
+    padding: 10px 0 10px 20px;
+    border-top: 1px solid var(--rule);
+    position: relative;
+    line-height: 1.45;
+  }
+  .dr-list li:nth-child(-n + 2) {
+    border-top: 0;
+    padding-top: 2px;
+  }
+  .dr-list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: calc(10px + 0.72em);
+    width: 8px;
+    height: 1px;
+    background: var(--signal);
+  }
+  .dr-list li:nth-child(-n + 2)::before {
+    top: calc(2px + 0.72em);
+  }
+
+  /* Focus */
+  .fx {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(16px, 2vw, 32px);
+  }
+  .fx-h {
+    margin: 0;
+    padding-bottom: 14px;
+    color: var(--lichen);
+    font-weight: 400;
+    border-bottom: 1px solid var(--rule-strong);
+  }
+  .fx ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .fx li {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--rule);
+    font-family: var(--font-display);
+    font-stretch: 106%;
+    font-size: clamp(1.02rem, 0.96rem + 0.25vw, 1.2rem);
+    line-height: 1.3;
+  }
+  .fx li {
+    color: var(--frost);
+  }
+  .fx-col:first-child li:nth-child(-n + 4)::after {
+    content: 'Priority';
+    float: right;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--signal);
+    padding-top: 0.25em;
+  }
+
+  /* Engagement path: five stations on one line (draws on scroll). */
+  .pth {
+    position: relative;
+  }
+  .pth-ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: clamp(16px, 2vw, 32px);
+  }
+  .pth-line {
+    position: absolute;
+    left: 6px;
+    right: 0;
+    top: 6px;
+    height: 1px;
+    background: var(--rule-strong);
+  }
+  .pth-line .trk-span {
+    position: absolute;
+    inset: -0.5px 0;
+    background: var(--signal);
+    transform-origin: left center;
+    transition: transform 1600ms var(--ease-out);
+  }
+  .pth li {
+    position: relative;
+    padding-top: 30px;
+  }
+  .pth-dot {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: var(--ground);
+    border: 1.5px solid var(--signal);
+  }
+  .pth-n {
+    color: var(--lichen);
+  }
+  .pth-h {
+    margin: 8px 0 8px;
+    font-family: var(--font-display);
+    font-weight: 520;
+    font-stretch: 108%;
+    font-size: clamp(1.15rem, 1rem + 0.5vw, 1.45rem);
+    line-height: 1.15;
+  }
+  .pth p {
+    margin: 0;
+    color: var(--lichen);
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+
+  .roles {
+    margin-top: clamp(56px, 6vw, 96px);
+  }
+  .ro-l {
+    grid-column: 1 / span 5;
+  }
+  .ro-p {
+    margin-top: 14px;
+  }
+  .ro {
+    grid-column: 7 / span 6;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .ro li {
+    padding: 13px 0;
+    border-top: 1px solid var(--rule);
+  }
+
+  /* Why */
+  .wy {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  }
+
+  /* CanExport band */
+  .cx {
+    background: var(--plate);
+    padding-block: clamp(56px, 6vw, 96px);
+    border-block: 1px solid var(--rule);
+  }
+  .cx .grid12 {
+    align-items: end;
+    row-gap: 24px;
+  }
+  .cx-l {
+    grid-column: 1 / span 6;
+  }
+  .cx-k {
+    margin: 0 0 16px;
+    color: var(--signal);
+  }
+  .cx-r {
+    grid-column: 8 / span 5;
+  }
+  .cx-btn {
+    margin-top: 24px;
+  }
+
+  /* Documents */
+  .doc {
+    grid-template-columns: 64px minmax(0, 1fr) minmax(0, 260px);
+    align-items: baseline;
+  }
+  .doc-lang {
+    display: inline-grid;
+    place-items: center;
+    width: 40px;
+    height: 28px;
+    border: 1px solid var(--rule-strong);
+    color: var(--frost);
+    transition: border-color var(--t-micro) var(--ease-out), color var(--t-micro) var(--ease-out);
+  }
+  a.doc:hover .doc-lang,
+  a.doc:focus-visible .doc-lang {
+    border-color: var(--signal);
+    color: var(--signal);
+  }
+  .doc-meta {
+    color: var(--lichen);
+    padding-right: 32px;
+  }
+  .doc-cta {
+    margin-top: clamp(40px, 4vw, 64px);
+  }
+
+  @media (max-width: 980px) {
+    .ro-l,
+    .ro,
+    .cx-l,
+    .cx-r {
+      grid-column: 1 / -1;
+    }
+    .ro {
+      margin-top: 24px;
+    }
+    .fx {
+      grid-template-columns: 1fr;
+      row-gap: 40px;
+    }
+    .pth-ol {
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+    .pth-line {
+      left: 6px;
+      right: auto;
+      top: 6px;
+      bottom: 24px;
+      width: 1px;
+      height: auto;
+    }
+    .pth-line .trk-span {
+      inset: 0 -0.5px;
+      transform-origin: center top;
+    }
+    .js .pth[data-draw] .trk-span {
+      transform: scaleY(0);
+    }
+    .js .pth[data-draw].is-in .trk-span {
+      transform: scaleY(1);
+    }
+    .pth li {
+      padding: 0 0 26px 34px;
+    }
+    .pth-n {
+      display: inline-block;
+    }
+  }
+  @media (max-width: 860px) {
+    .dr,
+    .wy {
+      grid-template-columns: 1fr;
+    }
+    .dr-list {
+      margin-top: 8px;
+    }
+    .doc {
+      grid-template-columns: 52px minmax(0, 1fr);
+    }
+    .doc-meta {
+      grid-column: 2;
+    }
+  }
+  @media (max-width: 600px) {
+    .dr-list {
+      grid-template-columns: 1fr;
+    }
+    .dr-list li:nth-child(2) {
+      border-top: 1px solid var(--rule);
+      padding-top: 10px;
+    }
+    .dr-list li:nth-child(2)::before {
+      top: calc(10px + 0.72em);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .js .pth[data-draw] .trk-span {
+      transform: none;
+    }
+  }
+</style>

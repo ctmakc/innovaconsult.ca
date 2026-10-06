@@ -1,0 +1,469 @@
+---
+// LATITUDE CORRIDOR (DESIGN.md, Canada–LATAM Desk): Ottawa and each market's capital placed at true latitude.
+// Upper rail = Canada → LATAM, lower rail = LATAM → Canada. Desktop horizontal, phone vertical.
+const N = 45.42; // Ottawa
+const S = -15.79; // Brasília
+const pos = (lat: number) => +(((N - lat) / (N - S)) * 100).toFixed(2);
+
+type Station = { code: string; name: string; city: string; lat: number; priority: boolean; side: 'a' | 'b'; anchor: 'start' | 'end'; m: number };
+// `m` = label position on the phone (vertical) layout, nudged apart where capitals sit close together.
+const stations: Station[] = [
+  { code: 'MX', name: 'Mexico', city: 'Mexico City', lat: 19.43, priority: true, side: 'a', anchor: 'start', m: 40.6 },
+  { code: 'DO', name: 'Dominican Republic', city: 'Santo Domingo', lat: 18.49, priority: false, side: 'b', anchor: 'end', m: 45.4 },
+  { code: 'GT', name: 'Guatemala', city: 'Guatemala City', lat: 14.63, priority: false, side: 'b', anchor: 'start', m: 51.3 },
+  { code: 'CO', name: 'Colombia', city: 'Bogotá', lat: 4.71, priority: true, side: 'a', anchor: 'start', m: 66.5 },
+  { code: 'PE', name: 'Peru', city: 'Lima', lat: -12.05, priority: true, side: 'a', anchor: 'end', m: 92.2 },
+  { code: 'BR', name: 'Brazil', city: 'Brasília', lat: -15.79, priority: true, side: 'b', anchor: 'end', m: 99 }
+];
+const eq = pos(0);
+const fmt = (lat: number) => `${Math.abs(lat).toFixed(1)}°${lat >= 0 ? 'N' : 'S'}`;
+---
+
+<figure class="cor" aria-labelledby="cor-cap">
+  <div class="cor-field">
+    <p class="cor-dir cor-dir--a mono">Canada → LATAM</p>
+    <p class="cor-dir cor-dir--b mono">LATAM → Canada</p>
+
+    <div class="cor-rail cor-rail--a" aria-hidden="true"><i></i></div>
+    <div class="cor-rail cor-rail--b" aria-hidden="true"><i></i></div>
+
+    <div class="cor-eq" style={`--p:${eq}`} aria-hidden="true"><span class="mono">Equator</span></div>
+
+    <div class="cor-home" aria-hidden="true">
+      <span class="cor-home-mark"></span>
+      <span class="cor-lbl cor-lbl--home">
+        <b class="cor-code">Ottawa</b>
+        <span class="cor-meta mono">INNOVA · {fmt(N)}</span>
+      </span>
+    </div>
+
+    {
+      stations.map((s) => (
+        <div
+          class:list={['cor-st', `cor-st--${s.side}`, `cor-st--${s.anchor}`, { 'is-pri': s.priority }]}
+          style={`--p:${pos(s.lat)};--m:${s.m}`}
+          aria-hidden="true"
+        >
+          <span class="cor-mark" />
+          <span class="cor-lbl">
+            <b class="cor-code">{s.name}</b>
+            <span class="cor-meta mono">
+              {s.code} · {fmt(s.lat)}
+            </span>
+          </span>
+        </div>
+      ))
+    }
+  </div>
+
+  <figcaption id="cor-cap" class="cor-cap">
+    <span class="cor-key"><span class="cor-key-m is-pri"></span>Priority market</span>
+    <span class="cor-key"><span class="cor-key-m"></span>Also in focus</span>
+    <span class="cor-note">Each market sits at the latitude of its capital, measured from Ottawa.</span>
+  </figcaption>
+  <ul class="sr-only">
+    <li>Home base: Ottawa, Canada.</li>
+    {stations.map((s) => <li>{s.name}: {s.priority ? 'priority market' : 'also in focus'}.</li>)}
+  </ul>
+</figure>
+
+<style>
+  .cor {
+    margin: 0;
+    padding-block: clamp(40px, 4vw, 64px) clamp(28px, 3vw, 40px);
+  }
+  .cor-field {
+    --rail-a: 112px;
+    --rail-b: 156px;
+    --inset: 6px;
+    --tail: 34px; /* rail runs on past the last station to its arrowhead */
+    position: relative;
+    height: 268px;
+  }
+
+  /* Rails */
+  .cor-rail {
+    position: absolute;
+    left: var(--inset);
+    right: var(--inset);
+    height: 2px;
+  }
+  .cor-rail--a {
+    top: var(--rail-a);
+  }
+  .cor-rail--b {
+    top: var(--rail-b);
+  }
+  .cor-rail i {
+    position: absolute;
+    inset: 0;
+    background: var(--signal);
+    transform-origin: left center;
+    animation: cor-draw var(--t-draw) var(--ease-out) 420ms both;
+  }
+  .cor-rail--b i {
+    background: var(--rule-field);
+    transform-origin: right center;
+    animation-delay: 660ms;
+  }
+  /* Direction heads at the far end of each rail. */
+  .cor-rail--a::after,
+  .cor-rail--b::before {
+    content: '';
+    position: absolute;
+    top: -4px;
+    width: 0;
+    height: 0;
+    border-block: 5px solid transparent;
+    animation: cor-in 300ms var(--ease-out) 1500ms both;
+  }
+  .cor-rail--a::after {
+    right: -6px;
+    border-left: 8px solid var(--signal);
+  }
+  .cor-rail--b::before {
+    left: -6px;
+    border-right: 8px solid var(--rule-field);
+  }
+
+  .cor-dir {
+    position: absolute;
+    margin: 0;
+    color: var(--lichen);
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+  .cor-dir--a {
+    left: 26%;
+    top: calc(var(--rail-a) - 26px);
+  }
+  .cor-dir--b {
+    right: 26%;
+    top: calc(var(--rail-b) + 14px);
+  }
+
+  /* Equator */
+  .cor-eq {
+    position: absolute;
+    top: 30px;
+    bottom: 26px;
+    left: calc(var(--inset) + (100% - var(--inset) - var(--tail)) * var(--p) / 100);
+    border-left: 1px dashed var(--rule-strong);
+  }
+  .cor-eq span {
+    position: absolute;
+    bottom: -22px;
+    left: 0;
+    transform: translateX(-50%);
+    color: var(--lichen);
+    font-size: 0.75rem;
+  }
+
+  /* Ottawa terminal */
+  .cor-home {
+    position: absolute;
+    left: 0;
+    top: calc(var(--rail-a) - 6px);
+    height: calc(var(--rail-b) - var(--rail-a) + 14px);
+  }
+  .cor-home-mark {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 8px;
+    height: 100%;
+    background: var(--frost);
+    animation: cor-in 400ms var(--ease-out) 300ms both;
+  }
+  .cor-lbl--home {
+    position: absolute;
+    left: 0;
+    bottom: calc(100% + 34px);
+    white-space: nowrap;
+  }
+
+  /* Stations: a mark between the rails, label above (side a) or below (side b). */
+  .cor-st {
+    position: absolute;
+    left: calc(var(--inset) + (100% - var(--inset) - var(--tail)) * var(--p) / 100);
+    top: 0;
+    height: 100%;
+  }
+  .cor-mark {
+    position: absolute;
+    left: -8px;
+    top: calc((var(--rail-a) + var(--rail-b)) / 2 - 7px);
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--ground);
+    border: 1.5px dashed var(--lichen);
+    animation: cor-pop 360ms var(--ease-out) calc(1100ms + var(--p) * 9ms) both;
+  }
+  .cor-st.is-pri .cor-mark {
+    border: 0;
+    background: var(--signal);
+    box-shadow:
+      inset 0 0 0 3px var(--ground),
+      0 0 0 1.5px var(--signal);
+  }
+  /* Tie lines from the mark to each rail. */
+  .cor-st::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: var(--rail-a);
+    height: calc(var(--rail-b) - var(--rail-a));
+    border-left: 1px solid var(--rule-strong);
+  }
+  .cor-lbl {
+    position: absolute;
+    display: grid;
+    gap: 4px;
+    white-space: nowrap;
+    animation: cor-in 500ms var(--ease-out) calc(1200ms + var(--p) * 9ms) both;
+  }
+  .cor-st--a .cor-lbl {
+    bottom: calc(100% - var(--rail-a) + 40px);
+  }
+  .cor-st--b .cor-lbl {
+    top: calc(var(--rail-b) + 40px);
+  }
+  .cor-st--start .cor-lbl {
+    left: -8px;
+  }
+  .cor-st--end .cor-lbl {
+    right: -8px;
+    text-align: right;
+  }
+  /* Leader from label to rail. */
+  .cor-st--a::after,
+  .cor-st--b::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    height: 32px;
+    border-left: 1px solid var(--rule);
+  }
+  .cor-st--a::after {
+    top: calc(var(--rail-a) - 34px);
+  }
+  .cor-st--b::after {
+    top: calc(var(--rail-b) + 4px);
+  }
+  .cor-code {
+    font-family: var(--font-display);
+    font-weight: 520;
+    font-stretch: 110%;
+    font-size: clamp(1.05rem, 0.9rem + 0.5vw, 1.35rem);
+    letter-spacing: -0.008em;
+    line-height: 1.1;
+    color: var(--frost);
+  }
+  .cor-st:not(.is-pri) .cor-code {
+    color: var(--lichen);
+    font-weight: 450;
+  }
+  .cor-meta {
+    color: var(--lichen);
+    font-size: 0.75rem;
+  }
+
+  /* Caption + key */
+  .cor-cap {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 28px;
+    margin-top: 28px;
+    padding-top: 18px;
+    border-top: 1px solid var(--rule);
+    color: var(--lichen);
+    font-size: 0.875rem;
+  }
+  .cor-key {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--frost);
+  }
+  .cor-key-m {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 1.5px dashed var(--lichen);
+  }
+  .cor-key-m.is-pri {
+    border: 0;
+    background: var(--signal);
+    box-shadow:
+      inset 0 0 0 3px var(--ground),
+      0 0 0 1.5px var(--signal);
+  }
+  .cor-note {
+    margin-left: auto;
+  }
+
+  @keyframes cor-draw {
+    from {
+      transform: scaleX(0);
+    }
+  }
+  @keyframes cor-in {
+    from {
+      opacity: 0;
+    }
+  }
+  @keyframes cor-pop {
+    from {
+      opacity: 0;
+      scale: 0.4;
+    }
+  }
+
+  /* ── Phone: the corridor turns vertical, north at the top ─────────────── */
+  @media (max-width: 760px) {
+    .cor-field {
+      --rail-a: 22px;
+      --rail-b: 46px;
+      --inset: 0px;
+      height: 620px;
+      margin-top: 70px;
+    }
+    .cor-rail {
+      left: auto;
+      right: auto;
+      top: var(--inset);
+      bottom: var(--inset);
+      width: 2px;
+      height: auto;
+    }
+    .cor-rail--a {
+      left: var(--rail-a);
+    }
+    .cor-rail--b {
+      left: var(--rail-b);
+    }
+    .cor-rail i {
+      transform-origin: center top;
+      animation-name: cor-draw-y;
+    }
+    .cor-rail--b i {
+      transform-origin: center bottom;
+    }
+    .cor-rail--a::after {
+      right: auto;
+      top: auto;
+      bottom: -6px;
+      left: -4px;
+      border-block: 0;
+      border-inline: 5px solid transparent;
+      border-left-color: transparent;
+      border-top: 8px solid var(--signal);
+    }
+    .cor-rail--b::before {
+      left: -4px;
+      top: -6px;
+      border-block: 0;
+      border-inline: 5px solid transparent;
+      border-right-color: transparent;
+      border-bottom: 8px solid var(--rule-field);
+    }
+    .cor-dir {
+      writing-mode: vertical-rl;
+    }
+    .cor-dir--a {
+      left: 0;
+      top: auto;
+      bottom: 6%;
+      transform: rotate(180deg);
+    }
+    .cor-dir--b {
+      right: auto;
+      left: calc(var(--rail-b) + 10px);
+      top: 3%;
+      display: none;
+    }
+    .cor-eq {
+      top: calc((100% - var(--tail)) * var(--p) / 100);
+      bottom: auto;
+      left: 10px;
+      right: 0;
+      border-left: 0;
+      border-top: 1px dashed var(--rule-strong);
+    }
+    .cor-eq span {
+      bottom: auto;
+      top: 6px;
+      left: auto;
+      right: 0;
+      transform: none;
+    }
+    .cor-home {
+      left: calc(var(--rail-a) - 6px);
+      top: -8px;
+      width: calc(var(--rail-b) - var(--rail-a) + 14px);
+      height: 8px;
+    }
+    .cor-home-mark {
+      width: 100%;
+      height: 8px;
+    }
+    .cor-lbl--home {
+      left: calc(100% + 16px);
+      bottom: auto;
+      top: -6px;
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+    }
+    .cor-st {
+      left: 0;
+      right: 0;
+      top: calc((100% - var(--tail)) * var(--p) / 100);
+      height: 0;
+    }
+    .cor-mark {
+      left: calc((var(--rail-a) + var(--rail-b)) / 2 - 7px);
+      top: -8px;
+    }
+    .cor-st::before {
+      left: var(--rail-a);
+      top: 0;
+      width: calc(var(--rail-b) - var(--rail-a));
+      height: 0;
+      border-left: 0;
+      border-top: 1px solid var(--rule-strong);
+    }
+    .cor-st--a::after,
+    .cor-st--b::after {
+      display: none;
+    }
+    .cor-st:not(.is-pri) .cor-mark {
+      width: 12px;
+      height: 12px;
+      margin: 2px 0 0 2px;
+    }
+    .cor-st--a .cor-lbl,
+    .cor-st--b .cor-lbl,
+    .cor-st--start .cor-lbl,
+    .cor-st--end .cor-lbl {
+      left: calc(var(--rail-b) + 24px);
+      right: auto;
+      bottom: auto;
+      top: calc((var(--m) - var(--p)) * 5.86px - 0.7em);
+      text-align: left;
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+    }
+    .cor-note {
+      margin-left: 0;
+    }
+  }
+  @keyframes cor-draw-y {
+    from {
+      transform: scaleY(0);
+    }
+  }
+</style>

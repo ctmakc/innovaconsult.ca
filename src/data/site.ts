@@ -33,5 +33,6 @@ export const NAV = [
   },
   { href: '/workflow-os', label: 'Workflow OS' },
   { href: '/partnerships', label: 'Partnerships' },
+  { href: '/latam', label: 'Canada–LATAM' },
   { href: '/about', label: 'About' }
 ];

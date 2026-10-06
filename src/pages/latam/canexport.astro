@@ -1,0 +1,345 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHead from '../../components/PageHead.astro';
+import { SITE } from '../../data/site';
+
+const services = [
+  {
+    h: 'Export market study',
+    t: 'Market prioritization across our Latin American corridors, demand and competitor review, pricing and channel analysis, and a clear recommendation on where to start.'
+  },
+  {
+    h: 'Regulatory analysis and feasibility',
+    t: 'A regulatory, commercial and stakeholder map for the target country: product and service requirements, import rules, licensing and the practical steps to become operational.'
+  },
+  {
+    h: 'Tax and legal market-entry advisory coordination',
+    t: 'We coordinate corporate, legal, tax and compliance questions for the target market together with the legal and accounting firms engaged there, so your team works from one coordinated workplan.'
+  },
+  {
+    h: 'Lead generation and key-contact identification',
+    t: 'AI-assisted research to build qualified lists of buyers, partners and decision-makers in the target market, with outreach run on your behalf.'
+  },
+  {
+    h: 'Distributor and partner search',
+    t: 'Mapping, screening and shortlisting of distributors, agents and strategic partners, with introductions to the best-fit candidates.'
+  },
+  {
+    h: 'B2B matchmaking',
+    t: 'Organization and facilitation of business-to-business meeting programs in the target market, including scheduling, briefing notes and follow-up.'
+  }
+];
+
+const terms = [
+  { k: 'Cost share', v: '50% funded by the applicant and 50% funded by CanExport SMEs.' },
+  { k: 'Funding range', v: 'Applicants request between $10,000 and $50,000 CAD per project, for a total project value of $20,000 to $100,000 CAD.' },
+  {
+    k: 'Who is eligible',
+    v: 'Per the 2026–27 guide: an incorporated legal entity, LLP or cooperative in Canada with an active CRA business number, 3 to 500 full-time employees, and $300,000 to $100 million in annual revenue in the last complete tax year.'
+  },
+  {
+    k: 'Relevant expenses',
+    v: 'Consultant work such as export market studies, feasibility studies, identification of key contacts and facilitation of B2B meeting programs, and fees paid to an accounting, legal or business consulting firm for advice on legal, tax or international business development matters.'
+  },
+  {
+    k: 'Consultant rules',
+    v: 'Consultants must be independent and unaffiliated with the applicant, and all transactions must be at arm’s length and at reasonable value. INNOVA works on this basis.'
+  }
+];
+
+const sources = [
+  { label: 'CanExport SMEs program page, Trade Commissioner Service', b64: Buffer.from('https://www.tradecommissioner.gc.ca/en/our-solutions/funding-financing-international-business/canexport-smes.html').toString('base64') },
+  {
+    label: 'CanExport SMEs Applicant’s guide 2026–27',
+    b64: Buffer.from('https://www.tradecommissioner.gc.ca/en/our-solutions/funding-financing-international-business/canexport-smes/applicants-guide-2026-27.html').toString('base64')
+  }
+];
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    '@id': `${SITE.url}/latam/canexport#page`,
+    url: `${SITE.url}/latam/canexport`,
+    name: 'Canada to Latin America market entry, CanExport-compatible',
+    inLanguage: 'en-CA',
+    isPartOf: { '@id': `${SITE.url}/#website` },
+    about: { '@id': `${SITE.url}/#org` }
+  }
+];
+---
+
+<BaseLayout
+  title="CanExport-Compatible Market Entry for Latin America | INNOVA"
+  description="Export market studies, regulatory analysis, distributor search and B2B matchmaking for Canadian exporters entering Mexico, Colombia, Peru, Brazil, Guatemala or the Dominican Republic, scoped to fit a CanExport SMEs project."
+  path="/latam/canexport"
+  jsonLd={jsonLd}
+  footerCta={false}
+  breadcrumbs={[
+    { name: 'Home', path: '/' },
+    { name: 'Canada–LATAM Desk', path: '/latam' },
+    { name: 'CanExport', path: '/latam/canexport' }
+  ]}
+>
+  <PageHead
+    crumb="Canada–LATAM Desk"
+    crumbHref="/latam"
+    title="Enter Latin America with a plan your team can execute."
+    lede="For Canadian exporters entering Mexico, Colombia, Peru, Brazil, Guatemala or the Dominican Republic. We take you from a market-entry idea to a functioning local operation, and structure the work to fit inside a CanExport SMEs project."
+  >
+    <div slot="aside">
+      <a class="btn btn-primary" href="/contact?topic=latam">Scope a CanExport project <span class="arr" aria-hidden="true">→</span></a>
+    </div>
+  </PageHead>
+
+  <section class="brief" aria-labelledby="brief-h">
+    <div class="wrap grid12">
+      <h2 id="brief-h" class="mono brief-h">Program facts</h2>
+      <p class="brief-p">
+        Program facts on this page were checked against the official CanExport SMEs pages on October 6, 2026. The 2026–27 intake closed at 12:00 p.m. (ET) on August 31, 2026; the next intake is yet to be announced.
+      </p>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="svc-h">
+    <div class="wrap">
+      <div class="grid12 sec-head">
+        <div class="sh-l"><h2 id="svc-h" class="d-l">What Canadian exporters can buy from INNOVA.</h2></div>
+        <p class="body sh-r">
+          Each engagement follows the same path: discovery and market prioritization, regulatory and stakeholder map, local partner and buyer outreach, implementation, then ongoing coordination and reporting on a measurable pipeline.
+        </p>
+      </div>
+      <div class="rows">
+        {
+          services.map((s, i) => (
+            <div class="row sv">
+              <p class="mono sv-id">SVC-{String(i + 1).padStart(2, '0')}</p>
+              <h3 class="d-m">{s.h}</h3>
+              <p class="body">{s.t}</p>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="ce-h">
+    <div class="wrap grid12">
+      <div class="ce-l">
+        <h2 id="ce-h" class="d-l">How CanExport SMEs can cover half of the cost.</h2>
+        <p class="body ce-p">
+          CanExport SMEs is a Government of Canada program delivered by the Trade Commissioner Service. It shares the cost of international business development activities with eligible Canadian companies.
+        </p>
+      </div>
+      <dl class="ce">
+        {
+          terms.map((t) => (
+            <div>
+              <dt class="mono">{t.k}</dt>
+              <dd>{t.v}</dd>
+            </div>
+          ))
+        }
+      </dl>
+      <p class="body ce-note">
+        The program makes the final call on which activities and costs are eligible for each project. We scope our proposals to the categories listed in the current Applicant’s guide and adjust them to the program officer’s feedback.
+      </p>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="who-h">
+    <div class="wrap grid12">
+      <div class="wh-l">
+        <h2 id="who-h" class="d-l">Who applies.</h2>
+      </div>
+      <div class="wh-r">
+        <p class="body">
+          The exporting company applies for CanExport SMEs in its own name. The program states that a company cannot apply on behalf of another entity with a different CRA business number. INNOVA helps you define the project, prepare a detailed quote and workplan for the eligible activities, and deliver the work once your project is approved.
+        </p>
+        <p class="body wh-p2">Activities started before approval are at the applicant’s own risk, so we plan the start date around the funding decision.</p>
+        <h3 class="d-m wh-h3">Current intake status.</h3>
+        <p class="body wh-p2">
+          The 2026–27 intake closed at 12:00 p.m. (ET) on August 31, 2026. The next intake is yet to be announced. Companies planning a 2027 Latin American project can use this window to define their target market, scope the work with us and have a ready application when the next intake opens.
+        </p>
+        <div class="wh-cta">
+          <a class="btn btn-primary" href="/contact?topic=latam">Scope a CanExport project <span class="arr" aria-hidden="true">→</span></a>
+          <a class="arrow-link" href="/latam">Canada–LATAM Desk <span aria-hidden="true">→</span></a>
+        </div>
+        <div class="src">
+          <p class="mono src-h">Official sources</p>
+          <ul>
+            {
+              sources.map((s) => (
+                <li>
+                  <span class="xlink" role="link" tabindex="0" data-x={s.b64}>
+                    {s.label} <span aria-hidden="true">↗</span>
+                  </span>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  // External links without href (owner law): decode on click or Enter, open in a new tab.
+  document.querySelectorAll<HTMLElement>('.xlink[data-x]').forEach((el) => {
+    const go = () => {
+      const url = atob(el.dataset.x || '');
+      if (/^https:\/\//.test(url)) window.open(url, '_blank', 'noopener');
+    };
+    el.addEventListener('click', go);
+    el.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        go();
+      }
+    });
+  });
+</script>
+
+<style>
+  .brief {
+    padding-block: clamp(28px, 3vw, 44px);
+    border-bottom: 1px solid var(--rule);
+    background: var(--plate);
+  }
+  .brief .grid12 {
+    align-items: baseline;
+    row-gap: 10px;
+  }
+  .brief-h {
+    grid-column: 1 / span 4;
+    margin: 0;
+    color: var(--lichen);
+    font-weight: 400;
+  }
+  .brief-p {
+    grid-column: 5 / span 8;
+    margin: 0;
+    max-width: 64ch;
+    text-wrap: pretty;
+  }
+
+  .sv {
+    grid-template-columns: 96px minmax(0, 4fr) minmax(0, 6fr);
+    align-items: baseline;
+  }
+  .sv-id {
+    margin: 0;
+    color: var(--lichen);
+  }
+
+  .ce-l {
+    grid-column: 1 / span 5;
+  }
+  .ce-p {
+    margin-top: 20px;
+  }
+  .ce {
+    grid-column: 7 / span 6;
+    margin: 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .ce > div {
+    display: grid;
+    grid-template-columns: 150px minmax(0, 1fr);
+    gap: 16px;
+    padding: 16px 0;
+    border-top: 1px solid var(--rule);
+  }
+  .ce dt {
+    color: var(--lichen);
+    padding-top: 0.3em;
+  }
+  .ce dd {
+    margin: 0;
+  }
+  .ce-note {
+    grid-column: 7 / span 6;
+    margin-top: 20px;
+    font-size: 0.95rem;
+  }
+
+  .wh-l {
+    grid-column: 1 / span 5;
+  }
+  .wh-r {
+    grid-column: 7 / span 6;
+  }
+  .wh-p2 {
+    margin-top: 14px;
+  }
+  .wh-h3 {
+    margin-top: 40px;
+  }
+  .wh-cta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px 24px;
+    margin-top: 32px;
+  }
+  .src {
+    margin-top: 48px;
+    padding-top: 18px;
+    border-top: 1px solid var(--rule);
+  }
+  .src-h {
+    margin: 0 0 10px;
+    color: var(--lichen);
+  }
+  .src ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .src li {
+    padding: 6px 0;
+  }
+  .xlink {
+    color: var(--lichen);
+    cursor: pointer;
+    text-decoration: underline;
+    text-decoration-color: var(--rule-strong);
+    text-underline-offset: 4px;
+    font-size: 0.95rem;
+    transition:
+      color var(--t-micro) var(--ease-out),
+      text-decoration-color var(--t-micro) var(--ease-out);
+  }
+  .xlink:hover {
+    color: var(--frost);
+    text-decoration-color: currentColor;
+  }
+
+  @media (max-width: 980px) {
+    .ce-l,
+    .ce,
+    .ce-note,
+    .wh-l,
+    .wh-r,
+    .brief-h,
+    .brief-p {
+      grid-column: 1 / -1;
+    }
+    .ce,
+    .wh-r {
+      margin-top: 28px;
+    }
+  }
+  @media (max-width: 860px) {
+    .sv {
+      grid-template-columns: 1fr;
+    }
+  }
+  @media (max-width: 600px) {
+    .ce > div {
+      grid-template-columns: 1fr;
+      gap: 4px;
+    }
+  }
+</style>

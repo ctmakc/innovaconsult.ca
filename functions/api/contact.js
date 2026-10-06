@@ -10,6 +10,7 @@ const TOPICS = {
   commercialize: 'Commercialize technology',
   partnership: 'Explore a partnership',
   'public-sector': 'Discuss a public-sector project',
+  latam: 'Canada–LATAM market entry',
   other: 'Other'
 };
 
