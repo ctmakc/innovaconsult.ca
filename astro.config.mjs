@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import tailwind from '@astrojs/tailwind';
 import sitemap from '@astrojs/sitemap';
 
-const SITE = 'https://innovaconsult.ca';
+const SITE = 'https://www.innovaconsult.ca';
 
 /**
  * @astrojs/sitemap strips the slash from the root <loc> when trailingSlash is 'never'.

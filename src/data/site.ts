@@ -1,5 +1,5 @@
 export const SITE = {
-  url: 'https://innovaconsult.ca',
+  url: 'https://www.innovaconsult.ca',
   name: 'INNOVA',
   legalName: 'INNOVA CONSULT LTD.',
   descriptor: 'Applied Innovation & Technology',

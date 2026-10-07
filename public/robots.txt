@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://innovaconsult.ca/sitemap-index.xml
+Sitemap: https://www.innovaconsult.ca/sitemap-index.xml
