@@ -16,7 +16,8 @@
   --reel: #171614;
   --reel-2: #201e1b;
   --print: #eeeae2;
-  --ash: #b8b1a4;
+  --ash: #b8b1a4; /* meta, captions, labels */
+  --copy: #d6cfc3; /* body copy on film: warm off-white, one step under --print (round 4) */
   --rule-film: rgb(238 234 226 / 0.14);
 
   /* bone (light material) */
@@ -24,6 +25,7 @@
   --bone-2: #d8d3c7;
   --ink: #141310;
   --ink-soft: #545048;
+  --copy-ink: #34312b; /* body copy on bone */
   --rule-ink: rgb(20 19 16 / 0.16);
 
   /* the one accent */
@@ -38,6 +40,7 @@
   --ui-dark: #0f1416; /* poster colour of dark product screenshots (Workflow OS) */
 
   /* type */
+  --fs-copy: clamp(17px, 0.9vw + 5px, 19px); /* body copy: 17px on phones, 18-19px on desktop */
   --font: 'Host Grotesk', 'Host Grotesk Fallback', ui-sans-serif, system-ui, sans-serif;
 
   /* space & shape */
@@ -240,7 +243,7 @@ main {
   max-width: 62ch;
 }
 .t-small {
-  font-size: 16px;
+  font-size: 17px;
   line-height: 1.5;
 }
 .t-label {
@@ -249,11 +252,23 @@ main {
   line-height: 1.35;
 }
 .t-mute {
-  color: var(--ash);
+  color: var(--copy);
 }
 .tone-bone .t-mute,
 .on-bone .t-mute {
-  color: var(--ink-soft);
+  color: var(--copy-ink);
+}
+/* body copy (round 4): one size, warm off-white on film, near-ink on bone */
+.t-copy {
+  font-size: var(--fs-copy);
+  line-height: 1.55;
+  color: var(--copy);
+  max-width: 60ch;
+  text-wrap: pretty;
+}
+.tone-bone .t-copy,
+.on-bone .t-copy {
+  color: var(--copy-ink);
 }
 /* two-tone name: product / heading in print, descriptor in ash on its own line */
 .two-tone .d {

@@ -1,26 +1,36 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import HeroReel from '../components/home/HeroReel.astro';
+import HeroFilm from '../components/HeroFilm.astro';
+import FundedProject from '../components/home/FundedProject.astro';
 import Button from '../components/Button.astro';
 import ProjectCard from '../components/ProjectCard.astro';
 import StatusTag from '../components/StatusTag.astro';
 import { visibleProjects, projectHref, type Project } from '../data/projects';
 import { SITE } from '../data/site';
 import { CROPS, asScreen } from '../data/crops';
+import { HOME_MEDIA } from '../components/home/media';
 
 const P = Object.fromEntries(visibleProjects.map((p) => [p.slug, p])) as Record<string, Project>;
 const WORDS = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
 const total = WORDS[visibleProjects.length] ?? String(visibleProjects.length);
 
 /* In the lab: the work that is not in public use yet, named in one line (src/data/projects.ts). */
-const LAB: Project[] = [P.openfield, P.aicrmius, P.finmozg, P['dual-use']];
+/* Descriptors restate each project's tagline in src/data/projects.ts. */
+const LAB: { p: Project; d: string }[] = [
+  { p: P.openfield, d: 'a logbook for ag-robot fleets' },
+  { p: P.aicrmius, d: 'an AI-native CRM' },
+  { p: P.finmozg, d: 'an AI finance back office' },
+  { p: P['dual-use'], d: 'defence-adjacent scouting' }
+];
 
-/* Workflow OS on home: three readable close crops, one sentence each (src/components/wos/data.ts).
-   The Overview screen is kept for the /workflow-os hero. */
+/* Workflow OS on home: three readable 2x crops of the redesigned product UI (public/media/wos-*).
+   The hero film already shows the process landscape and the score waterfall, so these are the
+   other three moments: the opportunity map, the automation route with its human approval gates,
+   and the before/after business case. Copy from src/components/wos/data.ts. */
 const WOS = [
-  { k: 'Score every process', t: 'Fourteen factors minus a risk penalty, with the reason behind every number.', c: CROPS.wosHomeMap },
-  { k: 'Design the architecture', t: 'Six patterns and five levels of human control.', c: CROPS.wosHomeDesigner },
-  { k: 'Measure the return', t: 'A projected return that can be checked after go-live.', c: CROPS.wosHomeImpact }
+  { k: 'Score every process', t: 'Fourteen factors minus a risk penalty, with the reason behind every number.', c: HOME_MEDIA.wosMap, x: 0.14 },
+  { k: 'Design the architecture', t: 'Six patterns and five levels of human control.', c: HOME_MEDIA.wosRoute, x: 0 },
+  { k: 'Measure the return', t: 'A projected return that can be checked after go-live.', c: HOME_MEDIA.wosImpact, x: 0 }
 ];
 ---
 
@@ -35,11 +45,11 @@ const WOS = [
   }}
 >
   <Fragment slot="head">
-    <link rel="preload" as="image" href="/img/uafest-unity-ride-m.webp" media="(max-width: 700px)" fetchpriority="high" />
-    <link rel="preload" as="image" imagesrcset="/img/uafest-unity-ride-800.webp 800w, /img/uafest-unity-ride-1200.webp 1200w, /img/uafest-unity-ride.webp 1920w" imagesizes="100vw" media="(min-width: 701px)" fetchpriority="high" />
+    <link rel="preload" as="image" href="/media/hero-film-poster-m.webp" media="(max-width: 900px)" fetchpriority="high" />
+    <link rel="preload" as="image" imagesrcset="/media/hero-film-poster-1280.webp 1280w, /media/hero-film-poster-1920.webp 1920w" imagesizes="100vw" media="(min-width: 901px)" fetchpriority="high" />
   </Fragment>
 
-  <HeroReel />
+  <HeroFilm />
 
   <!-- ═══ IN USE: the three live products, each screen in its world, each one readable crop ═══ -->
   <section class="work shell" id="work" aria-labelledby="work-h">
@@ -55,7 +65,7 @@ const WOS = [
         headline="A festival ran on it."
         fact="199 participant cabinets and 13 shared mailboxes in one record, for a Ukrainian festival in Carleton Place, Ontario."
         world={{ src: '/img/uafest-dance.webp', src800: '/img/uafest-dance-800.webp', w: 1280, h: 818, pos: '22% 50%' }}
-        screens={[asScreen(CROPS.uafestForm, { l: '49%', t: '10%', width: '46%', lm: '6%', tm: '7%', wm: '88%' })]}
+        screens={[asScreen(HOME_MEDIA.uafestCert, { l: '55%', t: '7%', width: '40%', lm: '7%', tm: '7%', wm: '86%' })]}
         credit="UAFest festival, Carleton Place"
         aspect="16 / 8"
         aspectM="4 / 3.3"
@@ -75,47 +85,52 @@ const WOS = [
     </div>
 
     <p class="lab inset">
-      <span class="lab-k">In the lab:</span> <a href={projectHref(LAB[0])}>{LAB[0].short}</a>, <a href={projectHref(LAB[1])}>{LAB[1].short}</a>, <a href={projectHref(LAB[2])}>{LAB[2].short}</a> and <a href={projectHref(LAB[3])}>{LAB[3].short}</a>.
-      <a class="lab-all" href="/projects">See all projects <span class="ar" aria-hidden="true">→</span></a>
+      Four more in the lab:
+      {
+        LAB.map(({ p, d }, i) => (
+          <>
+            <a href={projectHref(p)}>{p.short}</a>, {d}
+            {i < LAB.length - 2 ? '; ' : i === LAB.length - 2 ? '; and ' : '.'}
+          </>
+        ))
+      }
     </p>
   </section>
 
-  <!-- ═══ WORKFLOW OS: our own product, readable close crops on bone ═══ -->
+  <!-- ═══ R&D: what a funded project looks like (IRAP / Invest Ottawa readers) ═══ -->
+  <FundedProject />
+
+  <!-- ═══ WORKFLOW OS: our own product, readable 2x crops on bone ═══ -->
   <section class="wos tone-bone" id="workflow-os" aria-labelledby="wos-h">
     <div class="shell">
       <div class="inset">
-        <div class="wos-hd">
-          <h2 id="wos-h" class="t-h2 wos-h" data-rise>AI transformation starts with how work actually happens.</h2>
-          <div class="wos-r">
-            <p class="wos-name">INNOVA AI Workflow OS <StatusTag status="prototype" /></p>
-            <p class="wos-body">Maps how a company works, scores every process for automation value and recommends an architecture for each one, from plain software to supervised AI agents.</p>
-            <Button href="/workflow-os" variant="ink" class="wos-cta">Explore Workflow OS</Button>
-          </div>
+        <h2 id="wos-h" class="t-h2 wos-h" data-rise>AI transformation starts with how work actually happens.</h2>
+        <div class="wos-intro">
+          <p class="wos-body"><span class="wos-name">INNOVA AI Workflow OS <StatusTag status="prototype" /></span> maps how a company works, scores every process for automation value and recommends an architecture for each one, from plain software to supervised AI agents.</p>
+          <Button href="/workflow-os" variant="ink" class="wos-cta">Explore Workflow OS</Button>
         </div>
         <div class="wos-g" data-wos>
           <div class="wos-tabs" role="group" aria-label="Workflow OS screens">
             {
               WOS.map((s, i) => (
                 <button type="button" class:list={['wos-tab', { on: i === 0 }]} aria-pressed={i === 0 ? 'true' : 'false'} data-wtab={i}>
-                  <span class="n tnum">{i + 1}</span>
-                  <span class="wos-tt">
-                    <b>{s.k}</b>
-                    <span>{s.t}</span>
-                  </span>
+                  <b>{s.k}</b>
+                  <span>{s.t}</span>
                 </button>
               ))
             }
           </div>
           <figure class="wos-fig">
-            <div class="wos-stack">
+            <div class="wos-stack" data-wpan role="region" aria-label="Workflow OS screen">
               {
                 WOS.map((s, i) => (
                   <img
                     class:list={['scr-img scr-dark', { on: i === 0 }]}
                     data-wimg={i}
+                    data-x0={s.x}
                     src={s.c.src}
                     srcset={s.c.srcset}
-                    sizes="(max-width: 900px) 92vw, 66vw"
+                    sizes="(max-width: 900px) 250vw, 92vw"
                     alt={s.c.alt}
                     width={s.c.w}
                     height={s.c.h}
@@ -125,7 +140,7 @@ const WOS = [
                 ))
               }
             </div>
-            <figcaption class="disc">Online since 1 October 2026 as an invite-only demo. Northstar Professional Services is a fictional 30-person firm; all data shown is illustrative.</figcaption>
+            <figcaption class="disc"><span class="pan-hint">Swipe the screen sideways to see all of it. </span>Online since 1 October 2026 as an invite-only demo. Northstar Professional Services is a fictional 30-person firm; all data shown is illustrative.</figcaption>
           </figure>
         </div>
       </div>
@@ -139,12 +154,24 @@ const WOS = [
   if (box) {
     const tabs = [...box.querySelectorAll<HTMLButtonElement>('[data-wtab]')];
     const imgs = [...box.querySelectorAll<HTMLElement>('[data-wimg]')];
+    const pan = box.querySelector<HTMLElement>('[data-wpan]');
+    // the screen pans sideways on phones: make it reachable by keyboard only when it actually scrolls
+    if (pan) {
+      const kb = () => (pan.scrollWidth > pan.clientWidth + 4 ? pan.setAttribute('tabindex', '0') : pan.removeAttribute('tabindex'));
+      new ResizeObserver(kb).observe(pan);
+      pan.querySelectorAll('img').forEach((m) => m.addEventListener('load', kb, { once: true }));
+      const first = imgs[0];
+      const home = () => (pan.scrollLeft = (Number(first?.dataset.x0) || 0) * pan.scrollWidth);
+      if (first instanceof HTMLImageElement && first.complete) home();
+      else first?.addEventListener('load', home, { once: true });
+    }
     const pick = (i: number) => {
       tabs.forEach((t, j) => {
         t.classList.toggle('on', j === i);
         t.setAttribute('aria-pressed', j === i ? 'true' : 'false');
       });
       imgs.forEach((m, j) => m.classList.toggle('on', j === i));
+      if (pan) pan.scrollLeft = (Number(imgs[i]?.dataset.x0) || 0) * pan.scrollWidth;
     };
     tabs.forEach((t, i) => {
       t.addEventListener('click', () => pick(i));
@@ -177,141 +204,108 @@ const WOS = [
 
   /* ── in the lab: one line ── */
   .lab {
-    margin-top: clamp(36px, 4vw, 64px);
-    font-size: clamp(22px, 2vw, 32px);
+    margin-top: clamp(40px, 4.4vw, 72px);
+    font-size: clamp(22px, 1.9vw, 30px);
     font-weight: 500;
-    letter-spacing: -0.025em;
-    line-height: 1.3;
+    letter-spacing: -0.022em;
+    line-height: 1.35;
     color: var(--ash);
-    max-width: 52ch;
+    max-width: 62ch;
     text-wrap: pretty;
-  }
-  .lab-k {
-    color: var(--ash);
   }
   .lab a {
     color: var(--print);
     text-decoration: underline;
     text-decoration-thickness: 1px;
-    text-decoration-color: rgb(238 234 226 / 0.35);
+    text-decoration-color: rgb(238 234 226 / 0.4);
     text-underline-offset: 6px;
     transition: text-decoration-color var(--t-micro) var(--e-out);
   }
   .lab a:hover {
     text-decoration-color: var(--print);
   }
-  .lab .lab-all {
-    display: flex;
-    width: fit-content;
-    margin-top: 14px;
-    gap: 8px;
-    white-space: nowrap;
-    text-decoration: none;
-  }
-  .lab-all .ar {
-    transition: transform 0.3s var(--e-out);
-  }
-  .lab-all:hover .ar {
-    transform: translateX(6px);
-  }
 
-  /* ── workflow os ── */
+  /* ── workflow os: stacked head, three captions as tabs, one full-width readable screen ── */
   .wos {
     margin-top: var(--sec);
     padding-block: calc(var(--sec) * 0.72);
   }
-  .wos-hd {
-    display: grid;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    column-gap: var(--col-gap);
-    row-gap: 28px;
-    align-items: end;
-  }
   .wos-h {
-    grid-column: 1 / span 7;
-    max-width: 16ch;
+    max-width: 18ch;
   }
-  .wos-r {
-    grid-column: 9 / span 4;
-  }
-  .wos-name {
+  .wos-intro {
     display: flex;
-    align-items: center;
-    gap: 14px;
     flex-wrap: wrap;
-    font-size: 20px;
-    font-weight: 600;
+    align-items: flex-end;
+    gap: 20px 40px;
+    margin-top: clamp(20px, 2vw, 28px);
   }
   .wos-body {
-    margin-top: 10px;
+    max-width: 56ch;
+    font-size: 18px;
+    line-height: 1.5;
     color: var(--ink-soft);
-    max-width: 44ch;
   }
-  .wos-r :global(.wos-cta) {
-    margin-top: 20px;
+  .wos-name {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-right: 4px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .wos-name :global(.tag) {
+    font-weight: 500;
   }
   .wos-g {
-    display: grid;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    column-gap: var(--col-gap);
-    margin-top: clamp(36px, 4vw, 64px);
-    align-items: start;
+    margin-top: clamp(36px, 4vw, 56px);
   }
   .wos-tabs {
-    grid-column: 1 / span 3;
     display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: var(--col-gap);
   }
   .wos-tab {
     display: grid;
-    grid-template-columns: 26px 1fr;
-    gap: 10px;
+    align-content: start;
+    gap: 6px;
     text-align: left;
-    padding: 18px 0;
+    padding: 18px 0 20px;
     background: none;
     border: 0;
-    border-top: 1px solid var(--rule-ink);
+    border-top: 2px solid var(--rule-ink);
     color: var(--ink-soft);
     font: inherit;
     cursor: pointer;
-    transition: color var(--t-micro) var(--e-out);
+    transition:
+      color var(--t-micro) var(--e-out),
+      border-color var(--t-micro) var(--e-out);
   }
-  .wos-tab .n {
-    font-size: 15px;
-    font-weight: 600;
-    padding-top: 4px;
-  }
-  .wos-tt b {
-    display: block;
+  .wos-tab b {
     font-size: clamp(20px, 1.6vw, 25px);
     font-weight: 500;
     letter-spacing: -0.02em;
     line-height: 1.15;
   }
-  .wos-tt span {
-    display: block;
-    margin-top: 6px;
-    font-size: 16px;
+  .wos-tab span {
+    font-size: 17px;
     line-height: 1.4;
+    max-width: 36ch;
+    text-wrap: pretty;
   }
-  .wos-tab.on {
-    color: var(--ink);
-    border-top: 2px solid var(--ink);
-    padding-top: 17px;
-  }
-  .wos-tab.on .n {
-    color: var(--flare-ink);
-  }
+  .wos-tab.on,
   .wos-tab:hover {
     color: var(--ink);
   }
+  .wos-tab.on {
+    border-top-color: var(--ink);
+  }
   .wos-fig {
-    grid-column: 4 / -1;
-    margin: 0;
-    padding-left: clamp(0px, 1.6vw, 24px);
+    margin: 8px 0 0;
   }
   .wos-stack {
     position: relative;
-    aspect-ratio: 1823 / 950;
+    aspect-ratio: 2288 / 1192;
   }
   .wos-stack img {
     position: absolute;
@@ -320,10 +314,14 @@ const WOS = [
     height: 100%;
     object-fit: cover;
     object-position: 0 0;
+    background: var(--ui-dark);
     visibility: hidden;
   }
   .wos-stack img.on {
     visibility: visible;
+  }
+  .pan-hint {
+    display: none;
   }
   .disc {
     margin-top: 14px;
@@ -336,42 +334,51 @@ const WOS = [
     .work-g {
       grid-template-columns: 1fr;
     }
-    .wos-h,
-    .wos-r {
-      grid-column: 1 / -1;
-    }
-    .wos-g {
-      display: flex;
-      flex-direction: column-reverse;
-      gap: 20px;
-    }
-    .wos-fig {
-      padding-left: 0;
-      width: 100%;
-    }
-    .wos-stack {
-      margin-inline: calc(var(--in) * -1 - var(--gut));
-      aspect-ratio: 1.45;
-    }
-    .wos-stack img {
-      border-radius: 0;
-    }
     .wos-tabs {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
       column-gap: 12px;
-      width: 100%;
-    }
-    .wos-tt span {
-      display: none;
     }
     .wos-tab {
-      grid-template-columns: 1fr;
-      gap: 4px;
       padding: 14px 0;
       min-height: 44px;
     }
-    .wos-tt b {
+    .wos-tab b {
       font-size: 17px;
+    }
+    .wos-tab span {
+      display: none;
+    }
+    /* phones: the screen keeps a readable scale (UI text ~11px) and pans sideways
+       instead of shrinking the whole 2288px master to the viewport (~8px text) */
+    .wos-stack {
+      margin-inline: calc(var(--in) * -1 - var(--gut));
+      aspect-ratio: auto;
+      height: min(126vw, 520px);
+      overflow-x: auto;
+      overflow-y: hidden;
+      overscroll-behavior-x: contain;
+      scrollbar-width: thin;
+      scrollbar-color: var(--ink-soft) transparent;
+      background: var(--ui-dark);
+    }
+    .wos-stack:focus-visible {
+      outline: 2px solid var(--ink);
+      outline-offset: 2px;
+    }
+    .wos-stack img {
+      inset: 0 auto 0 0;
+      width: auto;
+      max-width: none;
+      height: 100%;
+      object-fit: fill;
+      border-radius: 0;
+      box-shadow: none;
+    }
+    .disc {
+      font-size: 14px;
+    }
+    .pan-hint {
+      display: inline;
+      color: var(--ink);
     }
   }
 </style>

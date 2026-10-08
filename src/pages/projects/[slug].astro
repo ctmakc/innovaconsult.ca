@@ -2,12 +2,12 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import MediaFrame from '../../components/MediaFrame.astro';
 import StatusTag from '../../components/StatusTag.astro';
-import Screen from '../../components/Screen.astro';
 import Button from '../../components/Button.astro';
 import SectionHead from '../../components/SectionHead.astro';
 import TypeFrame from '../../components/projects/TypeFrame.astro';
 import ProjectTile from '../../components/projects/ProjectTile.astro';
 import { PRESETS } from '../../components/projects/presets';
+import { hires } from '../../components/projects/shots';
 import { visibleProjects, STATUS_LABEL, DOMAINS, projectHref, type Project, type ProofImage } from '../../data/projects';
 import { SITE } from '../../data/site';
 
@@ -23,7 +23,8 @@ const isPhone = (im: ProofImage) => im.h > im.w;
 
 /* Gallery: every real screenshot of the project, readable, with its data caption. */
 const gallery = [...(p.images ?? []), ...(pr.extra ?? [])];
-const hasVisual = gallery.length > 0 || p.slug === 'aicrmius';
+const galDesk = gallery.filter((im) => !isPhone(im));
+const galPhone = gallery.filter(isPhone);
 
 /* Related: same domain first, then same capability, then the next projects in the list. */
 const others = visibleProjects.filter((x) => x.slug !== p.slug);
@@ -88,6 +89,7 @@ const CYCLE = [
   description={p.seoDescription ?? p.summary}
   path={path}
   jsonLd={[ld]}
+  cta={{ title: `Talk to us about ${p.name}.` }}
   breadcrumbs={breadcrumbs}
 >
   <Fragment slot="head">
@@ -176,64 +178,56 @@ const CYCLE = [
     </div>
   </section>
 
-  <!-- ═══ WHAT WE BUILT: on bone, text beside the real screens ═══ -->
-  <section class:list={['pj-sol tone-bone', { 'pj-sol--vis': hasVisual }]} aria-labelledby="sol-h">
+  <!-- ═══ WHAT WE BUILT (bone, round 4): the statement across the page, the stack as one line,
+       then the real screens at reading size (desktop screens ≥ 10 of 12 columns, 2x files) ═══ -->
+  <section class="pj-sol tone-bone" aria-labelledby="sol-h">
     <div class="shell">
-      <div class="inset pj-sol-g">
-        <div class="pj-sol-l">
-          <h2 id="sol-h" class="t-label t-mute pj-k">What we built</h2>
-          <p class="pj-solt" data-rise>{p.solution}</p>
-          {
-            hasVisual && (
-              <div class="tech tech--s">
-                <h3 class="t-label t-mute">Built with</h3>
-                <ul>
-                  {p.technology.map((t) => <li>{t}</li>)}
-                </ul>
-              </div>
-            )
-          }
+      <div class="inset">
+        <h2 id="sol-h" class="t-label pj-k pj-k--bone">What we built</h2>
+        <p class="pj-solt" data-rise>{p.solution}</p>
+        <div class="tech">
+          <h3 class="tech-h">Built with</h3>
+          <ul>
+            {p.technology.map((t) => <li>{t}</li>)}
+          </ul>
         </div>
-        <div class="pj-sol-r">
-          {
-            p.slug === 'aicrmius' && (
-              <ol class="cyc" aria-label="The cycle every agent change goes through in the working build">
-                {CYCLE.map((c, i) => (
-                  <li>
-                    <span class="cyc-n tnum">{i + 1}</span>
-                    <b class="cyc-k">{c.k}</b>
-                    <span class="cyc-d">{c.d}</span>
-                  </li>
-                ))}
-              </ol>
-            )
-          }
-          {
-            gallery.length > 0 && (
-              <div class="gal">
-                {gallery.map((im, i) => (
-                  <Screen
-                    img={im}
-                    kind={isPhone(im) ? 'phone' : 'desktop'}
-                    class:list={['gal-i', { 'gal-ph': isPhone(im) }]}
-                    sizes={isPhone(im) ? '(max-width: 900px) 70vw, 300px' : '(max-width: 900px) 100vw, 56vw'}
-                    data-rise={i > 0 ? '' : undefined}
-                  />
-                ))}
-              </div>
-            )
-          }
-          {
-            !hasVisual && (
-              <div class="tech">
-                <h3 class="t-label t-mute pj-k">Built with</h3>
-                <ul>
-                  {p.technology.map((t) => <li>{t}</li>)}
-                </ul>
-              </div>
-            )
-          }
-        </div>
+        {
+          p.slug === 'aicrmius' && (
+            <ol class="cyc" aria-label="The cycle every agent change goes through in the working build">
+              {CYCLE.map((c, i) => (
+                <li>
+                  <span class="cyc-n tnum">{i + 1}</span>
+                  <b class="cyc-k">{c.k}</b>
+                  <span class="cyc-d">{c.d}</span>
+                </li>
+              ))}
+            </ol>
+          )
+        }
+        {
+          galDesk.length > 0 && (
+            <div class="gal">
+              {galDesk.map((im, i) => (
+                <figure class:list={['gal-i', { 'gal-i--r': i % 2 === 1 }]}>
+                  <img class="scr-img" src={im.src} srcset={hires(im)} sizes="(max-width: 900px) 100vw, 86vw" alt={im.alt} width={im.w} height={im.h} loading="lazy" decoding="async" />
+                  {im.caption && <figcaption>{im.caption}</figcaption>}
+                </figure>
+              ))}
+            </div>
+          )
+        }
+        {
+          galPhone.length > 0 && (
+            <div class="gal-ph">
+              {galPhone.map((im) => (
+                <figure class="gal-p">
+                  <img class="scr-img" src={im.src} srcset={hires(im)} sizes="(max-width: 900px) 78vw, 340px" alt={im.alt} width={im.w} height={im.h} loading="lazy" decoding="async" />
+                  {im.caption && <figcaption>{im.caption}</figcaption>}
+                </figure>
+              ))}
+            </div>
+          )
+        }
       </div>
     </div>
   </section>
@@ -434,66 +428,103 @@ const CYCLE = [
   .pj-sol {
     padding-block: var(--sec);
   }
-  .pj-sol-g {
-    display: grid;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    column-gap: var(--col-gap);
-    row-gap: 48px;
-    align-items: start;
-  }
-  .pj-sol-l {
-    grid-column: 1 / span 5;
-  }
-  .pj-sol--vis .pj-sol-l {
-    position: sticky;
-    top: calc(var(--hdr) + 40px);
-  }
-  .pj-sol-r {
-    grid-column: 7 / span 6;
+  .pj-k--bone {
+    color: var(--copy-ink);
   }
   .pj-solt {
-    font-size: clamp(22px, 1.9vw, 30px);
-    line-height: 1.32;
-    letter-spacing: -0.02em;
+    max-width: 30ch;
+    font-size: clamp(28px, 3vw, 50px);
+    font-weight: 500;
+    line-height: 1.12;
+    letter-spacing: -0.032em;
     text-wrap: pretty;
+  }
+  .tech {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 8px 14px;
+    margin-top: clamp(28px, 3vw, 44px);
+    max-width: 1100px;
+  }
+  .tech-h {
+    font-size: 17px;
+    font-weight: 600;
+  }
+  .tech ul {
+    display: contents;
+    list-style: none;
+  }
+  .tech li {
+    padding: 6px 12px;
+    border-radius: var(--r);
+    background: var(--bone-2);
+    font-size: 17px;
+    line-height: 1.35;
+    color: var(--ink);
   }
   .gal {
     display: grid;
-    gap: clamp(40px, 4vw, 64px);
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--col-gap);
+    row-gap: clamp(48px, 5vw, 88px);
+    margin-top: clamp(56px, 6vw, 104px);
   }
-  .gal :global(.gal-ph) {
-    max-width: 300px;
+  .gal-i {
+    grid-column: 1 / span 11;
+    margin: 0;
+  }
+  .gal-i--r {
+    grid-column: 2 / span 11;
+  }
+  .gal figcaption,
+  .gal-ph figcaption {
+    margin-top: 16px;
+    max-width: 64ch;
+    font-size: 17px;
+    line-height: 1.45;
+    color: var(--copy-ink);
   }
   /* Softer plate shadow on bone so it never reads as a tinted box behind the caption. */
-  .gal :global(.scr-img) {
+  .gal :global(.scr-img),
+  .gal-ph :global(.scr-img) {
+    width: 100%;
     box-shadow:
       0 0 0 1px var(--rule-ink),
       0 28px 44px -34px rgb(20 19 16 / 0.45);
   }
+  .gal-ph {
+    display: flex;
+    flex-wrap: wrap;
+    gap: clamp(24px, 3vw, 48px);
+    margin-top: clamp(48px, 5vw, 88px);
+    padding-left: calc(100% / 12);
+  }
+  .gal-p {
+    margin: 0;
+    width: min(340px, 78vw);
+  }
   .cyc {
     list-style: none;
-    margin: 0;
+    margin: clamp(48px, 5vw, 88px) 0 0;
     padding: 0;
     display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 10px;
-    counter-reset: c;
   }
   .cyc li {
     display: grid;
-    grid-template-columns: 44px minmax(0, 1fr);
-    gap: 6px 16px;
-    align-items: baseline;
-    padding: clamp(20px, 2vw, 30px) clamp(20px, 2.2vw, 34px);
+    align-content: start;
+    gap: 10px;
+    padding: clamp(20px, 2vw, 30px);
     background: var(--print);
     border-radius: var(--r);
-    box-shadow: 0 24px 50px -40px rgb(20 19 16 / 0.5);
   }
   .cyc li:last-child {
     background: var(--ink);
     color: var(--print);
   }
   .cyc-n {
-    grid-row: 1 / span 2;
     font-size: 15px;
     font-weight: 600;
     color: var(--flare-ink);
@@ -502,43 +533,18 @@ const CYCLE = [
     color: var(--flare);
   }
   .cyc-k {
-    font-size: clamp(30px, 3vw, 50px);
+    font-size: clamp(28px, 2.6vw, 44px);
     font-weight: 500;
     letter-spacing: -0.04em;
     line-height: 1;
   }
   .cyc-d {
-    grid-column: 2;
     font-size: 17px;
     line-height: 1.45;
-    color: var(--ink-soft);
+    color: var(--copy-ink);
   }
   .cyc li:last-child .cyc-d {
-    color: var(--ash);
-  }
-  .tech ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-  .tech li {
-    padding: 12px 0 14px;
-    font-size: clamp(20px, 1.7vw, 26px);
-    font-weight: 500;
-    letter-spacing: -0.02em;
-    line-height: 1.25;
-    border-top: 1px solid var(--rule-ink);
-  }
-  .tech--s {
-    margin-top: clamp(36px, 3.4vw, 56px);
-  }
-  .tech--s h3 {
-    margin-bottom: 12px;
-  }
-  .tech--s li {
-    padding: 9px 0 10px;
-    font-size: 17px;
-    letter-spacing: 0;
+    color: var(--copy);
   }
 
   /* ── where it stands ── */
@@ -550,7 +556,7 @@ const CYCLE = [
     align-items: start;
   }
   .pj-st-l {
-    grid-column: 1 / span 7;
+    grid-column: 1 / span 10;
   }
   :global(.pj-st-tag) {
     font-size: 17px !important;
@@ -564,21 +570,26 @@ const CYCLE = [
     text-wrap: pretty;
   }
   .pj-st-r {
-    grid-column: 9 / span 4;
+    grid-column: 1 / -1;
     display: grid;
-    gap: 36px;
-    padding-top: 6px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 32px var(--col-gap);
+  }
+  .pj-blk {
+    padding: clamp(22px, 2vw, 32px);
+    border-radius: var(--r);
+    background: var(--reel);
   }
   .pj-blk h3 {
     margin-bottom: 10px;
   }
   .pj-blk p {
-    font-size: 18px;
+    font-size: var(--fs-copy);
     line-height: 1.5;
+    color: var(--copy);
   }
   .pj-client {
     margin-top: 10px;
-    color: var(--ash);
   }
   .pj-ask :global(.btn) {
     margin-top: 18px;
@@ -586,7 +597,7 @@ const CYCLE = [
 
   /* ── related ── */
   .pj-rel {
-    padding-bottom: var(--sec);
+    padding-bottom: 0;
   }
   .rel-g {
     display: grid;
@@ -601,28 +612,24 @@ const CYCLE = [
     .pj-st-r {
       grid-column: 1 / -1;
     }
+    .pj-st-r {
+      grid-template-columns: 1fr;
+    }
     .pj-facts {
       gap: 18px;
     }
-    /* Phones: solution, then the screens, then the stack list. */
-    .pj-sol-g {
-      display: flex;
-      flex-direction: column;
-      gap: 0;
+    .gal-i,
+    .gal-i--r {
+      grid-column: 1 / -1;
     }
-    .pj-sol-l {
-      display: contents;
+    .gal-ph {
+      padding-left: 0;
     }
-    .pj-sol-r {
-      order: 3;
-      margin-top: 40px;
+    .cyc {
+      grid-template-columns: 1fr;
     }
-    .tech--s {
-      order: 4;
-      margin-top: 48px;
-    }
-    .cyc li {
-      grid-template-columns: 32px minmax(0, 1fr);
+    .tech li {
+      font-size: 16px;
     }
     .rel-g {
       grid-template-columns: 1fr;

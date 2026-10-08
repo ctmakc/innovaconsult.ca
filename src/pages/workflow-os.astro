@@ -22,7 +22,7 @@ const product = {
   creativeWorkStatus: 'Prototype',
   description:
     'Business-process discovery and AI automation planning: maps operations, scores each process for automation value, recommends the architecture, projects ROI and compares it with measured results.',
-  screenshot: `${SITE.url}${SHOTS.map.src}`,
+  screenshot: [`${SITE.url}${SHOTS.landscape.src2x}`, `${SITE.url}${SHOTS.score.src2x}`, `${SITE.url}${SHOTS.route.src2x}`],
   creator: { '@id': `${SITE.url}/#org` }
 };
 
@@ -43,19 +43,19 @@ const faq = {
   description="INNOVA AI Workflow OS maps operations, scores each process for automation value, recommends software, agent or human-in-the-loop design and projects ROI."
   path="/workflow-os"
   jsonLd={[product, faq]}
+  cta={{
+    title: 'See it on your own processes.',
+    lede: 'Ask for a demo invite and we send a personal link to the working prototype. Every message is read by a person, and we reply by email.',
+    link: { href: '/contact?topic=workflow-os', label: 'Request a demo invite' }
+  }}
   breadcrumbs={[
     { name: 'Home', path: '/' },
     { name: 'Workflow OS', path: '/workflow-os' }
   ]}
 >
   <Fragment slot="head">
-    <link
-      rel="preload"
-      as="image"
-      imagesrcset={`${SHOTS.overview.src800} 800w, ${SHOTS.overview.src} 1600w, ${SHOTS.overview.src2000} 2000w`}
-      imagesizes="(max-width: 900px) 92vw, 62vw"
-      fetchpriority="high"
-    />
+    <link rel="preload" as="image" media="(min-width: 761px)" imagesrcset={`${SHOTS.landscape.src} 1112w, ${SHOTS.landscape.src2x} 2224w`} imagesizes="(min-width: 1800px) 62vw, 1112px" fetchpriority="high" />
+    <link rel="preload" as="image" media="(max-width: 760px)" href={SHOTS.landscape.m!.src} fetchpriority="high" />
   </Fragment>
 
   <WosHero />

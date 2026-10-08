@@ -1,118 +1,48 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import CapHead from '../components/cap/CapHead.astro';
-import MediaFrame from '../components/MediaFrame.astro';
 import StatusTag from '../components/StatusTag.astro';
-import Button from '../components/Button.astro';
-import SectionHead from '../components/SectionHead.astro';
-import Brief from '../components/cap/Brief.astro';
-import CapNext from '../components/cap/CapNext.astro';
-import { SHOT } from '../components/cap/media';
+import { WOS2, type Shot } from '../components/projects/shots';
 import { STAGES } from '../data/stages';
 
-// Workflow OS screens shown beside the method; each step points at the screen that carries it.
-const SCREENS = [
-  { ...SHOT.wosOverview, cap: 'Overview: the mapped company, its top opportunities and the current implementation.' },
-  { ...SHOT.wosMap, cap: 'Opportunity map: every process scored for value and feasibility.' },
-  { ...SHOT.wosDesigner, cap: 'Automation designer: current and proposed state, with the human approval gate.' },
-  { ...SHOT.wosImpact, cap: 'Impact & ROI: projected hours, cost and payback against the baseline.' }
+// Round 4: one page of ≤ 7 desktop screens with ONE closing CTA (the band from BaseLayout).
+// Workflow OS screens are 2x crops of the redesigned product UI; each method step points at one.
+const SCREENS: (Shot & { cap: string; pos: string })[] = [
+  { ...WOS2.landscape, cap: 'Process landscape: every mapped workflow, sized by staff hours and coloured by priority.', pos: '0% 40%' },
+  { ...WOS2.score, cap: 'Priority score: each factor of the 88 is visible, down to the risk penalty.', pos: '0% 50%' },
+  { ...WOS2.route, cap: 'Automation route: twelve steps, with the KYC decision held at a human approval gate.', pos: '78% 80%' },
+  { ...WOS2.beforeAfter, cap: 'Business case: staff hours before and after, on one scale, against the discovery baseline.', pos: '0% 0%' }
 ];
 
 // Seven method steps, each mapped to the master stage line and to the Workflow OS module that carries it.
 const steps: { t: string; d: string; stage: number; module: [number, string]; screen: number }[] = [
-  {
-    t: 'Process discovery',
-    d: 'We map departments, roles, systems, documents and the processes that connect them, with volumes and pain points.',
-    stage: 0,
-    module: [1, 'Process discovery'],
-    screen: 0
-  },
-  {
-    t: 'Opportunity mapping',
-    d: 'Each process is scored for value, feasibility and strategic fit, minus a risk penalty. Every score shows the reasons behind it.',
-    stage: 0,
-    module: [2, 'Automation opportunity map'],
-    screen: 1
-  },
-  {
-    t: 'Prioritization',
-    d: 'We rank opportunities by value and feasibility and agree on the first two or three to act on.',
-    stage: 0,
-    module: [2, 'Automation opportunity map'],
-    screen: 1
-  },
-  {
-    t: 'Solution architecture',
-    d: 'For each chosen process we pick the simplest approach that works, from deterministic software to supervised agents.',
-    stage: 1,
-    module: [3, 'Automation designer'],
-    screen: 2
-  },
-  {
-    t: 'Implementation',
-    d: 'We build, integrate and test inside the tools your team already uses.',
-    stage: 3,
-    module: [4, 'Implementation workspace'],
-    screen: 0
-  },
-  {
-    t: 'Governance',
-    d: 'Approvals, permissions, audit trails and data controls are designed in from the first sprint.',
-    stage: 4,
-    module: [4, 'Implementation workspace'],
-    screen: 0
-  },
-  {
-    t: 'Measurement',
-    d: 'We compare cycle time, cost, error rate and adoption against the baseline taken during discovery.',
-    stage: 5,
-    module: [5, 'Impact & ROI'],
-    screen: 3
-  }
+  { t: 'Process discovery', d: 'We map departments, roles, systems, documents and the processes that connect them, with volumes and pain points.', stage: 0, module: [1, 'Process discovery'], screen: 0 },
+  { t: 'Opportunity mapping', d: 'Each process is scored for value, feasibility and strategic fit, minus a risk penalty. Every score shows the reasons behind it.', stage: 0, module: [2, 'Automation opportunity map'], screen: 1 },
+  { t: 'Prioritization', d: 'We rank opportunities by value and feasibility and agree on the first two or three to act on.', stage: 0, module: [2, 'Automation opportunity map'], screen: 1 },
+  { t: 'Solution architecture', d: 'For each chosen process we pick the simplest approach that works, from deterministic software to supervised agents.', stage: 1, module: [3, 'Automation designer'], screen: 2 },
+  { t: 'Implementation', d: 'We build, integrate and test inside the tools your team already uses.', stage: 3, module: [4, 'Implementation workspace'], screen: 2 },
+  { t: 'Governance', d: 'Approvals, permissions, audit trails and data controls are designed in from the first sprint.', stage: 4, module: [4, 'Implementation workspace'], screen: 2 },
+  { t: 'Measurement', d: 'We compare cycle time, cost, error rate and adoption against the baseline taken during discovery.', stage: 5, module: [5, 'Impact & ROI'], screen: 3 }
 ];
+
+const outcomes = ['shorter cycle time', 'fewer repetitive tasks', 'lower operating cost', 'faster response to clients', 'visibility into every process', 'better-informed decisions', 'fewer manual errors'];
 
 const approaches: { t: string; d: string; ex?: { name: string; href: string } }[] = [
   { t: 'Deterministic software', d: 'Rules are clear and stable. Plain code is cheaper, faster and fully predictable.' },
   { t: 'Conventional automation', d: 'Data moves between known systems on known triggers.' },
   { t: 'AI assistant', d: 'People stay in charge; AI drafts, summarizes and looks things up.' },
-  {
-    t: 'AI agent',
-    d: 'A bounded task with tools, permissions and a person who approves the result.',
-    ex: { name: 'AICRMIUS', href: '/projects/aicrmius' }
-  },
-  {
-    t: 'Multi-agent workflow',
-    d: 'Several specialized agents hand work to each other under one supervisor.'
-  },
-  {
-    t: 'Human-in-the-loop system',
-    d: 'High-stakes steps always pass through a named person before they take effect.',
-    ex: { name: 'AICRMIUS', href: '/projects/aicrmius' }
-  }
+  { t: 'AI agent', d: 'A bounded task with tools, permissions and a person who approves the result.', ex: { name: 'AICRMIUS', href: '/projects/aicrmius' } },
+  { t: 'Multi-agent workflow', d: 'Several specialized agents hand work to each other under one supervisor.' },
+  { t: 'Human-in-the-loop system', d: 'High-stakes steps always pass through a named person before they take effect.', ex: { name: 'AICRMIUS', href: '/projects/aicrmius' } }
 ];
+const cycle = ['Propose', 'Validate', 'Approve', 'Apply', 'Undo'];
 
 // key: the time or scope stated in the step's own description.
 const engagement: { t: string; key: string; d: string }[] = [
-  {
-    t: 'Opportunity assessment',
-    key: 'Fixed scope',
-    d: 'Fixed scope. You get a process inventory, a scored opportunity register, technology options for each process, a privacy and security constraint map and a sequenced roadmap.'
-  },
-  {
-    t: 'Proof of concept on your historical data',
-    key: '~3 weeks',
-    d: 'About three weeks. It answers the feasibility question before any build budget is committed.'
-  },
-  {
-    t: 'Single-process pilot',
-    key: '12–15 weeks',
-    d: 'About 12 to 15 weeks from discovery to a supported production process. Measured results arrive 4 to 6 weeks after go-live.'
-  },
-  {
-    t: 'Support',
-    key: 'Monthly',
-    d: 'Monthly monitoring, fixes, model-version regression tests and small improvements.'
-  }
+  { t: 'Opportunity assessment', key: 'Fixed scope', d: 'You get a process inventory, a scored opportunity register, technology options for each process, a privacy and security constraint map and a sequenced roadmap.' },
+  { t: 'Proof of concept on your historical data', key: '~3 weeks', d: 'About three weeks. It answers the feasibility question before any build budget is committed.' },
+  { t: 'Single-process pilot', key: '12–15 weeks', d: 'From discovery to a supported production process. Measured results arrive 4 to 6 weeks after go-live.' },
+  { t: 'Support', key: 'Monthly', d: 'Monitoring, fixes, model-version regression tests and small improvements.' }
 ];
 
 const security = [
@@ -126,9 +56,7 @@ const security = [
   ['Human approval', 'Any action that changes a record or affects a person passes a named approver, and every step is logged.'],
   ['Privacy review', 'Where personal information is involved, a privacy impact assessment is planned into the pilot from the start.']
 ];
-
-const outcomes = ['Shorter cycle time', 'Fewer repetitive tasks', 'Lower operating cost', 'Faster response to clients', 'Visibility into every process', 'Better-informed decisions', 'Fewer manual errors'];
-const cycle = ['Propose', 'Validate', 'Approve', 'Apply', 'Undo'];
+const [secLead, ...secRest] = security;
 ---
 
 <BaseLayout
@@ -140,204 +68,169 @@ const cycle = ['Propose', 'Validate', 'Approve', 'Apply', 'Undo'];
     { name: 'Capabilities', path: '/capabilities' },
     { name: 'AI Transformation', path: '/ai-transformation' }
   ]}
+  cta={{
+    title: 'Send us the process that takes the most hours.',
+    lede: 'We reply in writing with whether and how we would start.',
+    link: { href: '/workflow-os', label: 'See AI Workflow OS' }
+  }}
 >
   <CapHead
     crumb="AI Transformation"
     title="AI transformation means redesigning how work happens."
     lede="Companies often add AI tools one at a time, with no map of the processes underneath. We start from that map, so every automation has an owner, a reason and a number to beat."
   >
-    <MediaFrame
-      slot="media"
-      size="full"
-      scrim="left"
-      material="navy"
-      href="/workflow-os"
-      aspectM="4 / 3.6"
-      screens={[
-        { ...SHOT.wosOverview, l: '28%', t: '6%', width: '42%', lm: '5%', tm: '7%', wm: '78%' },
-        { ...SHOT.wosMap, l: '54.5%', t: '30%', width: '42%', lm: '25%', tm: '38%', wm: '70%', depth: 1.35 }
-      ]}
-    >
-      <p class="ai-k t-label">The method runs on our own product</p>
-      <p class="ai-n two-tone">INNOVA AI Workflow OS<span class="d">Automation planning tool</span></p>
-      <p class="ai-f"><StatusTag status="prototype" label="Prototype · illustrative demo data" /></p>
-      <span class="ai-go t-label">Explore Workflow OS <span class="ar" aria-hidden="true">→</span></span>
-    </MediaFrame>
+    <figure slot="media" class="ai-m">
+      <a class="ai-plate" href="/workflow-os" aria-label="INNOVA AI Workflow OS: open the product page">
+        <picture>
+          <source media="(max-width: 900px)" srcset="/proof/wos2/m-route@2x.webp" width="764" height="680" />
+          <img class="scr-img scr-dark" src={WOS2.route.src} srcset={WOS2.route.srcset} sizes="72vw" alt={WOS2.route.alt} width={WOS2.route.w} height={WOS2.route.h} decoding="async" fetchpriority="high" />
+        </picture>
+      </a>
+      <figcaption class="ai-cap">
+        <p class="ai-n two-tone">INNOVA AI Workflow OS<span class="d">The method runs on our own product</span></p>
+        <p class="ai-f"><StatusTag status="prototype" label="Prototype · illustrative demo data" /></p>
+        <a class="lnk ai-go" href="/workflow-os">Explore Workflow OS <span class="ar" aria-hidden="true">→</span></a>
+      </figcaption>
+    </figure>
   </CapHead>
 
-  <Brief
-    text="INNOVA is an Ottawa company that plans and builds AI automation for organizations in Canada. Work starts with a map of real processes and a measured baseline. Each process then gets the simplest approach that fits, from plain software to a supervised AI agent, with approvals and audit trails built in, and results are reported against that baseline."
-  />
-
-  <!-- Method: seven steps beside the Workflow OS screen that carries each one (bone) -->
-  <section class="mt tone-bone" id="method" aria-labelledby="mt-h">
-    <div class="shell">
-      <div class="inset">
-        <SectionHead id="mt-h" title="Seven steps, one baseline." lede="The baseline measured in step one is the number we report against in step seven." size="h2" />
-        <div class="mt-g">
-          <ol class="mt-steps">
-            {
-              steps.map((s, i) => (
-                <li class:list={['mt-s', { on: i === 0 }]} data-step={i} data-screen={s.screen}>
-                  <span class="mt-n tnum">{i + 1}</span>
-                  <div>
-                    <h3 class="mt-t">{s.t}</h3>
-                    <p class="mt-d">{s.d}</p>
-                    <p class="mt-m">{`${STAGES[s.stage].label} · Module ${s.module[0]}, ${s.module[1]}`}</p>
-                  </div>
-                </li>
-              ))
-            }
-          </ol>
-          <div class="mt-r">
-            <div class="mt-stack">
-              {SCREENS.map((sc, i) => <img class:list={['scr-img', { on: i === 0 }]} src={sc.src} srcset={`${sc.src800} 800w, ${sc.src} 1600w`} sizes="(max-width: 900px) 100vw, 56vw" alt={sc.alt} width={sc.w} height={sc.h} loading="lazy" decoding="async" />)}
-            </div>
-            <div class="mt-caps" aria-hidden="true">
-              {SCREENS.map((sc, i) => <p class:list={['mt-c', { on: i === 0 }]}>{sc.cap}</p>)}
-            </div>
-            <p class="mt-disc">Illustrative demo data: Northstar Professional Services is a fictional 30-person firm.</p>
-          </div>
-        </div>
-        <p class="mt-note">
-          Stage names follow the INNOVA stage line. Modules are those of <a class="lnk" href="/workflow-os">INNOVA AI Workflow OS</a>: 1 Process discovery, 2 Automation opportunity map, 3 Automation designer, 4 Implementation workspace, 5 Impact &amp; ROI.
-        </p>
-      </div>
-    </div>
-  </section>
-
-  <!-- The right tool for each process -->
-  <section class="ap shell" aria-labelledby="ap-h">
+  <!-- ═══ METHOD (film): seven steps beside the Workflow OS screen that carries each one ═══ -->
+  <section class="mt shell" id="method" aria-labelledby="mt-h">
     <div class="inset">
-      <SectionHead id="ap-h" title="The right tool for each process." lede="We use AI where it earns its place. When ordinary software does the job better, we build ordinary software, and say so." size="h2" />
-      <p class="t-label t-mute ap-scale">Scale: from fully predictable to supervised autonomy</p>
-      <ol class="ap-g">
-        {
-          approaches.map((a, i) => (
-            <li class="ap-i">
-              <span class="ap-m" aria-hidden="true" style={`--k:${i + 1}`}>
-                {approaches.map((_, j) => <i class:list={{ f: j <= i }} />)}
-              </span>
-              <h3 class="t-h4">{a.t}</h3>
-              <p class="ap-d">{a.d}</p>
-              {a.ex && (
-                <a class="lnk ap-ex" href={a.ex.href}>
-                  {a.ex.name} <span class="ar" aria-hidden="true">→</span>
-                </a>
-              )}
-            </li>
-          ))
-        }
-      </ol>
-    </div>
-  </section>
-
-  <!-- How we build AI agents: the cycle as type -->
-  <section class="ag shell" id="agents" aria-labelledby="ag-h">
-    <div class="inset ag-g">
-      <div class="ag-l">
-        <h2 id="ag-h" class="t-h2" data-rise>How we build AI agents</h2>
-        <p class="t-lede ag-lede">Each INNOVA agent gets a bounded task, named tools and permissions, and a person who approves its output.</p>
-        <p class="ag-p t-mute">
-          In <a class="ag-a" href="/projects/aicrmius">AICRMIUS</a>, agents follow one cycle: propose, validate, approve, apply, undo, with every step in an audit trail. In <a class="ag-a" href="/projects/finmozg">FINMOZG</a>, deterministic accounting engines
-          keep the ledger correct, and every posting lands in a hash-chained audit log.
+      <div class="mt-hd">
+        <h2 id="mt-h" class="t-h2" data-rise>Seven steps, one baseline.</h2>
+        <p class="t-copy mt-brief">
+          INNOVA is an Ottawa company that plans and builds AI automation for organizations in Canada. Work starts with a map of real processes and a measured baseline. Each process then gets the simplest approach that fits, from plain software to a supervised AI agent, with approvals and audit trails built in, and results are reported against that baseline.
         </p>
       </div>
-      <ol class="ag-cycle" aria-label="AICRMIUS agent cycle">
-        {
-          cycle.map((c, i) => (
-            <li data-mask>
-              <span>
-                <span class="ag-i tnum">{i + 1}</span>
-                {`${c}.`}
-              </span>
-            </li>
-          ))
-        }
-      </ol>
-    </div>
-  </section>
-
-  <!-- How a Workflow OS project runs -->
-  <section class="en tone-reel" id="engagement" aria-labelledby="en-h">
-    <div class="shell">
-      <div class="inset">
-        <SectionHead id="en-h" title="How a Workflow OS project runs" size="h2">
-          <p class="t-lede t-mute en-lede">
-            Each step runs on <a class="ag-a" href="/workflow-os">INNOVA AI Workflow OS</a>, from the first process map to the measured result. Four steps; each one ends in a result you can review before the next one is agreed.
-          </p>
-        </SectionHead>
-        <ol class="en-g">
+      <div class="mt-g">
+        <ol class="mt-steps">
           {
-            engagement.map((e, i) => (
-              <li class="en-i">
-                <p class="t-label t-mute">Step {i + 1}</p>
-                <p class="en-key">{e.key}</p>
-                <h3 class="t-h4 en-t">{e.t}</h3>
-                <p class="en-d">{e.d}</p>
+            steps.map((s, i) => (
+              <li class:list={['mt-s', { on: i === 0 }]} data-step={i} data-screen={s.screen}>
+                <span class="mt-n tnum">{i + 1}</span>
+                <div>
+                  <h3 class="mt-t">{s.t}</h3>
+                  <p class="mt-d">{s.d}</p>
+                  <p class="mt-m">{`${STAGES[s.stage].label} · Module ${s.module[0]}, ${s.module[1]}`}</p>
+                </div>
               </li>
             ))
           }
         </ol>
-        <p class="en-cav">Timelines are for one bounded process. Integration, the number of exceptions, privacy review depth and data readiness move them most.</p>
-        <div class="en-b">
-          <div class="en-need">
-            <h3 class="t-h4">What we need from you</h3>
-            <p>
-              A process owner and two or three of the people who do the work, about 2 to 4 hours each during discovery; one 3-hour workshop; 4 to 8 hours of acceptance testing; real sample transactions, including the awkward ones; and a named
-              person inside your company who owns the automation.
-            </p>
+        <div class="mt-r">
+          <div class="mt-stack">
+            {SCREENS.map((sc, i) => <img class:list={['scr-img scr-dark', { on: i === 0 }]} src={sc.src} srcset={sc.srcset} sizes="(max-width: 900px) 200vw, 62vw" alt={sc.alt} width={sc.w} height={sc.h} loading="lazy" decoding="async" style={`--pos:${sc.pos}`} />)}
           </div>
-          <div class="en-keep frame">
-            <h3 class="t-label">What you keep</h3>
-            <p class="en-keep-t">Licences stay in your name and your tenant. You own the output.</p>
+          <div class="mt-caps" aria-hidden="true">
+            {SCREENS.map((sc, i) => <p class:list={['mt-c', { on: i === 0 }]}>{sc.cap}</p>)}
           </div>
+          <p class="mt-disc">Illustrative demo data: Northstar Professional Services is a fictional firm.</p>
+        </div>
+      </div>
+      <p class="mt-out">
+        <span class="mt-out-k">Agreed before the build, reported against the baseline:</span>{' '}
+        {outcomes.map((o, i) => <><span class="mt-o">{o}{i < outcomes.length - 1 ? ',' : '.'}</span>{' '}</>)}
+      </p>
+    </div>
+  </section>
+
+  <!-- ═══ THE RIGHT TOOL (bone): an autonomy scale, then the agent cycle as one line ═══ -->
+  <section class="ap tone-bone" aria-labelledby="ap-h">
+    <div class="shell">
+      <div class="inset">
+        <h2 id="ap-h" class="t-h2 ap-h" data-rise>The right tool for each process.</h2>
+        <p class="t-copy ap-lede">We use AI where it earns its place. When ordinary software does the job better, we build ordinary software, and say so.</p>
+        <ol class="ap-g" aria-label="Approaches, from fully predictable to supervised autonomy">
+          {
+            approaches.map((a, i) => (
+              <li class="ap-i" style={`--k:${i + 1}`}>
+                <span class="ap-bar" aria-hidden="true" />
+                <h3 class="ap-t">{a.t}</h3>
+                <p class="ap-d">{a.d}</p>
+                {a.ex && (
+                  <a class="lnk ap-ex" href={a.ex.href}>
+                    {a.ex.name} <span class="ar" aria-hidden="true">→</span>
+                  </a>
+                )}
+              </li>
+            ))
+          }
+        </ol>
+        <p class="ap-scale" aria-hidden="true"><span>Fully predictable</span><span>Supervised autonomy</span></p>
+
+        <div class="ag" id="agents">
+          <h3 class="ag-h">How we build AI agents</h3>
+          <p class="ag-cy" aria-label="AICRMIUS agent cycle: propose, validate, approve, apply, undo">
+            {cycle.map((c, i) => <span class:list={['ag-w', { last: i === cycle.length - 1 }]}>{c}{i < cycle.length - 1 && <i aria-hidden="true">→</i>}</span>)}
+          </p>
+          <p class="t-copy ag-p">
+            Each INNOVA agent gets a bounded task, named tools and permissions, and a person who approves its output. In <a class="ag-a" href="/projects/aicrmius">AICRMIUS</a>, agents follow that cycle with every step in an audit trail. In <a class="ag-a" href="/projects/finmozg">FINMOZG</a>, deterministic accounting engines keep the ledger correct, and every posting lands in a hash-chained audit log.
+          </p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Security (bone) -->
+  <!-- ═══ ENGAGEMENT (film): four steps, keys first ═══ -->
+  <section class="en shell" id="engagement" aria-labelledby="en-h">
+    <div class="inset">
+      <div class="en-hd">
+        <h2 id="en-h" class="t-h2" data-rise>How a Workflow OS project runs</h2>
+        <p class="t-copy en-lede">Each step runs on <a class="ag-a" href="/workflow-os">INNOVA AI Workflow OS</a> and ends in a result you can review before the next one is agreed.</p>
+      </div>
+      <ol class="en-g">
+        {
+          engagement.map((e) => (
+            <li class="en-i">
+              <p class="en-key">{e.key}</p>
+              <h3 class="en-t">{e.t}</h3>
+              <p class="en-d">{e.d}</p>
+            </li>
+          ))
+        }
+      </ol>
+      <p class="en-cav">Timelines are for one bounded process. Integration, the number of exceptions, privacy review depth and data readiness move them most.</p>
+      <div class="en-b">
+        <div class="en-need">
+          <h3 class="en-bh">What we need from you</h3>
+          <p class="t-copy">
+            A process owner and two or three of the people who do the work, about 2 to 4 hours each during discovery; one 3-hour workshop; 4 to 8 hours of acceptance testing; real sample transactions, including the awkward ones; and a named person inside your company who owns the automation.
+          </p>
+        </div>
+        <div class="en-keep">
+          <h3 class="en-bh">What you keep</h3>
+          <p class="en-keep-t">Licences stay in your name and your tenant. You own the output.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ SECURITY (bone) ═══ -->
   <section class="sc tone-bone" id="security" aria-labelledby="sc-h">
     <div class="shell">
-      <div class="inset">
-        <SectionHead id="sc-h" title="Security and your data" lede="How data, access and models are handled by default." size="h2" />
-        <dl class="sc-g">
+      <div class="inset sc-g">
+        <div class="sc-l">
+          <h2 id="sc-h" class="t-h2" data-rise>Security and your data</h2>
+          <h3 class="sc-lt">{secLead[0]}</h3>
+          <p class="sc-ld">{secLead[1]}</p>
+        </div>
+        <dl class="sc-r">
           {
-            security.map(([t, d], i) => (
-              <div class:list={['sc-i', { 'sc-lead': i === 0 }]}>
-                <dt class="t-h4">{t}</dt>
+            secRest.map(([t, d]) => (
+              <div class="sc-i">
+                <dt>{t}</dt>
                 <dd>{d}</dd>
               </div>
             ))
           }
         </dl>
       </div>
+      <p class="inset sc-more">
+        Other capabilities: <a href="/innovation">Innovation &amp; R&amp;D</a>, <a href="/software">Software &amp; Products</a>, <a href="/capabilities">all four on one page</a>.
+      </p>
     </div>
   </section>
-
-  <!-- What we measure + the offer -->
-  <section class="oc shell" aria-labelledby="oc-h">
-    <div class="inset oc-g">
-      <div class="oc-l">
-        <h2 id="oc-h" class="t-h2" data-rise>What we measure.</h2>
-        <p class="oc-p t-mute">Outcomes are agreed before the build starts and reported against the discovery baseline.</p>
-        <Button href="/workflow-os" variant="ghost" class="oc-btn">See AI Workflow OS</Button>
-      </div>
-      <ul class="oc-list" aria-label="Outcomes we measure">{outcomes.map((o) => <li>{o}</li>)}</ul>
-    </div>
-    <div class="inset">
-      <div class="offer frame">
-        <p class="offer-h">Send us the process that takes the most hours.</p>
-        <div class="offer-r">
-          <p>We reply in writing with whether and how we would start.</p>
-          <Button href="/contact?topic=automation" variant="flare">Send a process</Button>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <CapNext current="ai" />
 </BaseLayout>
 
 <script>
@@ -358,43 +251,71 @@ const cycle = ['Propose', 'Validate', 'Approve', 'Apply', 'Undo'];
 </script>
 
 <style>
-  /* head frame caption */
-  .ai-k {
-    margin-bottom: 16px;
-    color: var(--ash);
+  /* ── head media: one readable screen on a navy plate, caption beside it ── */
+  .ai-m {
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--col-gap);
+    row-gap: 24px;
+    align-items: end;
+  }
+  .ai-plate {
+    grid-column: 1 / span 9;
+    grid-row: 1;
+    display: block;
+    padding: clamp(14px, 2vw, 32px);
+    border-radius: var(--r);
+    background: radial-gradient(120% 100% at 30% 15%, color-mix(in srgb, var(--m-navy) 75%, var(--print) 10%) 0%, var(--m-navy) 55%, color-mix(in srgb, var(--m-navy) 60%, var(--film)) 100%);
+  }
+  .ai-plate picture {
+    display: block;
+  }
+  .ai-plate img {
+    width: 100%;
+    transition: transform 0.55s var(--e-out);
+  }
+  .ai-plate:hover img {
+    transform: translateY(-6px);
+  }
+  .ai-cap {
+    grid-column: 10 / span 3;
+    grid-row: 1;
+    padding-bottom: 6px;
   }
   .ai-n {
-    font-size: clamp(34px, 3.4vw, 60px);
+    font-size: clamp(26px, 2vw, 34px);
     font-weight: 500;
-    letter-spacing: -0.04em;
-    line-height: 0.98;
-    max-width: 12ch;
+    letter-spacing: -0.035em;
+    line-height: 1.02;
   }
   .ai-n .d {
-    font-size: clamp(18px, 1.4vw, 22px);
+    margin-top: 10px;
+    font-size: var(--fs-copy);
     letter-spacing: 0;
-    line-height: 1.3;
-    margin-top: 8px;
+    line-height: 1.35;
   }
   .ai-f {
     margin-top: 16px;
   }
   .ai-go {
-    display: inline-flex;
-    gap: 10px;
-    margin-top: 16px;
+    margin-top: 18px;
   }
   .ai-go .ar {
     color: var(--flare);
-    transition: transform 0.35s var(--e-out);
-  }
-  :global(a.mf:hover) .ai-go .ar {
-    transform: translateX(6px);
   }
 
-  /* method */
+  /* ── method (film) ── */
   .mt {
-    padding-block: var(--sec);
+    padding-top: calc(var(--sec) * 0.6);
+  }
+  .mt-hd {
+    max-width: 980px;
+    margin-bottom: clamp(32px, 3.4vw, 52px);
+  }
+  .mt-brief {
+    margin-top: 22px;
+    max-width: 66ch;
   }
   .mt-g {
     display: grid;
@@ -403,17 +324,17 @@ const cycle = ['Propose', 'Validate', 'Approve', 'Apply', 'Undo'];
     align-items: start;
   }
   .mt-steps {
-    grid-column: 1 / span 5;
+    grid-column: 1 / span 4;
     list-style: none;
     margin: 0;
     padding: 0;
   }
   .mt-s {
     display: grid;
-    grid-template-columns: 34px 1fr;
-    column-gap: 12px;
-    padding: 4.2vh 0;
-    color: var(--ink-soft);
+    grid-template-columns: 30px 1fr;
+    column-gap: 10px;
+    padding: 2vh 0;
+    color: var(--ash);
     transition: color 0.45s var(--e-out);
   }
   .mt-s:first-child {
@@ -422,203 +343,217 @@ const cycle = ['Propose', 'Validate', 'Approve', 'Apply', 'Undo'];
   .mt-n {
     font-size: 15px;
     font-weight: 600;
-    padding-top: 8px;
+    padding-top: 6px;
   }
   .mt-t {
-    font-size: clamp(24px, 2.1vw, 34px);
+    font-size: clamp(22px, 1.8vw, 28px);
     font-weight: 500;
     letter-spacing: -0.025em;
-    line-height: 1.08;
+    line-height: 1.1;
   }
   .mt-d {
-    margin-top: 8px;
+    margin-top: 6px;
     font-size: 17px;
     line-height: 1.5;
-    max-width: 42ch;
   }
   .mt-m {
-    margin-top: 10px;
+    margin-top: 6px;
     font-size: 15px;
     font-weight: 500;
   }
   .mt-s.on {
-    color: var(--ink);
+    color: var(--copy);
+  }
+  .mt-s.on .mt-t {
+    color: var(--print);
   }
   .mt-s.on .mt-n {
-    color: var(--flare-ink);
+    color: var(--flare);
   }
   .mt-r {
-    grid-column: 6 / span 7;
+    grid-column: 5 / span 8;
     position: sticky;
-    top: calc(var(--hdr) + 32px);
-    padding-left: clamp(0px, 2vw, 32px);
-  }
-  .mt-stack,
-  .mt-caps {
-    position: relative;
+    top: calc(var(--hdr) + 28px);
+    padding-left: clamp(0px, 1.6vw, 24px);
   }
   .mt-stack {
-    aspect-ratio: 16 / 10;
+    position: relative;
+    aspect-ratio: 2296 / 900;
+    border-radius: var(--r);
+    background: var(--ui-dark);
+    box-shadow: var(--shadow-screen);
+    overflow: hidden;
   }
   .mt-stack img {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
-    object-fit: cover;
-    object-position: 0 0;
-    opacity: 0;
-    transform: scale(0.975);
-    transition:
-      opacity 0.6s var(--e-out),
-      transform 0.8s var(--e-out);
+    object-fit: contain;
+    object-position: 50% 50%;
+    box-shadow: none;
+    border-radius: 0;
+    visibility: hidden;
   }
   .mt-stack img.on {
-    opacity: 1;
-    transform: none;
+    visibility: visible;
   }
   .mt-caps {
     display: grid;
-    margin-top: 20px;
+    margin-top: 18px;
   }
   .mt-c {
     grid-area: 1 / 1;
     font-size: 17px;
     font-weight: 500;
-    color: var(--ink);
-    opacity: 0;
-    transition: opacity 0.4s var(--e-out);
+    color: var(--print);
+    visibility: hidden;
   }
   .mt-c.on {
-    opacity: 1;
+    visibility: visible;
   }
   .mt-disc {
-    margin-top: 8px;
+    margin-top: 6px;
     font-size: 15px;
-    color: var(--ink-soft);
+    color: var(--ash);
   }
-  .mt-note {
-    margin-top: clamp(40px, 4vw, 64px);
-    max-width: 78ch;
-    font-size: 16px;
-    color: var(--ink-soft);
+  .mt-out {
+    margin-top: clamp(40px, 4.4vw, 72px);
+    max-width: 1180px;
+    font-size: clamp(22px, 2.05vw, 33px);
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+    text-wrap: pretty;
   }
-  .mt-note .lnk {
-    color: var(--ink);
-    display: inline;
+  .mt-out-k {
+    color: var(--ash);
+  }
+  .mt-o {
+    color: var(--print);
+  }
+  .mt-o:nth-child(odd) {
+    color: var(--copy);
   }
 
-  /* approaches */
+  /* ── approaches (bone): an autonomy scale ── */
   .ap {
-    padding-top: var(--sec);
+    margin-top: calc(var(--sec) * 0.6);
+    padding-block: calc(var(--sec) * 0.6);
   }
-  .ap-scale {
-    margin-bottom: 22px;
+  .ap-h {
+    max-width: 16ch;
+  }
+  .ap-lede {
+    margin-top: 20px;
+    max-width: 52ch;
   }
   .ap-g {
     list-style: none;
-    margin: 0;
+    margin: clamp(32px, 3.4vw, 56px) 0 0;
     padding: 0;
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: clamp(44px, 4.4vw, 72px) var(--col-gap);
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 0 var(--col-gap);
+    align-items: start;
   }
   .ap-i {
     display: grid;
     align-content: start;
-    gap: 12px;
   }
-  .ap-m {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 4px;
-    margin-bottom: 14px;
-    max-width: 240px;
+  .ap-bar {
+    display: block;
+    height: clamp(48px, 4.6vw, 72px);
+    margin-bottom: 20px;
+    border-radius: 2px;
+    background: linear-gradient(to top, var(--ink) calc(var(--k) * 16.666%), var(--bone-2) 0);
   }
-  .ap-m i {
-    height: 6px;
-    border-radius: 1px;
-    background: var(--rule-film);
-  }
-  .ap-m i.f {
-    background: var(--print);
+  .ap-t {
+    font-size: clamp(20px, 1.55vw, 25px);
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    line-height: 1.12;
+    min-height: 2.3em;
   }
   .ap-d {
+    margin-top: 10px;
     font-size: 17px;
     line-height: 1.5;
-    color: var(--ash);
-    max-width: 36ch;
+    color: var(--copy-ink);
   }
   .ap-ex {
-    margin-top: 2px;
+    margin-top: 12px;
     justify-self: start;
   }
-
-  /* agents */
-  .ag {
-    padding-block: var(--sec);
+  .ap-scale {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 14px;
+    padding-top: 10px;
+    border-top: 1px solid var(--rule-ink);
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--ink-soft);
   }
-  .ag-g {
+  .ag {
+    margin-top: clamp(48px, 4.6vw, 72px);
     display: grid;
     grid-template-columns: repeat(12, minmax(0, 1fr));
     column-gap: var(--col-gap);
-    row-gap: 48px;
-    align-items: center;
+    row-gap: 18px;
   }
-  .ag-l {
-    grid-column: 1 / span 5;
+  .ag-h {
+    grid-column: 1 / -1;
+    font-size: 17px;
+    font-weight: 600;
   }
-  .ag-lede {
-    margin-top: 24px;
+  .ag-cy {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 0.3em;
+    font-size: clamp(34px, 4.1vw, 64px);
+    font-weight: 500;
+    letter-spacing: -0.05em;
+    line-height: 1;
+  }
+  .ag-w i {
+    margin-left: 0.3em;
+    font-style: normal;
+    font-weight: 300;
+    color: var(--ink-soft);
+  }
+  .ag-w.last {
+    color: var(--flare-ink);
   }
   .ag-p {
-    margin-top: 18px;
-    max-width: 48ch;
+    grid-column: 6 / span 7;
+    margin-top: 10px;
   }
   .ag-a {
-    color: var(--print);
+    color: inherit;
     font-weight: 500;
     text-decoration: underline;
     text-decoration-thickness: 1px;
     text-underline-offset: 4px;
   }
-  .ag-cycle {
-    grid-column: 7 / span 6;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-  .ag-cycle li {
-    overflow: hidden;
-    padding-bottom: 0.04em;
-  }
-  .ag-cycle li > span {
-    display: block;
-    font-size: clamp(48px, 6.6vw, 112px);
-    font-weight: 500;
-    letter-spacing: -0.05em;
-    line-height: 0.96;
-  }
-  .ag-cycle li:last-child > span {
-    color: var(--ash);
-  }
-  .ag-i {
-    display: inline-block;
-    width: 1.6em;
-    vertical-align: top;
-    padding-top: 0.5em;
-    font-size: 15px;
-    font-weight: 500;
-    letter-spacing: 0;
-    color: var(--ash);
-  }
 
-  /* engagement */
+  /* ── engagement (film) ── */
   .en {
-    padding-block: var(--sec);
+    padding-top: calc(var(--sec) * 0.6);
+  }
+  .en-hd {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--col-gap);
+    row-gap: 18px;
+    margin-bottom: clamp(40px, 4vw, 64px);
+  }
+  .en-hd .t-h2 {
+    grid-column: 1 / span 8;
   }
   .en-lede {
-    font-size: clamp(18px, 1.35vw, 21px);
+    grid-column: 1 / span 7;
   }
   .en-lede .ag-a {
     color: var(--print);
@@ -632,28 +567,31 @@ const cycle = ['Propose', 'Validate', 'Approve', 'Apply', 'Undo'];
     gap: 40px var(--col-gap);
   }
   .en-i {
-    display: grid;
-    align-content: start;
-    gap: 12px;
+    padding: clamp(22px, 2vw, 32px);
+    border-radius: var(--r);
+    background: var(--reel);
   }
   .en-key {
-    margin-top: 6px;
-    font-size: clamp(32px, 3vw, 50px);
+    font-size: clamp(30px, 2.8vw, 46px);
     font-weight: 500;
     letter-spacing: -0.045em;
     line-height: 0.95;
     white-space: nowrap;
   }
   .en-t {
-    margin-top: 10px;
+    margin-top: 18px;
+    font-size: 19px;
+    font-weight: 600;
+    line-height: 1.25;
   }
   .en-d {
+    margin-top: 10px;
     font-size: 17px;
     line-height: 1.5;
-    color: var(--ash);
+    color: var(--copy);
   }
   .en-cav {
-    margin-top: clamp(32px, 3vw, 48px);
+    margin-top: 20px;
     max-width: 72ch;
     font-size: 16px;
     color: var(--ash);
@@ -663,136 +601,86 @@ const cycle = ['Propose', 'Validate', 'Approve', 'Apply', 'Undo'];
     grid-template-columns: repeat(12, minmax(0, 1fr));
     column-gap: var(--col-gap);
     row-gap: 32px;
-    margin-top: clamp(56px, 6vw, 96px);
-    align-items: stretch;
+    margin-top: clamp(32px, 3.4vw, 56px);
+    align-items: end;
   }
   .en-need {
     grid-column: 1 / span 6;
   }
-  .en-need p {
-    margin-top: 14px;
-    max-width: 56ch;
-    color: var(--ash);
+  .en-bh {
+    margin-bottom: 12px;
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--print);
   }
   .en-keep {
     grid-column: 8 / span 5;
-    background: var(--print);
-    color: var(--ink);
-    padding: clamp(24px, 2.6vw, 40px);
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    gap: 32px;
   }
   .en-keep-t {
-    font-size: clamp(26px, 2.4vw, 40px);
+    font-size: clamp(28px, 2.6vw, 44px);
     font-weight: 500;
-    letter-spacing: -0.03em;
-    line-height: 1.08;
+    letter-spacing: -0.035em;
+    line-height: 1.06;
   }
 
-  /* security */
+  /* ── security (bone) ── */
   .sc {
-    padding-block: var(--sec);
+    margin-top: calc(var(--sec) * 0.6);
+    padding-block: calc(var(--sec) * 0.6) calc(var(--sec) * 0.32);
   }
   .sc-g {
-    margin: 0;
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: clamp(40px, 4vw, 64px) clamp(32px, 4vw, 72px);
-  }
-  .sc-i dd {
-    margin: 12px 0 0;
-    font-size: 17px;
-    line-height: 1.5;
-    color: var(--ink-soft);
-    max-width: 52ch;
-  }
-  .sc-lead {
-    grid-column: 1 / -1;
-    display: grid;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    column-gap: var(--col-gap);
-    padding-bottom: clamp(32px, 3vw, 48px);
-    border-bottom: 1px solid var(--rule-ink);
-  }
-  .sc-lead dt {
-    grid-column: 1 / span 4;
-    font-size: clamp(30px, 2.9vw, 48px);
-    letter-spacing: -0.035em;
-    line-height: 1;
-  }
-  .sc-lead dd {
-    grid-column: 6 / span 7;
-    margin: 0;
-    font-size: clamp(19px, 1.5vw, 23px);
-    line-height: 1.45;
-    color: var(--ink);
-    max-width: 50ch;
-  }
-
-  /* outcomes + offer */
-  .oc {
-    padding-top: var(--sec);
-  }
-  .oc-g {
     display: grid;
     grid-template-columns: repeat(12, minmax(0, 1fr));
     column-gap: var(--col-gap);
     row-gap: 40px;
     align-items: start;
   }
-  .oc-l {
-    grid-column: 1 / span 4;
+  .sc-l {
+    grid-column: 1 / span 5;
   }
-  .oc-p {
-    margin-top: 20px;
-    max-width: 36ch;
+  .sc-lt {
+    margin-top: clamp(28px, 3vw, 48px);
+    font-size: clamp(22px, 1.9vw, 30px);
+    font-weight: 500;
+    letter-spacing: -0.022em;
   }
-  .oc-l :global(.oc-btn) {
-    margin-top: 28px;
+  .sc-ld {
+    margin-top: 12px;
+    font-size: clamp(18px, 1.35vw, 21px);
+    line-height: 1.5;
+    color: var(--ink);
+    max-width: 46ch;
   }
-  .oc-list {
-    grid-column: 6 / span 7;
-    list-style: none;
+  .sc-r {
+    grid-column: 7 / span 6;
     margin: 0;
-    padding: 0;
-  }
-  .oc-list li {
-    font-size: clamp(30px, 3.4vw, 58px);
-    font-weight: 500;
-    letter-spacing: -0.04em;
-    line-height: 1.06;
-  }
-  .oc-list li:nth-child(even) {
-    color: var(--ash);
-  }
-  .offer {
-    margin-top: clamp(64px, 7vw, 120px);
     display: grid;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    column-gap: var(--col-gap);
-    row-gap: 28px;
-    align-items: end;
-    background: var(--reel);
-    padding: clamp(28px, 3.4vw, 56px);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(28px, 3vw, 44px) var(--col-gap);
+    padding-top: 10px;
   }
-  .offer-h {
-    grid-column: 1 / span 7;
-    font-size: clamp(32px, 3.6vw, 60px);
+  .sc-i dt {
+    font-size: 19px;
+    font-weight: 600;
+    line-height: 1.25;
+  }
+  .sc-i dd {
+    margin: 8px 0 0;
+    font-size: 17px;
+    line-height: 1.5;
+    color: var(--copy-ink);
+  }
+  .sc-more {
+    margin-top: clamp(40px, 4vw, 64px);
+    font-size: 17px;
+    color: var(--copy-ink);
+  }
+  .sc-more a {
+    color: var(--ink);
     font-weight: 500;
-    letter-spacing: -0.04em;
-    line-height: 1;
-    text-wrap: balance;
-  }
-  .offer-r {
-    grid-column: 9 / span 4;
-    display: grid;
-    gap: 22px;
-    justify-items: start;
-  }
-  .offer-r p {
-    color: var(--ash);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 4px;
   }
 
   @media (max-width: 1100px) {
@@ -800,10 +688,24 @@ const cycle = ['Propose', 'Validate', 'Approve', 'Apply', 'Undo'];
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
     .ap-g {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      row-gap: 40px;
     }
   }
   @media (max-width: 900px) {
+    .ai-plate,
+    .ai-cap {
+      grid-column: 1 / -1;
+      grid-row: auto;
+    }
+    .ai-plate {
+      padding: 12px;
+    }
+    /* phones: the app's own 390px layout of the route (m-route@2x), whole and readable */
+    .ai-plate img {
+      width: 100%;
+      height: auto;
+    }
     .mt-g {
       display: flex;
       flex-direction: column;
@@ -813,48 +715,55 @@ const cycle = ['Propose', 'Validate', 'Approve', 'Apply', 'Undo'];
       top: calc(var(--hdr) + 8px);
       z-index: 2;
       width: 100%;
-      background: var(--bone);
+      background: var(--film);
       padding: 0 0 12px;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
     }
-    .mt-caps,
-    .mt-disc {
-      font-size: 15px;
+    /* phones: a 4:3 window onto the screen's key area, never a 4px-text miniature */
+    .mt-stack {
+      aspect-ratio: 4 / 3;
+    }
+    .mt-stack img {
+      object-fit: cover;
+      object-position: var(--pos);
     }
     .mt-c {
       font-size: 15px;
     }
     .mt-caps {
-      margin-top: 12px;
+      margin-top: 10px;
     }
     .mt-s {
-      padding: 3vh 0;
+      padding: 2.4vh 0;
     }
-    .ag-l,
-    .ag-cycle,
+    .en-hd .t-h2,
+    .en-lede,
     .en-need,
     .en-keep,
-    .oc-l,
-    .oc-list,
-    .offer-h,
-    .offer-r {
+    .sc-l,
+    .sc-r,
+    .ag-p {
       grid-column: 1 / -1;
     }
-    .sc-g {
+    .sc-r {
       grid-template-columns: 1fr;
     }
-    .sc-lead dt,
-    .sc-lead dd {
-      grid-column: 1 / -1;
-    }
-    .sc-lead dd {
-      margin-top: 16px;
+    .ap-scale {
+      display: none;
     }
   }
   @media (max-width: 560px) {
     .en-g,
     .ap-g {
       grid-template-columns: 1fr;
+    }
+    .ap-t {
+      min-height: 0;
+    }
+    .ap-bar {
+      height: 8px;
+      margin-bottom: 14px;
+      background: linear-gradient(to right, var(--ink) calc(var(--k) * 16.666%), var(--bone-2) 0);
     }
   }
 </style>

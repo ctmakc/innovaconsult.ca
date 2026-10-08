@@ -6,6 +6,7 @@
 import type { FrameScreen, FrameWorld } from '../MediaFrame.astro';
 import type { ProofImage } from '../../data/projects';
 import { CROPS, asScreen } from '../../data/crops';
+import { WOS2, CARD, hires } from './shots';
 // Placements use l/lm only: MediaFrame writes `r` to the --r custom property, which is also the
 // global corner-radius token, so an `r` offset would round the screenshot's corners by that much.
 
@@ -32,7 +33,7 @@ export interface Preset {
   heroSrcs?: string[];
 }
 
-const S = {
+const S0 = {
   uafestApps: {
     src: '/proof/uafest-applications-1440-1600.webp',
     src800: '/proof/uafest-applications-1440-800.webp',
@@ -84,22 +85,16 @@ const S = {
     h: 1621,
     alt: 'OpenField technician entry screen on a phone (demo farm, simulated data).',
     kind: 'phone' as const
-  },
-  wosOverview: {
-    src: '/proof/workflow-os-overview-1440-1600.webp',
-    src800: '/proof/workflow-os-overview-1440-800.webp',
-    w: 1600,
-    h: 1000,
-    alt: 'Workflow OS overview of a fictional demo company: mapped processes and their automation scores.'
-  },
-  wosMap: {
-    src: '/proof/workflow-os-opportunity-map-1440-1600.webp',
-    src800: '/proof/workflow-os-opportunity-map-1440-800.webp',
-    w: 1600,
-    h: 1000,
-    alt: 'Workflow OS Opportunity Map: 15 processes plotted by business value and feasibility, Client Onboarding ranked first at 88.'
   }
 };
+
+/* Every screenshot also lists its 2x file (public/proof/x2) so it stays sharp on retina. */
+const S = Object.fromEntries(Object.entries(S0).map(([k, v]) => [k, { ...v, srcset: hires(v) }])) as {
+  [K in keyof typeof S0]: (typeof S0)[K] & { srcset: string };
+};
+/* Half frames (round 4): every screen sits fully inside the picture, centred, with a short dolly
+   travel (depth .5), so scrolling never crops it. */
+const D = 0.5;
 
 export const PRESETS: Record<string, Preset> = {
   uafest: {
@@ -108,7 +103,7 @@ export const PRESETS: Record<string, Preset> = {
     credit: 'UAFest festival, Carleton Place',
     // Round 3: one readable crop of the sign-up form (2x master), kept clear of the caption.
     full: [asScreen(CROPS.uafestForm, { l: '50%', t: '10%', width: '45%', lm: '6%', tm: '7%', wm: '88%' })],
-    half: [asScreen(CROPS.uafestForm, { l: '30%', t: '9%', width: '64%', lm: '6%', tm: '8%', wm: '88%' })],
+    half: [asScreen(CROPS.uafestForm, { l: '30%', t: '19%', width: '64%', lm: '6%', tm: '16%', wm: '88%', depth: D })],
     aspectM: '4 / 3.3',
     heroSrcs: [CROPS.uafestForm.src]
   },
@@ -119,14 +114,14 @@ export const PRESETS: Record<string, Preset> = {
       { ...S.fwHome, l: '39%', t: '10%', width: '42%', lm: '6%', tm: '9%', wm: '76%' },
       { ...S.fwPhone, l: '82.5%', t: '17%', width: '12.5%', lm: '67%', tm: '16%', wm: '27%', depth: 1.6 }
     ],
-    half: [asScreen(CROPS.foundwall, { l: '7%', t: '9%', width: '86%', lm: '6%', tm: '8%', wm: '88%' })],
+    half: [asScreen(CROPS.foundwall, { l: '11%', t: '11.5%', width: '78%', lm: '8%', tm: '16%', wm: '84%', depth: D })],
     heroSrcs: [S.fwHome.src, S.fwPhone.src]
   },
   babakokum: {
     fact: 'On the App Store since 24 September 2026, and playable on the web. Runs fully offline.',
     world: { src: '/img/babakokum-title.webp', src800: '/img/babakokum-title-800.webp', w: 1376, h: 768, pos: '30% 40%' },
     full: [{ ...S.bkRules, l: '62%', t: '9%', width: '34%', lm: '14%', tm: '7%', wm: '72%' }],
-    half: [asScreen(CROPS.babakokum, { l: '9%', t: '13%', width: '82%', lm: '6%', tm: '14%', wm: '88%' })],
+    half: [asScreen(CROPS.babakokum, { l: '9%', t: '17.5%', width: '82%', lm: '6%', tm: '22%', wm: '88%', depth: D })],
     heroSrcs: [S.bkRules.src]
   },
   openfield: {
@@ -137,7 +132,7 @@ export const PRESETS: Record<string, Preset> = {
       { ...S.ofReport, l: '39%', t: '9%', width: '42%', lm: '6%', tm: '9%', wm: '74%' },
       { ...S.ofPhone, l: '82.5%', t: '14%', width: '12.5%', lm: '67%', tm: '14%', wm: '27%', depth: 1.6 }
     ],
-    half: [asScreen(CROPS.openfield, { l: '7%', t: '12%', width: '86%', lm: '6%', tm: '12%', wm: '88%' })],
+    half: [{ ...CARD.openfield, poster: 'light', l: '6%', t: '22%', width: '88%', lm: '6%', tm: '27.5%', wm: '88%', depth: D }],
     extra: [
       {
         src: '/proof/openfield-today-1440-1600.webp',
@@ -154,11 +149,12 @@ export const PRESETS: Record<string, Preset> = {
     fact: 'Invite-only demo online since 1 October 2026, on a fictional 30-person firm with 15 mapped workflows. 226 automated tests.',
     statusLabel: 'Prototype · demo data',
     material: 'navy',
+    // Round 4: the redesigned product UI (2x crops); the old Overview screenshot is no longer repeated here.
     full: [
-      { ...S.wosMap, l: '53.5%', t: '8%', width: '43%', lm: '25%', tm: '7%', wm: '70%', depth: 0.8 },
-      { ...S.wosOverview, l: '44%', t: '36%', width: '37%', lm: '5%', tm: '40%', wm: '64%', depth: 1.4 }
+      { ...WOS2.route, poster: 'dark', l: '46%', t: '12%', width: '50%', lm: '6%', tm: '10%', wm: '88%', depth: 0.8 },
+      { ...WOS2.score, poster: 'dark', l: '52%', t: '50%', width: '44%', lm: '20%', tm: '52%', wm: '74%', depth: 1.3 }
     ],
-    half: [asScreen(CROPS.wosHomeMap, { l: '7%', t: '10%', width: '86%', lm: '6%', tm: '10%', wm: '88%' })]
+    half: [{ ...CARD.wosScore, poster: 'dark', l: '10%', t: '21%', width: '80%', lm: '6%', tm: '24.5%', wm: '88%', depth: D }]
   },
   aicrmius: {
     fact: 'Agents propose, a person approves, every change can be undone.',

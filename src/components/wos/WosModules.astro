@@ -1,34 +1,13 @@
 ---
-// Five modules (round 3): ONE sticky product stage on a dark plate. Desktop: the module names
-// scroll on the left (300px column); the stage on the right (~1050px) swaps to the module being
-// read, and a close-up of the one number that matters (cut from the 2x master) sits on its corner.
-// Phones: each module shows only its close-up, which reads at phone width.
-// Factor lists, patterns, levels, phases, the technology and the data/AI note live in two
-// collapsed <details>; the product boundary is a two-line callout at the end.
+// Five modules (round 4): ONE signature section, a sticky deck. Each module is a card in its own
+// material with a real Workflow OS UI v2 crop on it at (or above) its natural size, so the UI text
+// reads at 12-14 css px. On desktop the cards stick and stack; the card underneath recedes as the
+// next one slides over it (transform + overlay only). Tablets and phones get the app's own 390px
+// layout of the same panel as a 2x crop. Factor lists, patterns, levels, phases, the technology and
+// the data/AI note live in two collapsed <details>; the product boundary is a two-line callout.
 import { MODULES, QA, RISK, TECHNOLOGY } from './data';
-import { CROPS, type Crop } from '../../data/crops';
 
-/* Per module: the stage image (full screen or a readable panel) and its close-up. */
-const STAGE: { img: { src: string; srcset: string; w: number; h: number }; loupe?: Crop; lw?: string; crop: Crop }[] = MODULES.map((m, i) => {
-  const full = (sh: typeof m.shot) => ({
-    src: sh.src2000 ?? sh.src,
-    srcset: `${sh.src800} 800w, ${sh.src} 1600w${sh.src2000 ? `, ${sh.src2000} 2000w` : ''}`,
-    w: sh.w,
-    h: sh.h
-  });
-  switch (i) {
-    case 0:
-      return { img: full(m.shot), loupe: CROPS.wosOverview234, lw: '30%', crop: CROPS.wosOverview234 };
-    case 1:
-      return { img: full(m.shot), loupe: CROPS.wosMap88, lw: '40%', crop: CROPS.wosMap88 };
-    case 2:
-      return { img: full(m.shot), loupe: CROPS.wosDesigner60, lw: '46%', crop: CROPS.wosDesigner60 };
-    case 3:
-      return { img: { src: CROPS.wosImpl.src, srcset: CROPS.wosImpl.srcset, w: CROPS.wosImpl.w, h: CROPS.wosImpl.h }, crop: CROPS.wosImpl };
-    default:
-      return { img: full(m.shot), loupe: CROPS.wosImpactKpi, lw: '46%', crop: CROPS.wosImpactKpi };
-  }
-});
+const MAT = ['var(--m-evergreen)', 'var(--m-navy)', 'var(--m-loam)', 'var(--m-evergreen)', 'var(--m-navy)'];
 const score = MODULES.find((m) => m.formula)!;
 const design = MODULES.find((m) => m.patterns)!;
 const impl = MODULES.find((m) => m.phases)!;
@@ -39,78 +18,42 @@ const impl = MODULES.find((m) => m.phases)!;
     <div class="inset mods-hd">
       <h2 id="mods-h" class="t-display" data-rise>Five modules.</h2>
       <p class="t-lede mods-lede">Each module hands its output to the next. Risk controls run through all five.</p>
+      <p class="mods-note">Screens from the working prototype. The company in them is fictional and every number is illustrative.</p>
     </div>
 
-    <div class="ms">
-      <ol class="ms-chs">
-        {
-          MODULES.map((m, i) => (
-            <li class:list={['ch', { on: i === 0 }]} id={`module-${i + 1}`} data-ch={i}>
-              <span class="ch-n tnum" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
-              <h3 class="ch-h">{m.name}</h3>
-              <p class="ch-l">{m.line}</p>
-              <figure class="ch-shot">
+    <ol class="deck" data-deck>
+      {
+        MODULES.map((m, i) => (
+          <li class="card" id={`module-${i + 1}`} style={`--i:${i};--mat:${MAT[i]}`} data-card>
+            <div class="card-hd">
+              <h3 class="card-h">
+                <span class="card-n tnum" aria-hidden="true">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                {m.name}
+              </h3>
+              <p class="card-l">{m.line}</p>
+            </div>
+            <figure class="card-scr">
+              <picture>
+                {m.shot.m && <source media="(max-width: 999px)" srcset={`${m.shot.m.src} 764w`} sizes="(max-width: 760px) 92vw, 420px" width={m.shot.m.w} height={m.shot.m.h} />}
                 <img
-                  class="scr-img scr-dark"
-                  src={STAGE[i].crop.src}
-                  srcset={STAGE[i].crop.srcset}
-                  sizes="92vw"
-                  width={STAGE[i].crop.w}
-                  height={STAGE[i].crop.h}
-                  alt={STAGE[i].crop.alt}
+                  class="scr-dark"
+                  src={m.shot.src2x}
+                  srcset={`${m.shot.src} ${m.shot.w}w, ${m.shot.src2x} ${m.shot.w * 2}w`}
+                  sizes={`(min-width: 1400px) ${Math.round(m.shot.w * 1.25)}px, ${m.shot.w}px`}
+                  width={m.shot.w}
+                  height={m.shot.h}
+                  alt={m.shot.alt}
                   loading="lazy"
                   decoding="async"
                 />
-                <figcaption>{m.shot.caption}</figcaption>
-              </figure>
-            </li>
-          ))
-        }
-      </ol>
-
-      <div class="ms-stage" aria-hidden="true">
-        <div class="ms-sticky">
-          <div class="plate">
-            <div class="stack">
-              {
-                STAGE.map((s, i) => (
-                  <div class:list={['stk', { on: i === 0 }]} data-shot={i}>
-                    <img
-                      class="scr-img scr-dark"
-                      src={s.img.src}
-                      srcset={s.img.srcset}
-                      sizes="(max-width: 1440px) 74vw, 1080px"
-                      width={s.img.w}
-                      height={s.img.h}
-                      alt=""
-                      loading={i === 0 ? undefined : 'lazy'}
-                      decoding="async"
-                    />
-                    {s.loupe && (
-                      <img
-                        class="loupe scr-img scr-dark"
-                        src={s.loupe.src}
-                        srcset={s.loupe.srcset}
-                        sizes="480px"
-                        width={s.loupe.w}
-                        height={s.loupe.h}
-                        alt=""
-                        loading={i === 0 ? undefined : 'lazy'}
-                        decoding="async"
-                        style={`--lw:${s.lw}`}
-                      />
-                    )}
-                  </div>
-                ))
-              }
-            </div>
-          </div>
-          <div class="caps">
-            {MODULES.map((m, i) => <p class:list={{ on: i === 0 }} data-cap={i}>{m.shot.caption}</p>)}
-          </div>
-        </div>
-      </div>
-    </div>
+              </picture>
+            </figure>
+          </li>
+        ))
+      }
+    </ol>
 
     <div class="inset">
       <div class="more">
@@ -185,170 +128,215 @@ const impl = MODULES.find((m) => m.phases)!;
         </details>
       </div>
 
-      <p class="end" id="end">
-        <span class="end-h">Workflow OS decides what to automate and how.</span>
-        The automations run in the client’s existing platforms or in INNOVA products such as <a href="/projects/aicrmius">AICRMIUS</a>, so the plan stays independent of any single vendor, including us.
+
+      <aside class="end" id="end" aria-label="Where Workflow OS ends">
+        <p><strong>Workflow OS decides what to automate and how.</strong> The automations run in the client’s existing platforms or in INNOVA products such as <a href="/projects/aicrmius">AICRMIUS</a>, so the plan stays independent of any single vendor, including us.</p>
         <a class="lnk end-k" href="/ai-transformation">Our AI transformation method <span class="ar" aria-hidden="true">→</span></a>
-      </p>
+      </aside>
     </div>
   </div>
 </section>
 
 <script>
-  // The module crossing the middle of the screen picks the screen and caption. Instant swap.
-  const chs = document.querySelectorAll<HTMLElement>('[data-ch]');
-  const groups = ['[data-shot]', '[data-cap]'].map((q) => document.querySelectorAll<HTMLElement>(q));
-  const set = (i: number) => {
-    groups.forEach((g) => g.forEach((el, j) => el.classList.toggle('on', j === i)));
-    chs.forEach((c, j) => c.classList.toggle('on', j === i));
-  };
-  let raf = 0;
-  let cur = -1;
-  const pick = () => {
-    raf = 0;
-    const mid = window.innerHeight * 0.55;
-    let i = 0;
-    chs.forEach((c, j) => {
-      if (c.getBoundingClientRect().top < mid) i = j;
-    });
-    if (i !== cur) set((cur = i));
-  };
-  if (chs.length) {
-    window.addEventListener('scroll', () => (raf ||= requestAnimationFrame(pick)), { passive: true });
-    window.addEventListener('resize', () => (raf ||= requestAnimationFrame(pick)));
-    pick();
+  // The card underneath recedes while the next one slides over it: --p 0→1 drives scale + overlay.
+  // Runs only where the deck is sticky (same media query as the CSS) and motion is allowed.
+  const deck = document.querySelector<HTMLElement>('[data-deck]');
+  const mq = window.matchMedia('(min-width: 1000px) and (min-height: 700px) and (prefers-reduced-motion: no-preference)');
+  if (deck) {
+    const cards = Array.from(deck.querySelectorAll<HTMLElement>('[data-card]'));
+    const scrs = Array.from(deck.querySelectorAll<HTMLElement>('.card-scr'));
+    let raf = 0;
+    const tick = () => {
+      raf = 0;
+      if (!mq.matches) {
+        cards.forEach((c) => c.style.removeProperty('--p'));
+        scrs.forEach((f) => {
+          f.classList.remove('is-cut');
+          f.style.removeProperty('max-width');
+        });
+        return;
+      }
+      const vh = window.innerHeight;
+      // Fit each screen to the card height: as wide as the card allows, never below its natural
+      // size (the UI text stays >= 11.5 css px); a crop that still does not fit is cut and faded.
+      scrs.forEach((f) => {
+        const img = f.querySelector('img');
+        const card = f.parentElement;
+        if (!img || !card) return;
+        const w = Number(img.getAttribute('width')) || 0;
+        const h = Number(img.getAttribute('height')) || 1;
+        const cs = getComputedStyle(card);
+        const hd = card.firstElementChild as HTMLElement | null;
+        const avail = card.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - (hd ? hd.offsetHeight : 0) - parseFloat(cs.rowGap || '0');
+        const full = card.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+        const fit = Math.max(w, Math.min(full, (avail * w) / h, w * 1.25));
+        f.style.maxWidth = `${Math.floor(fit)}px`;
+        f.classList.toggle('is-cut', (fit * h) / w > avail + 1);
+      });
+      for (let i = 0; i < cards.length - 1; i++) {
+        const next = cards[i + 1];
+        const stick = parseFloat(getComputedStyle(next).top) || 0;
+        const t = next.getBoundingClientRect().top;
+        const p = Math.min(1, Math.max(0, (vh - t) / (vh - stick)));
+        cards[i].style.setProperty('--p', p.toFixed(3));
+      }
+    };
+    const req = () => {
+      if (!raf) raf = requestAnimationFrame(tick);
+    };
+    window.addEventListener('scroll', req, { passive: true });
+    window.addEventListener('resize', req);
+    deck.querySelectorAll('img').forEach((im) => im.addEventListener('load', req));
+    mq.addEventListener('change', req);
+    tick();
   }
 </script>
 
 <style>
   .mods {
-    padding-block: calc(var(--sec) * 0.8) calc(var(--sec) * 0.4);
+    padding-block: calc(var(--sec) * 0.8) calc(var(--sec) * 0.5);
   }
   .mods-hd {
-    margin-bottom: clamp(32px, 4vw, 64px);
+    margin-bottom: clamp(32px, 4vw, 56px);
   }
   .mods-lede {
     margin-top: 18px;
     max-width: 40ch;
+    color: var(--print);
+  }
+  .mods-note {
+    margin-top: 12px;
+    max-width: 52ch;
+    font-size: 17px;
+    line-height: 1.5;
     color: var(--ash);
   }
 
-  .ms {
-    display: grid;
-    grid-template-columns: minmax(240px, 300px) minmax(0, 1fr);
-    column-gap: clamp(20px, 2.4vw, 40px);
-  }
-  .ms-chs {
+  /* ── the deck ─────────────────────────────────────────────── */
+  .deck {
     list-style: none;
     margin: 0;
-    padding: 0 0 0 var(--in);
+    padding: 0;
+    display: grid;
+    gap: 20px;
   }
-  .ch {
-    min-height: 62vh;
-    padding: 4px 0 40px;
-    color: var(--ash);
-    transition: color var(--t-micro) var(--e-out);
-  }
-  .ch:last-child {
-    min-height: 0;
-  }
-  .ch-n {
-    display: block;
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--ash);
-  }
-  .ch.on {
+  .card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: clamp(18px, 2vw, 28px);
+    border-radius: var(--r);
+    background: var(--mat);
+    box-shadow: 0 30px 60px -30px rgb(0 0 0 / 0.7);
     color: var(--print);
   }
-  .ch.on .ch-n {
-    color: var(--flare);
-  }
-  .ch-h {
-    margin-top: 8px;
-    font-size: clamp(26px, 2.2vw, 36px);
+  .card-h {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    font-size: clamp(26px, 2.5vw, 40px);
     font-weight: 500;
     letter-spacing: -0.03em;
     line-height: 1.05;
   }
-  .ch-l {
-    margin-top: 12px;
+  .card-n {
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: 0;
+    color: var(--flare-hi); /* 4.6:1 on evergreen, the darkest pairing */
+  }
+  .card-l {
+    margin-top: 10px;
+    max-width: 74ch;
     font-size: 18px;
     line-height: 1.5;
-    max-width: 30ch;
+    color: var(--print);
   }
-  .ch-shot {
-    display: none;
+  .card-scr {
+    position: relative;
+    margin: 0;
+    min-height: 0;
+    border-radius: var(--r);
+    overflow: hidden;
+    background: var(--ui-dark);
+    box-shadow: 0 0 0 1px var(--rule-film);
+  }
+  .card-scr img {
+    display: block;
+    width: 100%;
+    height: auto;
   }
 
-  .ms-stage {
-    min-width: 0;
-  }
-  .ms-sticky {
-    position: sticky;
-    top: calc(var(--hdr) + 20px);
-  }
-  .plate {
-    padding: clamp(14px, 1.6vw, 24px) clamp(14px, 1.6vw, 24px) clamp(40px, 4vw, 64px);
-    border-radius: var(--r);
-    background: radial-gradient(120% 100% at 20% 0%, var(--reel-2) 0%, var(--reel) 60%);
-    box-shadow: inset 0 0 0 1px var(--rule-film);
-  }
-  .stack {
-    position: relative;
-    aspect-ratio: 16 / 10;
-  }
-  .stk {
-    position: absolute;
-    inset: 0;
-    visibility: hidden;
-  }
-  .stk.on {
-    visibility: visible;
-  }
-  .stk > img:first-child {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: 0 0;
-  }
-  .loupe {
-    position: absolute;
-    right: -2.4%;
-    bottom: -8%;
-    width: var(--lw, 40%);
-    box-shadow:
-      0 40px 80px -24px rgb(0 0 0 / 0.85),
-      0 0 0 1px rgb(238 234 226 / 0.28);
-  }
-  @media (prefers-reduced-motion: no-preference) {
-    .stk.on .loupe {
-      animation: loupe 0.42s var(--e-out) both;
+  @media (min-width: 1000px) and (min-height: 700px) {
+    .deck {
+      gap: 0;
+      padding-bottom: 8vh;
+    }
+    .card {
+      position: sticky;
+      top: calc(var(--hdr) + 12px + var(--i) * 12px);
+      height: min(calc(100svh - var(--hdr) - 24px - 48px), 860px);
+      transform-origin: 50% 0;
+    }
+    .card + .card {
+      margin-top: 22vh;
+    }
+    /* nothing slides over the last card, so it hugs its (short) impact crop instead of leaving an empty band */
+    .card:last-child {
+      height: auto;
+    }
+    /* the screen keeps its natural height; a crop taller than the card is cut and faded (.is-cut) */
+    .card-scr {
+      flex: 0 1 auto;
+      width: 100%;
+    }
+    .card-scr.is-cut {
+      mask-image: linear-gradient(to bottom, black calc(100% - 44px), transparent);
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .card {
+        transform: scale(calc(1 - var(--p, 0) * 0.05));
+      }
+      .card::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        background: var(--film);
+        opacity: calc(var(--p, 0) * 0.6);
+        pointer-events: none;
+      }
     }
   }
-  @keyframes loupe {
-    from {
-      transform: translate(10px, 14px) scale(0.94);
+
+  /* tablets: the text beside the phone-layout crop */
+  @media (min-width: 761px) and (max-width: 999px) {
+    .card {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 420px);
+      align-items: start;
+      gap: 28px;
     }
-    to {
-      transform: none;
+  }
+  @media (max-width: 760px) {
+    .card {
+      gap: 16px;
+      padding: 18px 14px 0;
+      overflow: hidden;
     }
-  }
-  .caps {
-    position: relative;
-    margin-top: 16px;
-    min-height: 3em;
-  }
-  .caps p {
-    position: absolute;
-    inset: 0 auto auto 0;
-    font-size: 15px;
-    line-height: 1.45;
-    color: var(--ash);
-    visibility: hidden;
-  }
-  .caps p.on {
-    visibility: visible;
+    /* the phone crop bleeds to the card edges so its UI text keeps ~0.96 of its size */
+    .card-scr {
+      margin-inline: -14px;
+      border-radius: 0;
+      box-shadow: none;
+    }
+    .card-h {
+      font-size: 28px;
+    }
+    .card-l {
+      font-size: 17px;
+    }
   }
 
   /* collapsed detail */
@@ -438,60 +426,38 @@ const impl = MODULES.find((m) => m.phases)!;
 
   /* boundary: a two-line callout */
   .end {
-    margin-top: clamp(48px, 5vw, 80px);
-    max-width: 62ch;
-    font-size: clamp(19px, 1.5vw, 23px);
-    line-height: 1.45;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+    margin-top: clamp(40px, 4vw, 64px);
+    padding: clamp(20px, 2.2vw, 32px);
+    border-radius: var(--r);
+    background: var(--reel);
+  }
+  .end p {
+    max-width: 96ch;
+    font-size: clamp(18px, 1.35vw, 21px);
+    line-height: 1.5;
     color: var(--ash);
   }
-  .end-h {
+  .end strong {
     color: var(--print);
     font-weight: 500;
   }
-  .end a:not(.lnk) {
+  .end p a {
     color: var(--print);
     text-decoration: underline;
     text-decoration-thickness: 1px;
     text-underline-offset: 5px;
   }
   .end-k {
-    display: inline-flex;
-    margin-left: 6px;
     color: var(--print);
     font-size: 18px;
+    white-space: nowrap;
   }
 
   @media (max-width: 900px) {
-    .ms {
-      display: block;
-    }
-    .ms-chs {
-      padding: 0 var(--in);
-    }
-    .ms-stage {
-      display: none;
-    }
-    .ch,
-    .ch.on {
-      min-height: 0;
-      color: var(--print);
-      padding: 0 0 44px;
-    }
-    .ch .ch-n {
-      color: var(--flare);
-    }
-    .ch-shot {
-      display: block;
-      margin: 18px 0 0;
-    }
-    .ch-shot img {
-      width: 100%;
-    }
-    .ch-shot figcaption {
-      margin-top: 10px;
-      font-size: 15px;
-      color: var(--ash);
-    }
     .dt summary {
       grid-template-columns: 1fr 44px;
     }
@@ -506,10 +472,6 @@ const impl = MODULES.find((m) => m.phases)!;
     }
     .dt-b {
       grid-template-columns: 1fr;
-    }
-    .end-k {
-      display: flex;
-      margin: 14px 0 0;
     }
   }
 </style>

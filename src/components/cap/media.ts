@@ -15,33 +15,35 @@ export interface Shot {
 }
 
 export const SHOT = {
+  /* Workflow OS UI v2 screens (public/proof/wos2, captured 8 October 2026 at deviceScaleFactor 2 from the
+     demo build). Fictional demo company Northstar Professional Services; alt texts follow src/components/wos/data.ts. */
   wosOverview: {
-    src: '/proof/workflow-os-overview-1440-1600.webp',
-    src800: '/proof/workflow-os-overview-1440-800.webp',
-    w: 1600,
-    h: 1000,
-    alt: 'Workflow OS overview of a fictional demo company: 30 people, 5 departments, 9 core systems and 15 mapped workflows, with the top automation opportunities (illustrative demo data).'
+    src: '/proof/wos2/landscape@2x.webp',
+    src800: '/proof/wos2/landscape.webp',
+    w: 2224,
+    h: 1154,
+    alt: 'Workflow OS overview for a fictional demo company: a process landscape where each tile is sized by staff hours a month and coloured by priority, with Client Onboarding leading at 88 (illustrative demo data).'
   },
   wosMap: {
-    src: '/proof/workflow-os-opportunity-map-1440-1600.webp',
-    src800: '/proof/workflow-os-opportunity-map-1440-800.webp',
-    w: 1600,
-    h: 1000,
-    alt: 'Workflow OS Opportunity Map: 15 processes plotted by business value and feasibility, Client Onboarding ranked first at 88 (illustrative demo data).'
+    src: '/proof/wos2/score@2x.webp',
+    src800: '/proof/wos2/score.webp',
+    w: 2344,
+    h: 1026,
+    alt: 'Workflow OS priority score for Client Onboarding: 88, Priority 1, built up from value, feasibility and strategic fit minus a risk penalty (illustrative demo data).'
   },
   wosDesigner: {
-    src: '/proof/workflow-os-designer-1440-1600.webp',
-    src800: '/proof/workflow-os-designer-1440-800.webp',
-    w: 1600,
-    h: 1000,
-    alt: 'Workflow OS designer: the recommended architecture for Client Onboarding, current and proposed state side by side, with its human approval gate (illustrative demo data).'
+    src: '/proof/wos2/route@2x.webp',
+    src800: '/proof/wos2/route.webp',
+    w: 2344,
+    h: 1066,
+    alt: 'Workflow OS Automation Designer for Client Onboarding: a 12-step automation route of software, AI agents and four human approval gates, with the KYC decision kept under human approval (illustrative demo data).'
   },
   wosImpact: {
-    src: '/proof/workflow-os-impact-1440-1600.webp',
-    src800: '/proof/workflow-os-impact-1440-800.webp',
-    w: 1600,
-    h: 1000,
-    alt: 'Workflow OS impact view: projected staff hours, cost and payback for one automation, each figure marked as calculated, estimated or projected (illustrative demo data).'
+    src: '/proof/wos2/impact@2x.webp',
+    src800: '/proof/wos2/impact.webp',
+    w: 2344,
+    h: 796,
+    alt: 'Workflow OS business case for Client Onboarding: staff hours a month before and after on one scale, 100 hours today and 40 projected, and an estimated labour value of $43,200 a year (illustrative demo data).'
   },
   uafestApps: {
     src: '/proof/uafest-applications-1440-1600.webp',
@@ -103,7 +105,7 @@ export const SHOT = {
 
 /** Small proof thumbnails by project slug (800px variants). */
 export const THUMB: Record<string, { src: string; w: number; h: number }> = {
-  'workflow-os': { src: '/proof/workflow-os-overview-1440-800.webp', w: 800, h: 500 },
+  'workflow-os': { src: '/proof/wos2/score-960.webp', w: 960, h: 309 },
   uafest: { src: '/proof/uafest-applications-1440-800.webp', w: 800, h: 500 },
   foundwall: { src: '/proof/foundwall-home-1440-800.webp', w: 800, h: 500 },
   babakokum: { src: '/proof/babakokum-rules-tablet-800.webp', w: 800, h: 665 },
@@ -122,7 +124,7 @@ export interface World {
 
 /** One picture per capability: a world (photo or material) and at most one screen. */
 export const CAP_ART: Record<CapKey, { world?: World; material?: 'bone' | 'evergreen' | 'navy' | 'loam'; screen?: Shot & { kind: 'desktop' | 'phone' }; credit?: string }> = {
-  ai: { material: 'bone', screen: { ...SHOT.wosMap, kind: 'desktop' } },
+  ai: { material: 'bone', screen: { ...SHOT.wosDesigner, kind: 'desktop' } },
   software: { material: 'evergreen', screen: { ...SHOT.foundwallPhone, kind: 'phone' } },
   rd: { world: { src: '/img/field-robot.webp', src800: '/img/field-robot-800.webp', w800: 800, w: 1376, h: 768, pos: '58% 60%' }, screen: { ...SHOT.openfieldPhone, kind: 'phone' } },
   partnerships: { world: { src: '/img/uafest-dance.webp', src800: '/img/uafest-dance-800.webp', w800: 800, w: 1280, h: 818, pos: '34% 50%' } }

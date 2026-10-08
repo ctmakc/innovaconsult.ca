@@ -2,56 +2,78 @@
 // Product facts are traceable to /data/projects/innova-workflow-os (README.md, docs/SCORING.md,
 // src/domain/types.ts, src/domain/patterns.ts; vitest run 2026-10-01: 226 passed) and to the
 // memory note innova-workflow-os.md (invite-only deployment, 1 October 2026).
-// Alt text and captions: .proof-staging/MANIFEST.json (captured 2026-10-01 from commit 94b14f3).
+// Screens: public/proof/wos2/ (UI v2, captured 2026-10-08 from the demo build; alt text describes what each crop shows).
 
 export interface Shot {
+  /** 1x desktop crop (natural CSS size) */
   src: string;
-  src800: string;
-  src2000?: string;
+  /** 2x desktop crop */
+  src2x: string;
+  /** CSS px of the desktop crop (the 2x file is twice this) */
   w: number;
   h: number;
+  /** 2x crop of the same panel from the app's own 390px layout (764 px wide, shown on phones) */
+  m?: { src: string; w: number; h: number };
   alt: string;
-  caption: string;
-  /** Optional zoom into one panel of the screenshot: scale + transform-origin (in % of the image). */
-  zoom?: { s: number; ox: string; oy: string };
 }
 
-const shot = (name: string) => ({
-  src: `/proof/workflow-os-${name}-1440-1600.webp`,
-  src800: `/proof/workflow-os-${name}-1440-800.webp`,
-  /** 2000w variant for the big sticky stage (retina at ~1000 css px). */
-  src2000: `/proof/workflow-os-${name}-1440-2000.webp`,
-  w: 1600,
-  h: 1000
+/* Workflow OS UI v2 (branch redesign/ui-v2), captured 8 October 2026 from the local demo build
+   at 1440 (and 390 for phones) with deviceScaleFactor 2: public/proof/wos2/. Every number in
+   these screens is the seeded demo company Northstar Professional Services (fictional). */
+const W2 = '/proof/wos2/';
+const shot = (name: string, w: number, h: number, mh: number | null, alt: string): Shot => ({
+  src: `${W2}${name}.webp`,
+  src2x: `${W2}${name}@2x.webp`,
+  w,
+  h,
+  m: mh ? { src: `${W2}m-${name}@2x.webp`, w: 382, h: mh } : undefined,
+  alt
 });
 
 export const SHOTS = {
-  overview: {
-    ...shot('overview'),
-    alt: 'Workflow OS overview for the demo company Northstar Professional Services: 30 people, 5 departments, 9 systems, 15 mapped workflows and the top-ranked automation opportunities.',
-    caption: 'Company overview with ranked opportunities (illustrative demo data).'
-  },
-  map: {
-    ...shot('opportunity-map'),
-    alt: 'Workflow OS Opportunity Map: 15 processes plotted by business value and implementation feasibility, with Client Onboarding ranked first at 88 and its score broken into value, feasibility, strategic fit and risk.',
-    caption: 'Opportunity Map for the demo company Northstar Professional Services (illustrative demo data). Every score shows its parts.'
-  },
-  designer: {
-    ...shot('designer'),
-    alt: 'Workflow OS Automation Designer for Client Onboarding: effort per case from 100 to 40 minutes, current and proposed process flows with human, system and AI lanes.',
-    caption: 'Automation Designer: current state against proposed state, with the human approval gate kept. Illustrative demo data.'
-  },
-  impl: {
-    ...shot('overview'),
-    alt: 'Detail of the Workflow OS overview: the current implementation of Client Onboarding, with 5 of 20 tasks done, the prototype phase dates, the next task and a projected go-live date.',
-    caption: 'Current implementation panel on the overview: tasks, phase and projected go-live (illustrative demo data).',
-    zoom: { s: 2.75, ox: '98.6%', oy: '71.5%' }
-  },
-  impact: {
-    ...shot('impact'),
-    alt: 'Workflow OS business case for Client Onboarding: projected staff hours, payback and Year-1 ROI with every figure labelled calculated, assumption, estimated or projected.',
-    caption: 'Business case with each number tagged by origin (illustrative demo data).'
-  }
+  /** The Overview appears once on the whole site: the /workflow-os hero. */
+  landscape: shot(
+    'landscape',
+    1112,
+    577,
+    482,
+    'Workflow OS overview for the demo company Northstar Professional Services: 30 people, 5 departments, 11 core systems and 17 mapped workflows, drawn as a process landscape where each tile is sized by staff hours a month and coloured by priority. Client Onboarding leads at 88.'
+  ),
+  discovery: shot(
+    'discovery',
+    1172,
+    550,
+    442,
+    'Workflow OS Discovery: a written description of a 30-person accounting and legal firm pasted into “Describe how the company operates”, three sample companies to start from, and the demo company profile with 5 departments, 12 roles and 11 systems.'
+  ),
+  score: shot(
+    'score',
+    1172,
+    513,
+    553,
+    'Workflow OS priority score for Client Onboarding: 88, Priority 1. A waterfall chart adds value 47.0, feasibility 28.2 and strategic fit 20.0 to a base of 95.2, then subtracts a 7.1 risk penalty.'
+  ),
+  route: shot(
+    'route',
+    1172,
+    533,
+    340,
+    'Workflow OS Automation Designer for Client Onboarding: hybrid AI-assisted automation, human effort per case from 100 to 40 minutes, and a 12-step automation route of software, AI agents and four human approval gates, with the KYC decision kept under human approval.'
+  ),
+  plan: shot(
+    'plan',
+    1164,
+    570,
+    537,
+    'Workflow OS implementation plan for Client Onboarding: five phases from Validate to Optimize with tasks done and dates, and a task board with owners, effort in days and dependencies.'
+  ),
+  impact: shot(
+    'impact',
+    1172,
+    398,
+    514,
+    'Workflow OS business case for Client Onboarding: staff hours a month before and after on one scale, 100 hours today and 40 hours projected, an estimated labour value of $43,200 a year, payback in 4.5 months and a projected Year-1 ROI of 129.4%.'
+  )
 } satisfies Record<string, Shot>;
 
 export const TECHNOLOGY = [
@@ -63,51 +85,36 @@ export const TECHNOLOGY = [
   '226 automated tests'
 ];
 
-/** Each answer shows the matching panel of a real screenshot. crop: box in source px (1600×1000), height = w / 1.6. */
-export interface Crop {
-  shot: 'overview' | 'map' | 'designer' | 'impact';
-  x: number;
-  y: number;
-  w: number;
-  label: string;
-}
-
-export const QA: { q: string; a: string; m: number; crop: Crop }[] = [
+export const QA: { q: string; a: string; m: number }[] = [
   {
     q: 'What exactly should be automated?',
     a: 'Module 2 scores every process on 14 factors in three groups (value, feasibility, strategic fit), subtracts a risk penalty, and shows the reason behind each number.',
-    m: 2,
-    crop: { shot: 'map', x: 1050, y: 340, w: 524, label: 'Priority score 88 for Client Onboarding, broken into value, feasibility, strategic fit and risk penalty, with the reasons listed below it.' }
+    m: 2
   },
   {
     q: 'Which process comes first?',
     a: 'Processes are ranked by priority score, and the plan starts with the top two or three.',
-    m: 2,
-    crop: { shot: 'overview', x: 286, y: 482, w: 736, label: 'Top opportunities table: five processes ranked by priority score, Client Onboarding first at 88.' }
+    m: 2
   },
   {
     q: 'Where is AI actually useful?',
     a: 'Where drafting, classifying, summarizing or a bounded task with tools saves real time. Stable, rule-based work goes to deterministic software.',
-    m: 3,
-    crop: { shot: 'designer', x: 890, y: 560, w: 700, label: 'Proposed state in human, system and AI lanes: an automation trigger passes the work to a document request agent.' }
+    m: 3
   },
   {
     q: 'Does this need an agent, or ordinary automation?',
     a: 'Module 3 recommends one of six patterns, from traditional automation to supervised agents, with one of five levels of human control.',
-    m: 3,
-    crop: { shot: 'designer', x: 284, y: 150, w: 820, label: 'Recommended pattern for Client Onboarding: Hybrid AI-Assisted Automation, with the KYC decision kept under human approval.' }
+    m: 3
   },
   {
     q: 'What will implementation cost?',
     a: 'Module 4 turns the design into tasks, owners, integrations and milestones, which is the basis of the estimate.',
-    m: 4,
-    crop: { shot: 'overview', x: 1048, y: 483, w: 526, label: 'Current implementation panel: 5 of 20 tasks done, prototype phase dates, next task and projected go-live.' }
+    m: 4
   },
   {
     q: 'Did the automation produce measurable value?',
     a: 'Module 5 projects the return from stated assumptions, then records actual results against the baseline after go-live.',
-    m: 5,
-    crop: { shot: 'impact', x: 286, y: 456, w: 840, label: 'Business case figures with origin tags and the projected cumulative net benefit chart.' }
+    m: 5
   }
 ];
 
@@ -134,14 +141,14 @@ export const MODULES: Module[] = [
     name: 'Process discovery',
     stations: ['Company', 'Processes'],
     line: 'Capture departments, roles, systems and processes by hand, or paste a written company description and review the draft process model the AI proposes.',
-    shot: SHOTS.overview,
+    shot: SHOTS.discovery,
     fields: ['Company', 'Departments', 'Roles', 'Systems', 'Processes', 'Process steps', 'Pain points', 'Volume and minutes per case']
   },
   {
     name: 'Automation opportunity map',
     stations: ['Score', 'Select'],
     line: 'Score every process on 14 factors in three groups (value, feasibility, strategic fit), subtract a risk penalty, and show the reason and evidence source behind each number.',
-    shot: SHOTS.map,
+    shot: SHOTS.score,
     formula: ['Value × 0.50', '+ Feasibility × 0.30', '+ Fit × 0.20', '− Risk penalty'],
     groups: [
       { label: 'Value', items: ['Time consumed', 'Volume', 'Rework', 'Waiting time', 'Client and revenue impact'] },
@@ -154,7 +161,7 @@ export const MODULES: Module[] = [
     name: 'Automation designer',
     stations: ['Design'],
     line: 'Recommend one of six patterns for the selected process, draw its current and proposed flow, and set a level of human control for every component.',
-    shot: SHOTS.designer,
+    shot: SHOTS.route,
     patterns: [
       'Traditional workflow automation',
       'AI assistant with human execution',
@@ -169,7 +176,7 @@ export const MODULES: Module[] = [
     name: 'Implementation workspace',
     stations: ['Implement'],
     line: 'Turn the design into a delivery plan in five phases, with an owner, dependencies, effort, a target date and acceptance criteria for every task.',
-    shot: SHOTS.impl,
+    shot: SHOTS.plan,
     phases: ['Validate', 'Prototype', 'Pilot', 'Production', 'Optimize'],
     fields: ['Tasks', 'Owners', 'Dependencies', 'Systems touched', 'Milestones', 'Effort in days', 'Target dates', 'Acceptance criteria']
   },

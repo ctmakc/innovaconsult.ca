@@ -14,7 +14,8 @@ A cinematic deep-tech look in the Anduril / Helsing register. The ground is a da
   - FoundWall: an evergreen material.
 - On scroll, the world and the screens move at different depths.
 - The risk we take on purpose: software screenshots are treated as film stills.
-- **Home hero = one full-bleed photograph** (round 3, 08.10.2026; replaces the round-2 product reel). The UAFest Unity Ride aerial fills the frame. Nothing floats on it except the giant statement, the lede and two buttons. The proof row at the bottom is text only: the three live products, each with one hard number, linked to its project. The credit ties the photo to the software ("The festival runs on our operations platform"). The H1 is final at first paint; only the photo drifts (Ken Burns, 14 s).
+- **Home hero = one full-bleed product film** (round 4, 08.10.2026; replaces the round-3 Unity Ride photo). `HeroFilm.astro` plays a 10.6 s dark loop recorded from the redesigned Workflow OS (treemap → cursor on Client Onboarding → its 88 score waterfall), product right of ~44%, the white H1 left. Poster (frame 0) is the first paint and LCP; the video loads after window load, never with reduced motion or Save-Data, pauses off-screen, and has a visible Pause/Play control. In the waterfall half only the chart is shown (cut-off sentences and non-clickable app buttons are painted out). Bottom strip: the federal proof `<dl>` (corporation · NCAGE · D-U-N-S · Ottawa · Verify ↗). Media lives in `public/media/`.
+- **Home order** (round 4): hero film → In use today (the only product showcase; UAFest shows the certificate register crop) → one "Four more in the lab" sentence → "What a funded project with INNOVA looks like" (`home/FundedProject.astro`: four parts worded as on /innovation, OpenField example) → Workflow OS (stacked head, three tabbed 2x crops of the new UI) → closing band.
 - **Readable product imagery** (round 3): a product shot is shown as ONE readable crop cut from the 2x master (`public/proof/crop/`, `src/data/crops.ts`, `scripts/make-crops.py`), at ≥ 60% of the card width, never a whole app squeezed to 300px. Phone frames that render under ~150px are not used in cards.
 - Short pages sell fast: home ≈ 5.4 screens at 1440 (hero → In use today → one "In the lab" line → Workflow OS → closing band that carries the founder line).
 - Rules kept from round 1:
@@ -55,7 +56,7 @@ Teal appears only inside the logo mark. Colours come from tokens only, with no r
 - **Closing band** (`CtaBlock`, every page, round 3): a full-width photo frame (Rideau Canal at night by default; `photo="festival"` on pages whose hero already uses the Rideau photo) with the line at 48–112px, ONE large flare button "Write to us" (68px) that opens the contact dialog, and the email as plain text under it. The CC credit is printed on the photo. Pages pass `cta={{ title, lede, link }}` through BaseLayout; home uses "Founder-led since 2012. Start a conversation." No orange slab, no bordered box.
 - **Half frames** (`MediaFrame size="half"`, round 3): the picture sits in its own aspect box (default 16 / 10.6) and the caption sits BELOW it on solid reel, so a title never overlaps a screenshot. Full frames keep the caption bottom-left over a left scrim, with the screen placed right of 49%.
 - **Footer**: one row (mark, legal line with the corporation number, email, Privacy, MMIX credit on its plate) plus CC credits when a page uses Commons photos. The header carries the nav.
-- **Corporate record**: one verification line (`RecordIds`: corporation number · NCAGE · D-U-N-S · Verify ↗) on About only.
+- **Corporate record**: one verification line (`RecordIds`: corporation number · NCAGE · D-U-N-S · Verify ↗) on About; the home hero carries the same IDs as its proof strip (round 4).
 - **/projects**: H1 is the count ("Eight projects. Three live."), the status chips sit in one row under it (horizontal scroll on phones; each chip's title explains the status), status shows only as the tag on each card. Projects without screenshots sit in three compact solid "In the lab" tiles.
 - **/about**: the name and a one-statement bio side by side on film, then one full-width UAFest photo band with its caption, the founder statement on bone (statement, two sentences, one link), two project cards, one RecordIds line.
 - **/workflow-os** (round 3): hero with the Overview screen (the only place it appears in full). Then ONE sticky product stage on film: module names left (300px), a ~1050px dark plate right that swaps the screen per module, with a close-up of the one number that matters on its corner (88 score, $234,218, 60% effort removed, ROI tiles; module 4 shows the implementation panel itself). Phones show only the close-up per module. Factors, patterns, levels, phases, risk, technology and the data/AI note live in two collapsed `<details>`; the product boundary is a two-line callout.
@@ -104,6 +105,11 @@ Teal appears only inside the logo mark. Colours come from tokens only, with no r
 - vs innova-brandkit and the LinkedIn carousels (petrol / Unbounded / Red Hat / teal): differs on background, font, accent, signature and motion.
 - vs Workflow OS GRAPHITE (#0A0B0D / Instrument Sans / teal): differs on font, accent, signature and motion.
 - Host Grotesk is new to the ledger. The row was appended on 07.10.2026.
+
+## Gates (round 4 integration, 08.10.2026, local preview)
+- Lighthouse mobile perf / a11y / BP / SEO: home 99/100/100/100 (LCP 2.2 s, CLS 0), /workflow-os 100/100/100/100, /projects 93/100/100/100 (LCP 3.2 s), /about 99/100/100/100. Desktop: 100, 100, 99, 100 perf; a11y 100 on all four.
+- contrast.cjs OK on all 19 routes. sloplint 0 findings. 0 console errors. No horizontal scroll at 320, 390, 768 or 1440 on any route. Throttled cold load (Slow 4G, 4x CPU): H1, lede, CTAs and poster are painted at 1.2 s.
+- Old Workflow OS screenshots (`public/proof/workflow-os-*`) are no longer referenced; capability pages use `public/proof/wos2/`.
 
 ## Gates (round 3, 08.10.2026, local preview)
 - Lighthouse mobile perf / a11y: home 96/100 (LCP 2.7 s, CLS .014), /projects 94/100, /about 99/100, /workflow-os 99/100.

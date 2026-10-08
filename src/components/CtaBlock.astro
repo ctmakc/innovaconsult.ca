@@ -1,8 +1,10 @@
 ---
-// Closing band (round 3, one per page, last): a full-width photo frame with the line at 64–136px,
-// ONE large flare button that opens the contact dialog (falls back to /contact without JS) and the
-// email as plain text under it. Photo: Rideau Canal at night (Ottawa) by default; pages whose own
-// hero already uses that photo pass photo="festival". The CC credit is printed on the photo itself.
+// Closing band (round 4): ONE full-bleed atmospheric band per page, always the last thing in <main>,
+// right above the footer. Edge to edge (no gutter, no frame, no border): the photo fills the width,
+// the line sits bottom-left at 48–104px, ONE flare button opens the contact dialog (falls back to
+// /contact without JS), the email follows as plain text. Default photo: Rideau Canal at night (Ottawa);
+// pages whose own hero already uses that photo pass photo="festival". The CC credit is printed on the band.
+// Pages never add a second closing CTA box above it; a page with nothing to close passes footerCta={false}.
 import { SITE } from '../data/site';
 interface Props {
   title?: string;
@@ -23,7 +25,7 @@ const PH = {
     srcset: '/img/rideau-night-1200.webp 1200w, /img/rideau-night.webp 2400w',
     w: 2400,
     h: 1600,
-    pos: '62% 40%',
+    pos: '62% 46%',
     credit: 'Rideau Canal, Ottawa. Photo: Dylandamic0, CC BY-SA 3.0, via Wikimedia Commons'
   },
   festival: {
@@ -37,39 +39,46 @@ const PH = {
 }[photo];
 ---
 
-<section class="cta shell" aria-labelledby="cta-h">
-  <div class="cta-f frame" data-dolly-bg>
-    <div class="cta-ph" aria-hidden="true">
+<section class="cta" aria-labelledby="cta-h">
+  <div class="cta-ph">
+    <div class="cta-z" data-dolly-bg>
       <img src={PH.src} srcset={PH.srcset} sizes="100vw" alt="" width={PH.w} height={PH.h} loading="lazy" decoding="async" style={`object-position:${PH.pos}`} />
     </div>
-    <div class="cta-c">
-      <h2 id="cta-h" class="cta-h">{title}</h2>
-      <p class="cta-p">{lede}</p>
-      <a class="btn btn--flare cta-btn" href="/contact" data-open-contact>Write to us <span class="ar" aria-hidden="true">→</span></a>
-      <p class="cta-mail">
-        or email <a href={`mailto:${SITE.email}`}>{SITE.email}</a>
-        {link && (
-          <>
-            <span aria-hidden="true"> · </span>
-            <a href={link.href}>{link.label}</a>
-          </>
-        )}
-      </p>
-    </div>
     <p class="cta-cr">{PH.credit}</p>
+  </div>
+  <div class="cta-c shell">
+    <div class="inset cta-g">
+      <h2 id="cta-h" class="cta-h">{title}</h2>
+      <div class="cta-r">
+        <p class="cta-p">{lede}</p>
+        <a class="btn btn--flare cta-btn" href="/contact" data-open-contact>Write to us <span class="ar" aria-hidden="true">→</span></a>
+        <p class="cta-mail">
+          or email <a href={`mailto:${SITE.email}`}>{SITE.email}</a>
+          {
+            link && (
+              <>
+                <span aria-hidden="true"> · </span>
+                <a href={link.href}>{link.label}</a>
+              </>
+            )
+          }
+        </p>
+      </div>
+    </div>
   </div>
 </section>
 
 <style>
   .cta {
-    padding-top: calc(var(--sec) * 0.62);
-  }
-  .cta-f {
+    position: relative;
+    isolation: isolate;
     display: flex;
     align-items: flex-end;
-    min-height: clamp(560px, 82svh, 860px);
-    padding: clamp(28px, 4.4vw, 72px) var(--in) clamp(32px, 4.4vw, 72px);
+    min-height: clamp(480px, 64svh, 680px);
+    margin-top: calc(var(--sec) * 0.7);
+    padding-block: clamp(40px, 4.4vw, 72px) clamp(44px, 4.4vw, 72px);
     background: var(--reel);
+    overflow: hidden;
   }
   .cta-ph {
     position: absolute;
@@ -77,46 +86,63 @@ const PH = {
     z-index: -2;
     overflow: hidden;
   }
+  .cta-z {
+    position: absolute;
+    inset: 0;
+  }
   .cta-ph img {
     width: 100%;
     height: 100%;
     object-fit: cover;
   }
-  .cta-f::after {
+  /* the film fades into the photo at the top edge, so the band reads as a scene, never as a box */
+  .cta-z::after {
     content: '';
     position: absolute;
     inset: 0;
-    z-index: -1;
     background:
-      linear-gradient(90deg, rgb(13 12 11 / 0.78) 0%, rgb(13 12 11 / 0.42) 46%, rgb(13 12 11 / 0) 78%),
-      linear-gradient(0deg, rgb(13 12 11 / 0.85) 0%, rgb(13 12 11 / 0.2) 55%, rgb(13 12 11 / 0.1) 100%);
+      linear-gradient(180deg, var(--film) 0%, rgb(13 12 11 / 0) 22%),
+      linear-gradient(90deg, rgb(13 12 11 / 0.72) 0%, rgb(13 12 11 / 0.3) 52%, rgb(13 12 11 / 0) 80%),
+      linear-gradient(0deg, rgb(13 12 11 / 0.9) 0%, rgb(13 12 11 / 0.25) 48%, rgb(13 12 11 / 0) 70%);
   }
   .cta-c {
-    max-width: 980px;
+    width: 100%;
+  }
+  .cta-g {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--col-gap);
+    row-gap: 0;
+    align-items: end;
   }
   .cta-h {
-    font-size: clamp(48px, 6.6vw, 112px);
+    grid-column: 1 / span 8;
+    font-size: clamp(44px, 5.8vw, 96px);
     font-weight: 500;
     letter-spacing: -0.05em;
     line-height: 0.92;
-    max-width: 12ch;
+    max-width: 15ch;
     text-wrap: balance;
   }
+  .cta-r {
+    grid-column: 1 / span 6;
+  }
   .cta-p {
-    margin-top: clamp(20px, 2vw, 30px);
-    font-size: clamp(19px, 1.5vw, 23px);
+    margin-top: clamp(18px, 1.8vw, 28px);
+    font-size: clamp(18px, 1.35vw, 21px);
     line-height: 1.45;
-    max-width: 40ch;
+    max-width: 36ch;
+    color: var(--print);
   }
   .cta-btn {
-    margin-top: clamp(26px, 2.6vw, 40px);
-    min-height: 68px;
-    padding: 0 34px;
-    font-size: 20px;
+    margin-top: clamp(22px, 2.2vw, 32px);
+    min-height: 64px;
+    padding: 0 32px;
+    font-size: 19px;
     font-weight: 600;
   }
   .cta-mail {
-    margin-top: 18px;
+    margin-top: 16px;
     font-size: 17px;
     color: var(--print);
   }
@@ -131,42 +157,47 @@ const PH = {
   }
   .cta-cr {
     position: absolute;
-    right: 14px;
+    z-index: 2;
+    right: var(--gut);
     bottom: 12px;
     max-width: 46ch;
-    font-size: 13px;
+    font-size: 14px;
     line-height: 1.3;
     text-align: right;
     color: rgb(238 234 226 / 0.82);
     text-shadow: 0 1px 2px rgb(13 12 11 / 0.9);
   }
+  @media (max-width: 1100px) {
+    .cta-h,
+    .cta-r {
+      grid-column: 1 / -1;
+    }
+  }
   @media (max-width: 900px) {
-    .cta-f {
+    .cta {
+      display: block;
       min-height: 0;
-      flex-direction: column;
-      align-items: stretch;
       padding: 0 0 64px;
     }
     .cta-ph {
       position: relative;
       inset: auto;
       z-index: 0;
-      aspect-ratio: 4 / 3;
+      aspect-ratio: 4 / 3.4;
     }
     .cta-ph::after {
       content: '';
       position: absolute;
       inset: 0;
-      background: linear-gradient(180deg, rgb(13 12 11 / 0) 40%, var(--reel) 100%);
+      background: linear-gradient(180deg, var(--film) 0%, rgb(13 12 11 / 0) 24%, rgb(13 12 11 / 0) 50%, var(--reel) 100%);
     }
-    .cta-f::after {
+    .cta-z::after {
       display: none;
     }
     .cta-c {
       position: relative;
       z-index: 1;
-      margin-top: -18vw;
-      padding: 0 20px;
+      margin-top: -16vw;
     }
     .cta-btn {
       display: flex;
@@ -174,15 +205,14 @@ const PH = {
       justify-content: center;
     }
     .cta-cr {
-      top: 10px;
+      top: 30%;
       bottom: auto;
       right: 10px;
-      left: auto;
       max-width: calc(100% - 20px);
       padding: 3px 8px;
       border-radius: 4px;
       background: rgb(13 12 11 / 0.6);
-      font-size: 12px;
+      font-size: 14px;
     }
   }
 </style>

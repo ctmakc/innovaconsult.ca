@@ -1,12 +1,15 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ProjectCard from '../components/ProjectCard.astro';
-import RecordIds from '../components/RecordIds.astro';
 import { visibleProjects, type Project } from '../data/projects';
 import { SITE } from '../data/site';
 import { CROPS, asScreen } from '../data/crops';
 
 const P = Object.fromEntries(visibleProjects.map((p) => [p.slug, p])) as Record<string, Project>;
+
+// Corporations Canada record (owner law: external links carry no href; data-x = base64 URL).
+const verify = `https://ised-isde.canada.ca/cc/lgcy/fdrlCrpDtls.html?corpId=${SITE.corporationNumber.replace('-', '')}`;
+const verifyX = Buffer.from(verify).toString('base64');
 
 const jsonLd = [
   {
@@ -27,95 +30,99 @@ const jsonLd = [
   description="INNOVA CONSULT LTD. is an Ottawa applied AI and software company, incorporated federally in 2023. Its founder has worked in business and technology since 2012."
   path="/about"
   jsonLd={jsonLd}
+  cta={{ title: 'Talk to the founder.' }}
   breadcrumbs={[
     { name: 'Home', path: '/' },
     { name: 'About', path: '/about' }
   ]}
 >
-  <!-- ═══ HERO: the name, and the three facts in one statement (round 3: no stat banner) ═══ -->
+  <!-- ═══ HERO (round 4): a quiet dark field, the founder's name and one line ═══ -->
   <section class="ah shell" aria-labelledby="ah-h" data-hero>
     <div class="inset ah-in">
       <p class="t-label ah-crumb"><a href="/">INNOVA</a><span aria-hidden="true">/</span><span>About</span></p>
-      <div class="ah-g">
-        <h1 id="ah-h" class="ah-t">Maksym Stepanenko</h1>
-        <p class="ah-st">
-          In business since {SITE.experienceSince}, with companies in more than 50&nbsp;countries. In {SITE.incorporated} he incorporated {SITE.legalName} in {SITE.city}, an applied AI and software company he leads as founder and director.
-        </p>
-      </div>
+      <h1 id="ah-h" class="ah-t">Maksym Stepanenko</h1>
+      <p class="ah-l">Founder and director of {SITE.legalName}, an applied AI and software company in {SITE.city}.</p>
     </div>
   </section>
 
-  <!-- ═══ ONE PHOTO BAND: the festival that runs on INNOVA software ═══ -->
-  <section class="ab shell" aria-label="UAFest, Carleton Place">
-    <figure class="ab-f frame" data-dolly-bg>
-      <img
-        src="/img/uafest-venue.webp"
-        srcset="/img/uafest-venue-800.webp 800w, /img/uafest-venue.webp 1280w"
-        sizes="100vw"
-        alt="UAFest in Carleton Place: the audience on the lawn in front of the festival stage, under the trees by the river."
-        width="1280"
-        height="851"
-        decoding="async"
-      />
-      <figcaption class="ab-cap">UAFest, Carleton Place: the festival of the Ukrainian Community of Lanark County, a non-profit co-founded by INNOVA’s founder. Its applications, participant cabinets and registers run on the platform INNOVA built.</figcaption>
-    </figure>
-  </section>
-
-  <!-- ═══ THE FOUNDER (bone): one statement, two sentences, one link ═══ -->
+  <!-- ═══ THE FOUNDER (bone): the three facts folded into one bold sentence, then two stepped notes ═══ -->
   <section class="fd tone-bone" id="founder" aria-labelledby="founder-h">
     <div class="shell">
-      <div class="inset fd-in">
+      <div class="inset fd-g">
         <h2 id="founder-h" class="sr-only">The founder</h2>
-        <p class="fd-bio" data-rise>
-          Since {SITE.experienceSince} Maksym has worked with small and mid-sized businesses in more than 50 countries on strategy, legal structure, tax and marketing.
+        <p class="fd-st" data-rise>
+          Since <b>{SITE.experienceSince}</b> Maksym has worked with businesses in <b>more than 50&nbsp;countries</b> on strategy, legal structure, tax and marketing, and in <b>{SITE.incorporated}</b> he incorporated INNOVA in {SITE.city} to build applied AI and software.
         </p>
-        <p class="fd-p">
-          In recent years he has brought applied AI into those businesses and into INNOVA’s own products. He holds an MA in Economic Theory (honours).
-        </p>
-        <p class="fd-p">
-          For funded and client projects, engineering, security review and domain specialists join as named subcontractors or partner firms, listed in the proposal before work starts.
-        </p>
-        <a class="lnk fd-k" href="/partnerships">How partnerships work <span class="ar" aria-hidden="true">→</span></a>
+        <p class="t-copy fd-a">In recent years he has brought applied AI into those businesses and into INNOVA’s own products. He holds an MA in Economic Theory (honours).</p>
+        <div class="fd-b">
+          <p class="t-copy">For funded and client projects, engineering, security review and domain specialists join as named subcontractors or partner firms, listed in the proposal before work starts.</p>
+          <a class="lnk fd-k" href="/partnerships">How partnerships work <span class="ar" aria-hidden="true">→</span></a>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- ═══ WHERE IT HAS LED ═══ -->
+  <!-- ═══ WHERE IT HAS LED: the festival photo carries the heading, two products follow ═══ -->
   <section class="led shell" aria-labelledby="led-h">
-    <div class="inset led-head">
-      <h2 id="led-h" class="t-h2" data-rise>Where this has led so far</h2>
-      <a class="lnk" href="/projects">All projects <span class="ar" aria-hidden="true">→</span></a>
+    <div class="led-top">
+      <figure class="led-ph frame" data-dolly-bg>
+        <img
+          src="/img/uafest-venue.webp"
+          srcset="/img/uafest-venue-800.webp 800w, /img/uafest-venue.webp 1280w"
+          sizes="100vw"
+          alt="UAFest in Carleton Place: the audience on the lawn in front of the festival stage, under the trees by the river."
+          width="1280"
+          height="851"
+          loading="lazy"
+          decoding="async"
+        />
+        <figcaption class="led-cap">UAFest, Carleton Place: the festival of the Ukrainian Community of Lanark County, a non-profit co-founded by INNOVA’s founder. Its applications, participant cabinets and registers run on the platform INNOVA built.</figcaption>
+      </figure>
+      <div class="led-hd inset">
+        <h2 id="led-h" class="t-h2">Where this has led so far</h2>
+        <a class="lnk" href="/projects">All projects <span class="ar" aria-hidden="true">→</span></a>
+      </div>
     </div>
     <div class="led-g">
       <ProjectCard
         project={P.uafest}
         fact="Applications, participant cabinets, sponsor and finance registers for a Ukrainian festival in Carleton Place, Ontario. In production since August 2026."
         world={{ src: '/img/uafest-dance.webp', src800: '/img/uafest-dance-800.webp', w: 1280, h: 818, pos: '22% 50%' }}
-        screens={[asScreen(CROPS.uafestForm, { l: '30%', t: '9%', width: '64%', lm: '6%', tm: '8%', wm: '88%' })]}
+        screens={[asScreen(CROPS.uafestForm, { l: '30%', t: '12%', width: '64%', lm: '6%', tm: '10%', wm: '88%', depth: 0.5 })]}
         credit="UAFest festival, Carleton Place"
       />
       <ProjectCard
         project={P.babakokum}
         fact="On the App Store since 24 September 2026, and playable on the web. Runs fully offline."
         world={{ src: '/img/babakokum-porch.webp', w: 760, h: 720, pos: '50% 30%' }}
-        screens={[asScreen(CROPS.babakokum, { l: '9%', t: '13%', width: '82%', lm: '6%', tm: '14%', wm: '88%' })]}
+        screens={[asScreen(CROPS.babakokum, { l: '9%', t: '16%', width: '82%', lm: '6%', tm: '16%', wm: '88%', depth: 0.5 })]}
       />
     </div>
   </section>
 
-  <!-- ═══ COMPANY RECORD: one line ═══ -->
+  <!-- ═══ COMPANY RECORD: two lines, linked to Corporations Canada ═══ -->
   <section class="rc shell" id="record" aria-labelledby="rc-h">
-    <div class="inset rc-g">
+    <div class="inset rc-in">
       <h2 id="rc-h" class="sr-only">Company record</h2>
-      <RecordIds />
+      <p class="rc-1 tnum">{SITE.legalName} · Federal corporation <b>{SITE.corporationNumber}</b>, incorporated {SITE.incorporated} · {SITE.city}, {SITE.region}</p>
+      <p class="rc-2 tnum">
+        <span><abbr title="NATO Commercial and Government Entity code, assigned by DND">NCAGE</abbr> <b>{SITE.ncage}</b></span>
+        <span>D-U-N-S <b>{SITE.duns}</b></span>
+        <span class="lnk rc-v" role="link" tabindex="0" data-x={verifyX}>Verify on Corporations Canada <span aria-hidden="true">↗</span></span>
+      </p>
     </div>
   </section>
 </BaseLayout>
 
 <style>
-  /* ── hero: type on film, the photo follows directly ── */
+  /* ── hero: a quiet dark field ── */
   .ah {
     padding-top: clamp(28px, 3.4vw, 56px);
+  }
+  .ah-in {
+    display: flex;
+    flex-direction: column;
+    min-height: clamp(360px, 52svh, 560px);
   }
   .ah-crumb {
     display: flex;
@@ -131,53 +138,77 @@ const jsonLd = [
     text-underline-offset: 4px;
   }
   .ah-t {
-    margin-top: clamp(18px, 2.4vw, 36px);
-    font-size: clamp(54px, 10.6vw, 184px);
+    margin-top: auto;
+    font-size: clamp(52px, 8vw, 132px);
     font-weight: 500;
-    letter-spacing: -0.055em;
-    line-height: 0.86;
-    margin-left: -0.05em;
+    letter-spacing: -0.05em;
+    line-height: 0.9;
+    margin-left: -0.04em;
   }
-  .ah-g {
+  .ah-l {
+    margin-top: clamp(18px, 2vw, 30px);
+    max-width: 34ch;
+    font-size: clamp(20px, 1.7vw, 27px);
+    line-height: 1.3;
+    letter-spacing: -0.015em;
+    color: var(--copy);
+    text-wrap: pretty;
+  }
+
+  /* ── founder (bone): one bold sentence, two stepped notes ── */
+  .fd {
+    margin-top: clamp(56px, 6vw, 104px);
+    padding-block: var(--sec);
+  }
+  .fd-g {
     display: grid;
     grid-template-columns: repeat(12, minmax(0, 1fr));
     column-gap: var(--col-gap);
-    row-gap: clamp(24px, 3vw, 48px);
-    align-items: end;
+    row-gap: clamp(28px, 3vw, 44px);
   }
-  .ah-g .ah-t {
-    grid-column: 1 / span 8;
-  }
-  .ah-st {
-    grid-column: 9 / span 4;
-    padding-bottom: 0.5em;
-    font-size: clamp(20px, 1.65vw, 27px);
-    font-weight: 500;
-    letter-spacing: -0.02em;
-    line-height: 1.3;
+  .fd-st {
+    grid-column: 1 / span 11;
+    font-size: clamp(32px, 3.9vw, 64px);
+    font-weight: 400;
+    letter-spacing: -0.035em;
+    line-height: 1.08;
+    color: var(--copy-ink);
     text-wrap: pretty;
   }
-  @media (max-width: 1100px) {
-    .ah-g .ah-t,
-    .ah-st {
-      grid-column: 1 / -1;
-    }
-    .ah-st {
-      max-width: 34ch;
-      padding-bottom: 0;
-    }
+  .fd-st b {
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .fd-a {
+    grid-column: 5 / span 4;
+    margin-top: clamp(12px, 2vw, 32px);
+  }
+  .fd-b {
+    grid-column: 9 / span 4;
+    margin-top: clamp(12px, 2vw, 32px);
+  }
+  .fd-k {
+    margin-top: 22px;
   }
 
-  /* ── photo band ── */
-  .ab {
-    padding-top: clamp(36px, 4.4vw, 72px);
+  /* ── where it has led ── */
+  .led {
+    padding-top: var(--sec);
   }
-  .ab-f {
+  .led-top {
+    display: grid;
+    margin-bottom: clamp(10px, 1.2vw, 18px);
+  }
+  .led-ph,
+  .led-hd {
+    grid-area: 1 / 1;
+  }
+  .led-ph {
     margin: 0;
-    aspect-ratio: 16 / 7;
+    aspect-ratio: 16 / 7.4;
     background: var(--reel);
   }
-  .ab-f img {
+  .led-ph img {
     position: absolute;
     inset: 0;
     width: 100%;
@@ -185,62 +216,38 @@ const jsonLd = [
     object-fit: cover;
     object-position: 50% 45%;
   }
-  .ab-f::after {
+  .led-ph::after {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(0deg, rgb(13 12 11 / 0.85) 0%, rgb(13 12 11 / 0.3) 26%, rgb(13 12 11 / 0) 46%);
+    background:
+      linear-gradient(180deg, rgb(13 12 11 / 0.78) 0%, rgb(13 12 11 / 0.2) 30%, rgb(13 12 11 / 0) 48%),
+      linear-gradient(0deg, rgb(13 12 11 / 0.85) 0%, rgb(13 12 11 / 0.25) 24%, rgb(13 12 11 / 0) 42%);
   }
-  .ab-cap {
-    position: absolute;
+  .led-hd {
+    position: relative;
     z-index: 1;
-    left: clamp(18px, 2.6vw, 44px);
-    bottom: clamp(16px, 2vw, 32px);
-    max-width: 62ch;
-    font-size: 16px;
-    line-height: 1.45;
-  }
-
-  /* ── founder ── */
-  .fd {
-    margin-top: var(--sec);
-    padding-block: calc(var(--sec) * 0.8);
-  }
-  .fd-in {
-    max-width: 1080px;
-  }
-  .fd-bio {
-    font-size: clamp(30px, 3.4vw, 56px);
-    font-weight: 500;
-    letter-spacing: -0.035em;
-    line-height: 1.08;
-    max-width: 24ch;
-    text-wrap: balance;
-  }
-  .fd-p {
-    margin-top: 22px;
-    max-width: 58ch;
-    font-size: clamp(18px, 1.35vw, 21px);
-    color: var(--ink-soft);
-  }
-  .fd-p:first-of-type {
-    margin-top: clamp(28px, 3vw, 44px);
-  }
-  .fd-k {
-    margin-top: 28px;
-  }
-
-  /* ── where it has led ── */
-  .led {
-    padding-top: var(--sec);
-  }
-  .led-head {
+    align-self: start;
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
     align-items: baseline;
     gap: 24px;
-    margin-bottom: clamp(24px, 3vw, 44px);
+    padding-top: clamp(24px, 3vw, 48px);
+    padding-inline: clamp(18px, 2.6vw, 44px);
+  }
+  .led-hd .t-h2 {
+    max-width: 14ch;
+  }
+  .led-cap {
+    position: absolute;
+    z-index: 1;
+    left: clamp(18px, 2.6vw, 44px);
+    bottom: clamp(16px, 2vw, 32px);
+    max-width: 64ch;
+    font-size: 17px;
+    line-height: 1.45;
+    color: var(--print);
   }
   .led-g {
     display: grid;
@@ -248,38 +255,85 @@ const jsonLd = [
     gap: clamp(10px, 1.2vw, 18px);
   }
 
-  /* ── company record: one line ── */
+  /* ── company record: two lines ── */
   .rc {
-    padding-top: clamp(40px, 4.4vw, 72px);
+    padding-top: clamp(48px, 5vw, 80px);
   }
-  .rc-g :global(.rid) {
-    font-size: 18px;
+  .rc-1 {
+    font-size: var(--fs-copy);
+    color: var(--print);
+  }
+  .rc-2 {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 28px;
+    margin-top: 6px;
+    font-size: var(--fs-copy);
+    color: var(--copy);
+  }
+  .rc-in b {
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .rc-in abbr {
+    text-decoration: none;
+  }
+  .rc-v {
+    color: var(--print);
   }
 
+  @media (max-width: 1100px) {
+    .fd-a {
+      grid-column: 1 / span 6;
+    }
+    .fd-b {
+      grid-column: 7 / span 6;
+    }
+  }
   @media (max-width: 900px) {
-    .ah-st {
+    .ah-in {
+      min-height: 0;
+    }
+    .ah-t {
+      margin-top: clamp(56px, 16vw, 96px);
+    }
+    .fd-st,
+    .fd-a,
+    .fd-b {
       grid-column: 1 / -1;
     }
-    .ab-f {
+    .fd-a,
+    .fd-b {
+      margin-top: 0;
+    }
+    .led-ph,
+    .led-hd {
+      grid-area: auto;
+    }
+    .led-hd {
+      order: -1;
+      padding: 0 var(--in) 24px;
+    }
+    .led-ph {
       aspect-ratio: auto;
       display: flex;
       flex-direction: column;
     }
-    .ab-f img {
+    .led-ph img {
       position: relative;
       inset: auto;
       height: auto;
       aspect-ratio: 4 / 3;
     }
-    .ab-f::after {
+    .led-ph::after {
       display: none;
     }
-    .ab-cap {
+    .led-cap {
       position: relative;
       left: auto;
       bottom: auto;
       padding: 16px 18px 20px;
-      font-size: 15px;
+      font-size: 16px;
     }
     .led-g {
       grid-template-columns: 1fr;

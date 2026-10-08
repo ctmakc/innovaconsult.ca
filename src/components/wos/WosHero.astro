@@ -1,11 +1,13 @@
 ---
 // /workflow-os hero: a bone frame (the product's light exhibit wall), the giant fitted name in ink,
-// and the real product screens rising out of the bottom edge. The screens carry .mf-scr + data-depth,
+// and the process landscape (the only Overview screen on the site) rising out of the bottom edge at
+// its natural size, so the UI text stays readable; the frame crops whatever does not fit. The screens carry .mf-scr + data-depth,
 // so the shared depth dolly (motion.ts, [data-dolly]) moves them at different depths on scroll.
 import FitText from '../FitText.astro';
 import Button from '../Button.astro';
 import StatusTag from '../StatusTag.astro';
 import { SHOTS } from './data';
+const L = SHOTS.landscape;
 ---
 
 <section class="wh shell" aria-labelledby="wos-h1" data-hero>
@@ -26,18 +28,21 @@ import { SHOTS } from './data';
       </div>
 
       <div class="wh-stage">
-        <div class="mf-scr wh-s1" data-depth="0.7">
-          <img
-            class="scr-img"
-            src={SHOTS.overview.src}
-            srcset={`${SHOTS.overview.src800} 800w, ${SHOTS.overview.src} 1600w, ${SHOTS.overview.src2000} 2000w`}
-            sizes="(max-width: 900px) 92vw, 62vw"
-            width={SHOTS.overview.w}
-            height={SHOTS.overview.h}
-            alt={SHOTS.overview.alt}
-            fetchpriority="high"
-            decoding="async"
-          />
+        <div class="mf-scr wh-s1" data-depth="0.5">
+          <picture>
+            <source media="(max-width: 760px)" srcset={`${L.m!.src} 764w`} sizes="94vw" width={L.m!.w} height={L.m!.h} />
+            <img
+              class="scr-img scr-dark"
+              src={L.src2x}
+              srcset={`${L.src} 1112w, ${L.src2x} 2224w`}
+              sizes="(min-width: 1800px) 62vw, 1112px"
+              width={L.w}
+              height={L.h}
+              alt={L.alt}
+              fetchpriority="high"
+              decoding="async"
+            />
+          </picture>
         </div>
       </div>
     </div>
@@ -104,7 +109,7 @@ import { SHOTS } from './data';
   }
   .wh-fit {
     margin-top: 18px;
-    font-size: 17px;
+    font-size: 18px;
     line-height: 1.45;
     color: var(--ink-soft);
     max-width: 34ch;
@@ -114,7 +119,7 @@ import { SHOTS } from './data';
   }
   .wh-sub {
     margin-top: 16px;
-    font-size: 15px;
+    font-size: 16px;
     line-height: 1.5;
     color: var(--ink-soft);
     max-width: 38ch;
@@ -127,41 +132,28 @@ import { SHOTS } from './data';
     min-height: 0;
     margin-right: calc(var(--pad) * -1);
   }
+  /* natural size (1112 css px, 2x file): the frame crops the right and bottom edges, never the type */
   .wh-s1 {
     position: absolute;
     left: 2%;
     top: 0;
-    width: 94%;
+    width: max(98%, 1112px);
     z-index: 1;
   }
-  .wh-s2 {
-    position: absolute;
-    right: 3%;
-    top: 46%;
-    width: 42%;
-    z-index: 2;
-  }
   .wh-stage .scr-img {
+    display: block;
     width: 100%;
+    height: auto;
     box-shadow: var(--shadow-screen-bone);
   }
-  .wh-s2 .scr-img {
-    box-shadow:
-      0 50px 90px -30px color-mix(in srgb, var(--ink) 70%, transparent),
-      0 0 0 1px color-mix(in srgb, var(--ink) 18%, transparent);
-  }
 
-  /* entrance: CSS only, done by about 1 s */
+  /* entrance: CSS only, done by about 1 s; the copy is final at first paint (no fade) */
   @media (prefers-reduced-motion: no-preference) {
     .wh-f {
       animation: wh-gate 0.95s var(--e-gate) both;
     }
-    .wh-s1 > img {
+    .wh-s1 img {
       animation: wh-up 1.05s var(--e-out) 0.1s both;
-    }
-    .wh-top,
-    .wh-copy {
-      animation: wh-in 0.7s var(--e-out) 0.4s both;
     }
   }
   @keyframes wh-gate {
@@ -172,14 +164,6 @@ import { SHOTS } from './data';
       clip-path: inset(0 0 0 0 round 6px);
     }
   }
-  @keyframes wh-rise {
-    from {
-      transform: translateY(105%);
-    }
-    to {
-      transform: none;
-    }
-  }
   @keyframes wh-up {
     from {
       transform: translateY(90px);
@@ -188,17 +172,6 @@ import { SHOTS } from './data';
       transform: none;
     }
   }
-  @keyframes wh-in {
-    from {
-      opacity: 0;
-      transform: translateY(12px);
-    }
-    to {
-      opacity: 1;
-      transform: none;
-    }
-  }
-
   @media (max-width: 1100px) {
     .wh-copy {
       grid-column: 1 / span 5;
@@ -223,20 +196,24 @@ import { SHOTS } from './data';
       max-width: 18ch;
     }
     .wh-stage {
-      margin-top: 36px;
-      margin-left: calc(var(--pad) * -1);
-      aspect-ratio: 4 / 3;
+      margin: 32px calc(var(--pad) * -1) 0;
+      max-height: 460px;
+      overflow: hidden;
+      /* the depth dolly shifts the screen a few px; the gap it opens reads as screen, never as a bone strip */
+      background: var(--ui-dark);
     }
     .wh-s1 {
-      left: var(--pad);
-      top: 0;
-      width: 112%;
+      position: relative;
+      left: 0;
+      width: 1112px;
     }
-    .wh-s2 {
-      left: auto;
-      right: var(--pad);
-      top: 40%;
-      width: 58%;
+    .wh-stage .scr-img {
+      border-radius: 0;
+    }
+  }
+  @media (max-width: 760px) {
+    .wh-s1 {
+      width: 100%;
     }
   }
 </style>
