@@ -102,6 +102,23 @@ else {
   revealEls.forEach((el) => io.observe(el));
 }
 
+/* ── lazy images start loading ~1.5 screens early, so a normal scroll never meets an empty plate ── */
+if ('IntersectionObserver' in window) {
+  const early = new IntersectionObserver(
+    (entries) =>
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        const img = e.target as HTMLImageElement;
+        img.loading = 'eager';
+        early.unobserve(img);
+      }),
+    { rootMargin: '1500px 0px 1500px 0px' }
+  );
+  const arm = () => document.querySelectorAll<HTMLImageElement>('img[loading="lazy"]').forEach((img) => early.observe(img));
+  if (document.readyState === 'complete') arm();
+  else window.addEventListener('load', arm, { once: true });
+}
+
 /* ── heavy motion (GSAP + ScrollTrigger + Lenis) on idle, never for reduced motion ── */
 if (!reduce) {
   const load = () => import('./motion').then((m) => m.start()).catch(() => {});

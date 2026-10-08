@@ -19,6 +19,8 @@ const liveN = projects.filter((p) => p.status === 'live').length;
 const shown = projects.filter((p) => !PRESETS[p.slug]?.words);
 const lab = projects.filter((p) => PRESETS[p.slug]?.words);
 const [lead, ...rest] = shown;
+/* 'AI-native CRM' → 'an AI-native CRM'; 'Defence-adjacent scouting' → 'defence-adjacent scouting' */
+const labDesc = (t = '') => (/^AI/.test(t) ? `an ${t}` : t.charAt(0).toLowerCase() + t.slice(1));
 
 /* Filter chips: one per status that has projects. */
 /* Status meanings live on the chips (title), not in a paragraph. */
@@ -78,22 +80,14 @@ const itemList = {
 
     {
       lab.length > 0 && (
-        <div class="px-lab" aria-labelledby="lab-h">
-          <h2 id="lab-h" class="t-h3 px-lab-k inset">In the lab</h2>
-          <ul class="px-lab-g">
-            {lab.map((p) => (
-              <li data-s={p.status} id={p.slug}>
-                <a href={projectHref(p)} class="px-li">
-                  <StatusTag status={p.status} label={PRESETS[p.slug]?.statusLabel} />
-                  <span class="px-ln">
-                    {p.short}
-                    <span class="ar" aria-hidden="true">→</span>
-                  </span>
-                  <span class="px-ld">{p.tagline}</span>
-                </a>
-              </li>
+        <div class="px-lab inset" aria-labelledby="lab-h">
+          <h2 id="lab-h" class="sr-only">In the lab</h2>
+          <p class="px-lab-p">
+            {word(lab.length)} more in the lab:{' '}
+            {lab.map((p, i) => (
+              <span data-s={p.status} id={p.slug}><a href={projectHref(p)}>{p.short}</a>{`, ${labDesc(p.tagline)}${i < lab.length - 2 ? '; ' : i === lab.length - 2 ? '; and ' : '.'}`}</span>
             ))}
-          </ul>
+          </p>
         </div>
       )
     }
@@ -211,59 +205,29 @@ const itemList = {
     display: none !important;
   }
 
-  /* lab row: three compact solid tiles (no ruled rows) */
+  /* lab: one sentence with inline links (round 5), like the home page */
   .px-lab {
     margin-top: clamp(48px, 5vw, 88px);
   }
-  .px-lab-k {
-    margin-bottom: clamp(18px, 2vw, 28px);
-  }
-  .px-lab-g {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: clamp(10px, 1.2vw, 18px);
-  }
-  .px-lab-g > [hidden] {
-    display: none;
-  }
-  .px-li {
-    display: grid;
-    align-content: start;
-    gap: 10px;
-    height: 100%;
-    padding: clamp(22px, 2vw, 32px);
-    border-radius: var(--r);
-    background: var(--reel);
-    text-decoration: none;
-    color: var(--ash);
-    transition: background-color var(--t-micro) var(--e-out);
-  }
-  .px-li:hover {
-    background: var(--reel-2);
-  }
-  .px-ln {
-    margin-top: 8px;
-    font-size: clamp(26px, 2.2vw, 36px);
+  .px-lab-p {
+    max-width: 62ch;
+    font-size: clamp(22px, 1.9vw, 30px);
     font-weight: 500;
-    letter-spacing: -0.03em;
-    line-height: 1.05;
-    color: var(--print);
-  }
-  .px-ln .ar {
-    display: inline-block;
-    margin-left: 6px;
-    font-weight: 400;
-    transition: transform 0.3s var(--e-out);
-  }
-  .px-li:hover .ar {
-    transform: translateX(6px);
-  }
-  .px-ld {
-    font-size: 18px;
+    letter-spacing: -0.022em;
+    line-height: 1.35;
     color: var(--ash);
+    text-wrap: pretty;
+  }
+  .px-lab-p a {
+    color: var(--print);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-decoration-color: rgb(238 234 226 / 0.4);
+    text-underline-offset: 6px;
+    transition: text-decoration-color var(--t-micro) var(--e-out);
+  }
+  .px-lab-p a:hover {
+    text-decoration-color: var(--print);
   }
   @keyframes px-rise {
     from {
@@ -293,9 +257,6 @@ const itemList = {
       flex: none;
     }
     .px-grid {
-      grid-template-columns: 1fr;
-    }
-    .px-lab-g {
       grid-template-columns: 1fr;
     }
   }

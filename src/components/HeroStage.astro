@@ -1,0 +1,425 @@
+---
+// HOME HERO (round 5, 08.10.2026). Replaces the round-4 video film.
+// Left: the outcome line (H1), the lede, two CTAs and one small registry line.
+// Right: ONE framed app window of INNOVA AI Workflow OS (UI v2) that steps through three finished
+// screens of the same fictional demo company: the process landscape, the 88 priority-score waterfall
+// and the automation route with its human approval gates. Each screen is a 2x crop cut on panel
+// boundaries (src/data/wos3.ts), so nothing is clipped at an edge and there is no cursor and no
+// half-drawn state. First paint = the landscape crop (LCP). Scenes change every 5 s with a 450 ms
+// cross-fade; the tabs in the window bar switch by hand (and stop the cycle); a visible Pause control
+// stops it too (WCAG 2.2.2). Reduced motion: the first screen stays, no cycling. Phones: the window
+// sits above the H1 in its own box with the app's own 390 px layout of the same screens.
+import Button from './Button.astro';
+import { SITE } from '../data/site';
+import { WOS3 } from '../data/wos3';
+
+const verify = `https://ised-isde.canada.ca/cc/lgcy/fdrlCrpDtls.html?corpId=${SITE.corporationNumber.replace('-', '')}`;
+const x = Buffer.from(verify).toString('base64');
+
+const SCENES = [
+  { k: 'Process landscape', s: 'Landscape', d: WOS3.landscape, m: WOS3.m_land2 },
+  { k: 'Priority score', s: 'Score', d: WOS3.score, m: WOS3.m_score },
+  { k: 'Automation route', s: 'Route', d: WOS3.route, m: WOS3.m_route }
+];
+---
+
+<section class="hs shell" aria-labelledby="h1" data-hero>
+  <div class="hs-g inset">
+    <div class="hs-copy">
+      <h1 id="h1" class="hs-h">Applied AI and software from Ottawa, live in three products.</h1>
+      <p class="hs-lede">We build with companies, researchers and public organizations. Live today: a festival operations platform, a lost-and-found network and a puzzle game.</p>
+      <div class="hs-ctas">
+        <Button openContact variant="flare">Start a conversation</Button>
+        <Button href="/projects" variant="ghost">See the work</Button>
+      </div>
+      <p class="hs-ids tnum">
+        <span>Federal corporation&nbsp;{SITE.corporationNumber}</span><span aria-hidden="true"> · </span><span class="nw"><abbr title="NATO Commercial and Government Entity code, assigned by DND">NCAGE</abbr> {SITE.ncage}</span><span aria-hidden="true"> · </span><span class="nw">D-U-N-S {SITE.duns}</span><span aria-hidden="true"> · </span><span class="lnk" role="link" tabindex="0" data-x={x}>Verify <span aria-hidden="true">↗</span></span>
+      </p>
+    </div>
+
+    <figure class="hs-win" data-stage>
+      <div class="hs-bar">
+        <span class="hs-app"><b>Workflow OS</b> <span class="hs-co">· demo company</span></span>
+        <div class="hs-tabs" role="group" aria-label="Workflow OS screens">
+          {
+            SCENES.map((s, i) => (
+              <button type="button" class:list={['hs-tab', { on: i === 0 }]} aria-pressed={i === 0 ? 'true' : 'false'} data-stab={i}>
+                <span class="hs-tk">{s.k}</span>
+                <span class="hs-ts">{s.s}</span>
+              </button>
+            ))
+          }
+        </div>
+      </div>
+      <div class="hs-body">
+        {
+          SCENES.map((s, i) => (
+            <picture class:list={['hs-scene', { on: i === 0 }]} data-scene={i}>
+              <source media="(max-width: 900px)" srcset={s.m.srcset} sizes="92vw" width={s.m.w} height={s.m.h} />
+              <img
+                src={s.d.src}
+                srcset={s.d.srcset}
+                sizes="(max-width: 900px) 92vw, 56vw"
+                alt={s.d.alt}
+                width={s.d.w}
+                height={s.d.h}
+                fetchpriority={i === 0 ? 'high' : 'low'}
+                decoding={i === 0 ? 'sync' : 'async'}
+              />
+            </picture>
+          ))
+        }
+      </div>
+      <figcaption class="hs-cap">
+        <p><span class="hs-cd">On screen: INNOVA AI Workflow OS, our automation planning tool, scoring a fictional demo company. Illustrative data.</span><span class="hs-cm">Workflow OS on a fictional demo company. Illustrative data.</span></p>
+        <button type="button" class="hs-pp" data-stage-toggle hidden>
+          <span class="hs-pp-i" aria-hidden="true"></span><span class="hs-pp-t">Pause</span>
+        </button>
+      </figcaption>
+    </figure>
+  </div>
+</section>
+
+<script>
+  // Three finished screens, one window. Cycle every 5 s unless reduced motion, paused, or off-screen.
+  const box = document.querySelector<HTMLElement>('[data-stage]');
+  if (box) {
+    const tabs = [...box.querySelectorAll<HTMLButtonElement>('[data-stab]')];
+    const scenes = [...box.querySelectorAll<HTMLElement>('[data-scene]')];
+    const btn = box.querySelector<HTMLButtonElement>('[data-stage-toggle]');
+    const label = btn?.querySelector<HTMLElement>('.hs-pp-t');
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let cur = 0;
+    let timer = 0;
+    let paused = reduce.matches;
+    let visible = true;
+    const show = (i: number) => {
+      cur = (i + scenes.length) % scenes.length;
+      scenes.forEach((s, j) => s.classList.toggle('on', j === cur));
+      tabs.forEach((t, j) => {
+        t.classList.toggle('on', j === cur);
+        t.setAttribute('aria-pressed', j === cur ? 'true' : 'false');
+      });
+    };
+    const sync = () => {
+      box.classList.toggle('is-paused', paused);
+      if (btn) {
+        btn.classList.toggle('is-paused', paused);
+        if (label) label.textContent = paused ? 'Play' : 'Pause';
+      }
+    };
+    const run = () => {
+      clearInterval(timer);
+      if (paused || !visible || document.hidden) return;
+      timer = window.setInterval(() => show(cur + 1), 5000);
+    };
+    tabs.forEach((t, i) =>
+      t.addEventListener('click', () => {
+        show(i);
+        paused = true;
+        sync();
+        run();
+      })
+    );
+    if (btn && !reduce.matches) {
+      btn.hidden = false;
+      btn.addEventListener('click', () => {
+        paused = !paused;
+        sync();
+        run();
+      });
+    }
+    new IntersectionObserver(([e]) => {
+      visible = e.isIntersecting;
+      run();
+    }).observe(box);
+    document.addEventListener('visibilitychange', run);
+    reduce.addEventListener?.('change', () => {
+      if (reduce.matches) {
+        paused = true;
+        sync();
+        run();
+      }
+    });
+    sync();
+    run();
+  }
+</script>
+
+<style>
+  .hs {
+    padding-top: clamp(28px, 5vh, 64px);
+  }
+  .hs-g {
+    display: grid;
+    grid-template-columns: minmax(0, 0.78fr) minmax(0, 1.22fr);
+    column-gap: clamp(32px, 3.6vw, 64px);
+    align-items: center;
+    min-height: min(calc(100svh - var(--hdr) - 150px), 680px);
+    padding-right: 0;
+    padding-bottom: clamp(24px, 4vh, 48px);
+  }
+  .hs-h {
+    font-size: clamp(44px, 4.3vw, 72px);
+    font-weight: 500;
+    letter-spacing: -0.042em;
+    line-height: 0.98;
+    text-wrap: balance;
+    max-width: 13ch;
+  }
+  .hs-lede {
+    margin-top: clamp(20px, 2.4vh, 28px);
+    max-width: 36ch;
+    font-size: clamp(18px, 1.35vw, 21px);
+    line-height: 1.45;
+    color: var(--print);
+  }
+  .hs-ctas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: clamp(24px, 3vh, 34px);
+  }
+  .hs-ids {
+    margin-top: clamp(28px, 4vh, 44px);
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--ash);
+  }
+  .hs-ids .nw {
+    white-space: nowrap;
+  }
+  .hs-ids abbr {
+    text-decoration: none;
+  }
+  .hs-ids .lnk {
+    color: var(--print);
+    padding-bottom: 1px;
+  }
+
+  /* ── the app window ── */
+  .hs-win {
+    margin: 0;
+  }
+  .hs-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 6px 6px 6px 18px;
+    border-radius: var(--r) var(--r) 0 0;
+    background: var(--reel-2);
+    box-shadow: inset 0 -1px 0 var(--rule-film);
+  }
+  .hs-app {
+    font-size: 14px;
+    color: var(--ash);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .hs-app b {
+    font-weight: 600;
+    color: var(--print);
+  }
+  .hs-tabs {
+    display: flex;
+    gap: 2px;
+    flex: none;
+  }
+  .hs-tab {
+    position: relative;
+    min-height: 44px;
+    padding: 0 14px;
+    border: 0;
+    border-radius: 4px;
+    background: none;
+    color: var(--ash);
+    font: 500 14px/1 var(--font);
+    cursor: pointer;
+    transition:
+      color var(--t-micro) var(--e-out),
+      background-color var(--t-micro) var(--e-out);
+  }
+  .hs-tab:hover {
+    color: var(--print);
+  }
+  .hs-tab.on {
+    color: var(--print);
+    background: var(--reel);
+  }
+  /* the active tab carries the scene timer as a thin print line */
+  .hs-tab.on::after {
+    content: '';
+    position: absolute;
+    left: 14px;
+    right: 14px;
+    bottom: 7px;
+    height: 2px;
+    background: var(--print);
+    transform-origin: 0 50%;
+    animation: hs-t 5s linear both;
+  }
+  .is-paused .hs-tab.on::after {
+    animation: none;
+  }
+  @keyframes hs-t {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
+  .hs-body {
+    position: relative;
+    aspect-ratio: 863 / 450;
+    background: var(--ui-dark);
+    border-radius: 0 0 var(--r) var(--r);
+    overflow: hidden;
+    box-shadow: var(--shadow-screen);
+  }
+  .hs-scene {
+    position: absolute;
+    inset: clamp(10px, 1.2vw, 20px);
+    display: grid;
+    place-items: center;
+    opacity: 0;
+    transition: opacity 0.45s var(--e-out);
+  }
+  .hs-scene.on {
+    opacity: 1;
+  }
+  .hs-scene img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transform: scale(1.012);
+    transition: transform 5.4s linear;
+  }
+  .hs-scene.on img {
+    transform: scale(1);
+  }
+  .hs-cap {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 12px;
+  }
+  .hs-cap p {
+    font-size: 14px;
+    line-height: 1.4;
+    color: var(--ash);
+    max-width: 62ch;
+  }
+  .hs-cm,
+  .hs-ts {
+    display: none;
+  }
+  .hs-pp {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    padding: 0 16px;
+    border: 1px solid rgb(238 234 226 / 0.35);
+    border-radius: 999px;
+    background: none;
+    color: var(--print);
+    font: 500 14px/1 var(--font);
+    cursor: pointer;
+    transition: border-color var(--t-micro) var(--e-out);
+  }
+  .hs-pp[hidden] {
+    display: none;
+  }
+  .hs-pp:hover {
+    border-color: var(--print);
+  }
+  .hs-pp-i {
+    width: 10px;
+    height: 12px;
+    border-inline: 3px solid currentColor;
+  }
+  .hs-pp.is-paused .hs-pp-i {
+    width: 0;
+    height: 0;
+    border-inline: 0;
+    border-left: 10px solid currentColor;
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+  }
+
+  @media (max-width: 1180px) {
+    .hs-app .hs-co {
+      display: none;
+    }
+  }
+  /* phones and tablets: the window first, in its own box, then the statement */
+  @media (max-width: 900px) {
+    .hs {
+      padding-top: 12px;
+    }
+    .hs-g {
+      grid-template-columns: 1fr;
+      min-height: 0;
+      padding-inline: 0;
+      padding-bottom: 8px;
+    }
+    .hs-win {
+      order: -1;
+    }
+    .hs-bar {
+      padding: 4px;
+    }
+    .hs-app {
+      display: none;
+    }
+    .hs-tabs {
+      flex: 1;
+      justify-content: space-between;
+    }
+    .hs-tab {
+      flex: 1;
+      padding: 0 6px;
+      font-size: 14px;
+    }
+    .hs-tab.on::after {
+      left: 8px;
+      right: 8px;
+    }
+    .hs-body {
+      aspect-ratio: 374 / 300;
+    }
+    .hs-scene {
+      inset: 8px;
+    }
+    .hs-cd,
+    .hs-tk {
+      display: none;
+    }
+    .hs-cm,
+    .hs-ts {
+      display: inline;
+    }
+    .hs-cap {
+      margin-top: 8px;
+    }
+    .hs-copy {
+      margin-top: 32px;
+      padding-inline: 4px;
+    }
+    .hs-h {
+      font-size: clamp(38px, 10.4vw, 56px);
+      max-width: 14ch;
+    }
+    .hs-lede {
+      font-size: 18px;
+    }
+    .hs-ctas :global(.btn) {
+      flex: 1 1 auto;
+    }
+  }
+</style>

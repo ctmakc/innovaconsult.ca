@@ -38,6 +38,13 @@ export const CROPS = {
     [480, 800, 1200, 1600, 2000, 2203],
     'FoundWall homepage: the Lost, Stolen, Found headline beside sample notices for a bike, a beagle, a robotic mower and a reunited bike.'
   ),
+  foundwallNotice: mk(
+    'foundwall-notice',
+    1352,
+    826,
+    [676, 1352],
+    'FoundWall notice page for a found keyring near Dundas West station, Toronto: the Found label, the notice title, what happened and the photo.'
+  ),
   babakokum: mk(
     'babakokum-rules2',
     1090,

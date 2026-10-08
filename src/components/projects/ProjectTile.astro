@@ -16,6 +16,7 @@ interface Props {
 }
 const { project: p, size = 'half', aspect, headingLevel: H = 'h3', class: cls, ...rest } = Astro.props;
 const pr = PRESETS[p.slug] ?? { fact: p.summary, material: 'reel' as const };
+const t = 'tile' in pr ? pr.tile : undefined;
 ---
 
 {
@@ -39,13 +40,13 @@ const pr = PRESETS[p.slug] ?? { fact: p.summary, material: 'reel' as const };
       project={p}
       size={size}
       aspect={aspect}
-      aspectM={pr.aspectM}
+      aspectM={t?.aspectM ?? pr.aspectM}
       fact={pr.fact}
       statusLabel={pr.statusLabel}
-      world={pr.world}
-      material={pr.material}
-      credit={pr.credit}
-      screens={size === 'full' ? pr.full : pr.half}
+      world={t && 'world' in t ? (t.world ?? undefined) : pr.world}
+      material={t?.material ?? pr.material}
+      credit={t && 'world' in t && !t.world ? undefined : pr.credit}
+      screens={size === 'full' ? (t?.full ?? pr.full) : (t?.half ?? pr.half)}
       headingLevel={H}
       class={cls}
     />

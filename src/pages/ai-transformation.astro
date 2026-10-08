@@ -1,31 +1,21 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import CapHead from '../components/cap/CapHead.astro';
 import StatusTag from '../components/StatusTag.astro';
-import { WOS2, type Shot } from '../components/projects/shots';
-import { STAGES } from '../data/stages';
+import { WOS3 } from '../data/wos3';
 
-// Round 4: one page of ≤ 7 desktop screens with ONE closing CTA (the band from BaseLayout).
-// Workflow OS screens are 2x crops of the redesigned product UI; each method step points at one.
-const SCREENS: (Shot & { cap: string; pos: string })[] = [
-  { ...WOS2.landscape, cap: 'Process landscape: every mapped workflow, sized by staff hours and coloured by priority.', pos: '0% 40%' },
-  { ...WOS2.score, cap: 'Priority score: each factor of the 88 is visible, down to the risk penalty.', pos: '0% 50%' },
-  { ...WOS2.route, cap: 'Automation route: twelve steps, with the KYC decision held at a human approval gate.', pos: '78% 80%' },
-  { ...WOS2.beforeAfter, cap: 'Business case: staff hours before and after, on one scale, against the discovery baseline.', pos: '0% 0%' }
+// Round 5: about four desktop screens. The method is four merged steps (the module screens live on
+// /workflow-os); the autonomy scale is one labelled axis; the timelines, what we need, what you keep
+// and security keep every fact. One closing line (BaseLayout cta), no photo band.
+const R = WOS3.route;
+const RM = WOS3.m_route;
+
+// Four steps: the seven method steps of round 4, merged without dropping a fact.
+const steps: { t: string; d: string }[] = [
+  { t: 'Map', d: 'We map departments, roles, systems, documents and the processes that connect them, with volumes and pain points. That map is the baseline.' },
+  { t: 'Score and choose', d: 'Each process is scored for value, feasibility and strategic fit, minus a risk penalty, and every score shows the reasons behind it. We rank by value and feasibility and agree on the first two or three to act on.' },
+  { t: 'Design and build', d: 'For each chosen process we pick the simplest approach that works, from deterministic software to supervised agents, and build, integrate and test it inside the tools your team already uses. Approvals, permissions, audit trails and data controls are designed in from the first sprint.' },
+  { t: 'Measure', d: 'We compare cycle time, cost, error rate and adoption against the baseline taken during discovery.' }
 ];
-
-// Seven method steps, each mapped to the master stage line and to the Workflow OS module that carries it.
-const steps: { t: string; d: string; stage: number; module: [number, string]; screen: number }[] = [
-  { t: 'Process discovery', d: 'We map departments, roles, systems, documents and the processes that connect them, with volumes and pain points.', stage: 0, module: [1, 'Process discovery'], screen: 0 },
-  { t: 'Opportunity mapping', d: 'Each process is scored for value, feasibility and strategic fit, minus a risk penalty. Every score shows the reasons behind it.', stage: 0, module: [2, 'Automation opportunity map'], screen: 1 },
-  { t: 'Prioritization', d: 'We rank opportunities by value and feasibility and agree on the first two or three to act on.', stage: 0, module: [2, 'Automation opportunity map'], screen: 1 },
-  { t: 'Solution architecture', d: 'For each chosen process we pick the simplest approach that works, from deterministic software to supervised agents.', stage: 1, module: [3, 'Automation designer'], screen: 2 },
-  { t: 'Implementation', d: 'We build, integrate and test inside the tools your team already uses.', stage: 3, module: [4, 'Implementation workspace'], screen: 2 },
-  { t: 'Governance', d: 'Approvals, permissions, audit trails and data controls are designed in from the first sprint.', stage: 4, module: [4, 'Implementation workspace'], screen: 2 },
-  { t: 'Measurement', d: 'We compare cycle time, cost, error rate and adoption against the baseline taken during discovery.', stage: 5, module: [5, 'Impact & ROI'], screen: 3 }
-];
-
-const outcomes = ['shorter cycle time', 'fewer repetitive tasks', 'lower operating cost', 'faster response to clients', 'visibility into every process', 'better-informed decisions', 'fewer manual errors'];
 
 const approaches: { t: string; d: string; ex?: { name: string; href: string } }[] = [
   { t: 'Deterministic software', d: 'Rules are clear and stable. Plain code is cheaper, faster and fully predictable.' },
@@ -74,90 +64,77 @@ const [secLead, ...secRest] = security;
     link: { href: '/workflow-os', label: 'See AI Workflow OS' }
   }}
 >
-  <CapHead
-    crumb="AI Transformation"
-    title="AI transformation means redesigning how work happens."
-    lede="Companies often add AI tools one at a time, with no map of the processes underneath. We start from that map, so every automation has an owner, a reason and a number to beat."
-  >
-    <figure slot="media" class="ai-m">
-      <a class="ai-plate" href="/workflow-os" aria-label="INNOVA AI Workflow OS: open the product page">
-        <picture>
-          <source media="(max-width: 900px)" srcset="/proof/wos2/m-route@2x.webp" width="764" height="680" />
-          <img class="scr-img scr-dark" src={WOS2.route.src} srcset={WOS2.route.srcset} sizes="72vw" alt={WOS2.route.alt} width={WOS2.route.w} height={WOS2.route.h} decoding="async" fetchpriority="high" />
-        </picture>
-      </a>
-      <figcaption class="ai-cap">
-        <p class="ai-n two-tone">INNOVA AI Workflow OS<span class="d">The method runs on our own product</span></p>
-        <p class="ai-f"><StatusTag status="prototype" label="Prototype · illustrative demo data" /></p>
-        <a class="lnk ai-go" href="/workflow-os">Explore Workflow OS <span class="ar" aria-hidden="true">→</span></a>
-      </figcaption>
-    </figure>
-  </CapHead>
-
-  <!-- ═══ METHOD (film): seven steps beside the Workflow OS screen that carries each one ═══ -->
-  <section class="mt shell" id="method" aria-labelledby="mt-h">
+  <!-- ═══ HEAD: the statement, then the automation route with its human approval gate ═══ -->
+  <section class="ah shell" aria-labelledby="ah-h" data-hero>
     <div class="inset">
-      <div class="mt-hd">
-        <h2 id="mt-h" class="t-h2" data-rise>Seven steps, one baseline.</h2>
-        <p class="t-copy mt-brief">
-          INNOVA is an Ottawa company that plans and builds AI automation for organizations in Canada. Work starts with a map of real processes and a measured baseline. Each process then gets the simplest approach that fits, from plain software to a supervised AI agent, with approvals and audit trails built in, and results are reported against that baseline.
-        </p>
+      <p class="t-label ah-crumb"><a href="/">INNOVA</a><span aria-hidden="true">/</span><a href="/capabilities">Capabilities</a><span aria-hidden="true">/</span><span>AI Transformation</span></p>
+      <div class="ah-g">
+      <div class="ah-txt">
+      <h1 id="ah-h" class="ah-t">AI transformation means redesigning how work happens.</h1>
+      <p class="ah-l">Companies often add AI tools one at a time, with no map of the processes underneath. We start from that map, so every automation has an owner, a reason and a number to beat.</p>
       </div>
-      <div class="mt-g">
-        <ol class="mt-steps">
-          {
-            steps.map((s, i) => (
-              <li class:list={['mt-s', { on: i === 0 }]} data-step={i} data-screen={s.screen}>
-                <span class="mt-n tnum">{i + 1}</span>
-                <div>
-                  <h3 class="mt-t">{s.t}</h3>
-                  <p class="mt-d">{s.d}</p>
-                  <p class="mt-m">{`${STAGES[s.stage].label} · Module ${s.module[0]}, ${s.module[1]}`}</p>
-                </div>
-              </li>
-            ))
-          }
-        </ol>
-        <div class="mt-r">
-          <div class="mt-stack">
-            {SCREENS.map((sc, i) => <img class:list={['scr-img scr-dark', { on: i === 0 }]} src={sc.src} srcset={sc.srcset} sizes="(max-width: 900px) 200vw, 62vw" alt={sc.alt} width={sc.w} height={sc.h} loading="lazy" decoding="async" style={`--pos:${sc.pos}`} />)}
-          </div>
-          <div class="mt-caps" aria-hidden="true">
-            {SCREENS.map((sc, i) => <p class:list={['mt-c', { on: i === 0 }]}>{sc.cap}</p>)}
-          </div>
-          <p class="mt-disc">Illustrative demo data: Northstar Professional Services is a fictional firm.</p>
-        </div>
+      <figure class="ah-m">
+        <a class="ah-plate" href="/workflow-os" aria-label="INNOVA AI Workflow OS: open the product page">
+          <picture>
+            <source media="(max-width: 900px)" srcset={RM.srcset} sizes="100vw" width={RM.w} height={RM.h} />
+            <img src={R.src} srcset={R.srcset} sizes="(max-width: 900px) 100vw, 56vw" alt={R.alt} width={R.w} height={R.h} decoding="async" fetchpriority="high" style={`background-image:url(${R.lqip})`} />
+          </picture>
+        </a>
+        <figcaption class="ah-cap">
+          <p class="ah-n two-tone">INNOVA AI Workflow OS<span class="d">The method runs on our own product. On screen: an automation route where the KYC decision stays with a person.</span></p>
+          <p class="ah-f"><StatusTag status="prototype" label="Prototype · demo data, fictional firm" /></p>
+          <a class="lnk ah-go" href="/workflow-os">Explore Workflow OS <span class="ar" aria-hidden="true">→</span></a>
+        </figcaption>
+      </figure>
       </div>
-      <p class="mt-out">
-        <span class="mt-out-k">Agreed before the build, reported against the baseline:</span>{' '}
-        {outcomes.map((o, i) => <><span class="mt-o">{o}{i < outcomes.length - 1 ? ',' : '.'}</span>{' '}</>)}
-      </p>
     </div>
   </section>
 
-  <!-- ═══ THE RIGHT TOOL (bone): an autonomy scale, then the agent cycle as one line ═══ -->
+  <!-- ═══ METHOD: four steps, one baseline ═══ -->
+  <section class="mt shell" id="method" aria-labelledby="mt-h">
+    <div class="inset">
+      <h2 id="mt-h" class="t-h2 mt-h" data-rise>Four steps, one baseline.</h2>
+      <p class="t-copy mt-brief">
+        INNOVA is an Ottawa company that plans and builds AI automation for organizations in Canada. Each process gets the simplest approach that fits, from plain software to a supervised AI agent, and results are reported against the baseline.
+      </p>
+      <ol class="mt-g">
+        {
+          steps.map((x) => (
+            <li class="mt-s">
+              <h3 class="mt-t">{x.t}</h3>
+              <p class="mt-d">{x.d}</p>
+            </li>
+          ))
+        }
+      </ol>
+      <a class="lnk mt-go" href="/workflow-os#module-1">Each step as a Workflow OS screen <span class="ar" aria-hidden="true">→</span></a>
+    </div>
+  </section>
+
+  <!-- ═══ THE RIGHT TOOL (bone): one labelled axis, then the agent cycle ═══ -->
   <section class="ap tone-bone" aria-labelledby="ap-h">
     <div class="shell">
       <div class="inset">
         <h2 id="ap-h" class="t-h2 ap-h" data-rise>The right tool for each process.</h2>
         <p class="t-copy ap-lede">We use AI where it earns its place. When ordinary software does the job better, we build ordinary software, and say so.</p>
-        <ol class="ap-g" aria-label="Approaches, from fully predictable to supervised autonomy">
-          {
-            approaches.map((a, i) => (
-              <li class="ap-i" style={`--k:${i + 1}`}>
-                <span class="ap-bar" aria-hidden="true" />
-                <h3 class="ap-t">{a.t}</h3>
-                <p class="ap-d">{a.d}</p>
-                {a.ex && (
-                  <a class="lnk ap-ex" href={a.ex.href}>
-                    {a.ex.name} <span class="ar" aria-hidden="true">→</span>
-                  </a>
-                )}
-              </li>
-            ))
-          }
-        </ol>
-        <p class="ap-scale" aria-hidden="true"><span>Fully predictable</span><span>Supervised autonomy</span></p>
+        <div class="ax">
+          <p class="ax-ends" aria-hidden="true"><span>Fully predictable</span><span>Supervised autonomy</span></p>
+          <ol class="ax-g" aria-label="Approaches, from fully predictable to supervised autonomy">
+            {
+              approaches.map((a) => (
+                <li class="ax-i">
+                  <h3 class="ax-t">{a.t}</h3>
+                  <p class="ax-d">{a.d}</p>
+                  {a.ex && (
+                    <a class="lnk ax-ex" href={a.ex.href}>
+                      {a.ex.name} <span class="ar" aria-hidden="true">→</span>
+                    </a>
+                  )}
+                </li>
+              ))
+            }
+          </ol>
+        </div>
 
         <div class="ag" id="agents">
           <h3 class="ag-h">How we build AI agents</h3>
@@ -172,7 +149,7 @@ const [secLead, ...secRest] = security;
     </div>
   </section>
 
-  <!-- ═══ ENGAGEMENT (film): four steps, keys first ═══ -->
+  <!-- ═══ ENGAGEMENT (film): four timelines, then what we need and what you keep ═══ -->
   <section class="en shell" id="engagement" aria-labelledby="en-h">
     <div class="inset">
       <div class="en-hd">
@@ -233,306 +210,227 @@ const [secLead, ...secRest] = security;
   </section>
 </BaseLayout>
 
-<script>
-  // Method: the step nearest the middle of the screen picks the Workflow OS screen and its caption.
-  const steps = document.querySelectorAll<HTMLElement>('.mt-s');
-  const shots = document.querySelectorAll<HTMLElement>('.mt-stack img');
-  const caps = document.querySelectorAll<HTMLElement>('.mt-c');
-  const set = (i: number) => {
-    const sc = Number(steps[i]?.dataset.screen ?? 0);
-    steps.forEach((s, j) => s.classList.toggle('on', j === i));
-    shots.forEach((s, j) => s.classList.toggle('on', j === sc));
-    caps.forEach((s, j) => s.classList.toggle('on', j === sc));
-  };
-  if ('IntersectionObserver' in window && steps.length) {
-    const io = new IntersectionObserver((es) => es.forEach((e) => e.isIntersecting && set(Number((e.target as HTMLElement).dataset.step))), { rootMargin: '-46% 0px -44% 0px' });
-    steps.forEach((s) => io.observe(s));
-  }
-</script>
-
 <style>
-  /* ── head media: one readable screen on a navy plate, caption beside it ── */
-  .ai-m {
-    margin: 0;
+  /* ── head ── */
+  .ah {
+    padding-top: clamp(28px, 3.4vw, 56px);
+  }
+  .ah-crumb {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    color: var(--ash);
+  }
+  .ah-crumb a {
+    color: var(--print);
+    text-decoration: none;
+  }
+  .ah-crumb a:hover {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+  .ah-g {
     display: grid;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    column-gap: var(--col-gap);
-    row-gap: 24px;
-    align-items: end;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    column-gap: clamp(32px, 4vw, 72px);
+    align-items: center;
+    margin-top: clamp(28px, 3vw, 48px);
   }
-  .ai-plate {
-    grid-column: 1 / span 9;
-    grid-row: 1;
-    display: block;
-    padding: clamp(14px, 2vw, 32px);
-    border-radius: var(--r);
-    background: radial-gradient(120% 100% at 30% 15%, color-mix(in srgb, var(--m-navy) 75%, var(--print) 10%) 0%, var(--m-navy) 55%, color-mix(in srgb, var(--m-navy) 60%, var(--film)) 100%);
-  }
-  .ai-plate picture {
-    display: block;
-  }
-  .ai-plate img {
-    width: 100%;
-    transition: transform 0.55s var(--e-out);
-  }
-  .ai-plate:hover img {
-    transform: translateY(-6px);
-  }
-  .ai-cap {
-    grid-column: 10 / span 3;
-    grid-row: 1;
-    padding-bottom: 6px;
-  }
-  .ai-n {
-    font-size: clamp(26px, 2vw, 34px);
+  .ah-t {
+    max-width: 13ch;
+    font-size: clamp(42px, 4.4vw, 72px);
     font-weight: 500;
-    letter-spacing: -0.035em;
-    line-height: 1.02;
+    letter-spacing: -0.045em;
+    line-height: 0.96;
+    text-wrap: balance;
   }
-  .ai-n .d {
-    margin-top: 10px;
-    font-size: var(--fs-copy);
-    letter-spacing: 0;
-    line-height: 1.35;
+  .ah-l {
+    margin-top: clamp(20px, 2vw, 28px);
+    max-width: 52ch;
+    font-size: clamp(19px, 1.45vw, 22px);
+    line-height: 1.45;
+    color: var(--copy);
   }
-  .ai-f {
-    margin-top: 16px;
+  .ah-m {
+    margin: 0;
   }
-  .ai-go {
+  .ah-cap {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 8px 24px;
     margin-top: 18px;
   }
-  .ai-go .ar {
-    color: var(--flare);
+  .ah-cap .ah-n {
+    flex: 1 1 100%;
+  }
+  .ah-plate {
+    display: block;
+    padding: clamp(14px, 1.8vw, 28px);
+    border-radius: var(--r);
+    background: var(--ui-dark);
+    box-shadow: 0 0 0 1px var(--rule-film);
+  }
+  .ah-plate img {
+    width: 100%;
+    background-size: 100% 100%;
+    transition: transform 0.55s var(--e-out);
+  }
+  .ah-plate:hover img {
+    transform: translateY(-4px);
+  }
+  .ah-n {
+    font-size: 19px;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    line-height: 1.3;
+  }
+  .ah-n .d {
+    margin-top: 4px;
+    font-weight: 400;
+    font-size: 17px;
+    letter-spacing: 0;
+    line-height: 1.45;
+    color: var(--copy);
   }
 
-  /* ── method (film) ── */
+
+  /* ── method ── */
   .mt {
-    padding-top: calc(var(--sec) * 0.6);
+    padding-top: var(--sec);
   }
-  .mt-hd {
-    max-width: 980px;
-    margin-bottom: clamp(32px, 3.4vw, 52px);
+  .mt-h {
+    max-width: 16ch;
   }
   .mt-brief {
     margin-top: 22px;
-    max-width: 66ch;
+    max-width: 64ch;
   }
   .mt-g {
-    display: grid;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    column-gap: var(--col-gap);
-    align-items: start;
-  }
-  .mt-steps {
-    grid-column: 1 / span 4;
     list-style: none;
-    margin: 0;
+    margin: clamp(36px, 4vw, 56px) 0 0;
     padding: 0;
-  }
-  .mt-s {
     display: grid;
-    grid-template-columns: 30px 1fr;
-    column-gap: 10px;
-    padding: 2vh 0;
-    color: var(--ash);
-    transition: color 0.45s var(--e-out);
-  }
-  .mt-s:first-child {
-    padding-top: 0;
-  }
-  .mt-n {
-    font-size: 15px;
-    font-weight: 600;
-    padding-top: 6px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(32px, 3.4vw, 48px) clamp(32px, 5vw, 96px);
+    max-width: 1180px;
   }
   .mt-t {
-    font-size: clamp(22px, 1.8vw, 28px);
+    font-size: clamp(24px, 2vw, 32px);
     font-weight: 500;
-    letter-spacing: -0.025em;
+    letter-spacing: -0.03em;
     line-height: 1.1;
   }
   .mt-d {
-    margin-top: 6px;
-    font-size: 17px;
-    line-height: 1.5;
-  }
-  .mt-m {
-    margin-top: 6px;
-    font-size: 15px;
-    font-weight: 500;
-  }
-  .mt-s.on {
+    margin-top: 10px;
+    font-size: var(--fs-copy);
+    line-height: 1.55;
     color: var(--copy);
+    max-width: 52ch;
   }
-  .mt-s.on .mt-t {
-    color: var(--print);
-  }
-  .mt-s.on .mt-n {
-    color: var(--flare);
-  }
-  .mt-r {
-    grid-column: 5 / span 8;
-    position: sticky;
-    top: calc(var(--hdr) + 28px);
-    padding-left: clamp(0px, 1.6vw, 24px);
-  }
-  .mt-stack {
-    position: relative;
-    aspect-ratio: 2296 / 900;
-    border-radius: var(--r);
-    background: var(--ui-dark);
-    box-shadow: var(--shadow-screen);
-    overflow: hidden;
-  }
-  .mt-stack img {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    object-position: 50% 50%;
-    box-shadow: none;
-    border-radius: 0;
-    visibility: hidden;
-  }
-  .mt-stack img.on {
-    visibility: visible;
-  }
-  .mt-caps {
-    display: grid;
-    margin-top: 18px;
-  }
-  .mt-c {
-    grid-area: 1 / 1;
+  .mt-go {
+    margin-top: clamp(32px, 3vw, 44px);
     font-size: 17px;
-    font-weight: 500;
-    color: var(--print);
-    visibility: hidden;
-  }
-  .mt-c.on {
-    visibility: visible;
-  }
-  .mt-disc {
-    margin-top: 6px;
-    font-size: 15px;
-    color: var(--ash);
-  }
-  .mt-out {
-    margin-top: clamp(40px, 4.4vw, 72px);
-    max-width: 1180px;
-    font-size: clamp(22px, 2.05vw, 33px);
-    font-weight: 500;
-    letter-spacing: -0.03em;
-    line-height: 1.15;
-    text-wrap: pretty;
-  }
-  .mt-out-k {
-    color: var(--ash);
-  }
-  .mt-o {
-    color: var(--print);
-  }
-  .mt-o:nth-child(odd) {
-    color: var(--copy);
   }
 
-  /* ── approaches (bone): an autonomy scale ── */
+  /* ── the right tool (bone): one axis ── */
   .ap {
-    margin-top: calc(var(--sec) * 0.6);
-    padding-block: calc(var(--sec) * 0.6);
+    margin-top: var(--sec);
+    padding-block: calc(var(--sec) * 0.72);
   }
   .ap-h {
     max-width: 16ch;
   }
   .ap-lede {
     margin-top: 20px;
-    max-width: 52ch;
+    max-width: 56ch;
   }
-  .ap-g {
-    list-style: none;
-    margin: clamp(32px, 3.4vw, 56px) 0 0;
-    padding: 0;
-    display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    gap: 0 var(--col-gap);
-    align-items: start;
+  .ax {
+    margin-top: clamp(40px, 4vw, 64px);
   }
-  .ap-i {
-    display: grid;
-    align-content: start;
-  }
-  .ap-bar {
-    display: block;
-    height: clamp(48px, 4.6vw, 72px);
-    margin-bottom: 20px;
-    border-radius: 2px;
-    background: linear-gradient(to top, var(--ink) calc(var(--k) * 16.666%), var(--bone-2) 0);
-  }
-  .ap-t {
-    font-size: clamp(20px, 1.55vw, 25px);
-    font-weight: 500;
-    letter-spacing: -0.02em;
-    line-height: 1.12;
-    min-height: 2.3em;
-  }
-  .ap-d {
-    margin-top: 10px;
-    font-size: 17px;
-    line-height: 1.5;
-    color: var(--copy-ink);
-  }
-  .ap-ex {
-    margin-top: 12px;
-    justify-self: start;
-  }
-  .ap-scale {
+  .ax-ends {
     display: flex;
     justify-content: space-between;
-    margin-top: 14px;
-    padding-top: 10px;
-    border-top: 1px solid var(--rule-ink);
     font-size: 15px;
-    font-weight: 500;
-    color: var(--ink-soft);
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .ax-g {
+    position: relative;
+    list-style: none;
+    margin: 12px 0 0;
+    padding: 28px 0 0;
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    column-gap: var(--col-gap);
+    border-top: 2px solid var(--ink);
+  }
+  /* the line is the scale; each approach hangs from its tick */
+  .ax-i {
+    position: relative;
+  }
+  .ax-i::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: -36px;
+    width: 2px;
+    height: 16px;
+    background: var(--ink);
+  }
+  .ax-t {
+    font-size: 19px;
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--ink);
+  }
+  .ax-d {
+    margin-top: 8px;
+    font-size: 17px;
+    line-height: 1.45;
+    color: var(--copy-ink);
+  }
+  .ax-ex {
+    margin-top: 10px;
+    font-size: 16px;
+    color: var(--ink);
   }
   .ag {
-    margin-top: clamp(48px, 4.6vw, 72px);
-    display: grid;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    column-gap: var(--col-gap);
-    row-gap: 18px;
+    margin-top: clamp(56px, 6vw, 96px);
   }
   .ag-h {
-    grid-column: 1 / -1;
-    font-size: 17px;
+    font-size: 19px;
     font-weight: 600;
+    color: var(--ink);
   }
   .ag-cy {
-    grid-column: 1 / -1;
     display: flex;
     flex-wrap: wrap;
-    gap: 0 0.3em;
-    font-size: clamp(34px, 4.1vw, 64px);
+    align-items: baseline;
+    gap: 4px 0;
+    margin-top: 12px;
+    font-size: clamp(34px, 4vw, 66px);
     font-weight: 500;
-    letter-spacing: -0.05em;
-    line-height: 1;
+    letter-spacing: -0.045em;
+    line-height: 1.05;
+    color: var(--ink);
   }
   .ag-w i {
-    margin-left: 0.3em;
     font-style: normal;
-    font-weight: 300;
+    margin: 0 0.32em;
     color: var(--ink-soft);
+    font-weight: 400;
   }
   .ag-w.last {
     color: var(--flare-ink);
   }
   .ag-p {
-    grid-column: 6 / span 7;
-    margin-top: 10px;
+    margin-top: 22px;
+    max-width: 64ch;
   }
   .ag-a {
     color: inherit;
-    font-weight: 500;
+    font-weight: 600;
     text-decoration: underline;
     text-decoration-thickness: 1px;
     text-underline-offset: 4px;
@@ -683,87 +581,67 @@ const [secLead, ...secRest] = security;
     text-underline-offset: 4px;
   }
 
+
   @media (max-width: 1100px) {
     .en-g {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
-    .ap-g {
+    .ax-g {
       grid-template-columns: repeat(3, minmax(0, 1fr));
       row-gap: 40px;
     }
   }
   @media (max-width: 900px) {
-    .ai-plate,
-    .ai-cap {
-      grid-column: 1 / -1;
-      grid-row: auto;
+    .ah-g {
+      grid-template-columns: 1fr;
+      row-gap: 32px;
     }
-    .ai-plate {
-      padding: 12px;
+    .ah-plate {
+      margin-inline: calc(var(--in) * -1 - var(--gut));
+      padding: 0;
+      border-radius: 0;
+      box-shadow: none;
     }
-    /* phones: the app's own 390px layout of the route (m-route@2x), whole and readable */
-    .ai-plate img {
+    .ah-plate img {
       width: 100%;
-      height: auto;
     }
     .mt-g {
-      display: flex;
+      grid-template-columns: 1fr;
+    }
+    .ax-g {
+      grid-template-columns: 1fr;
+      row-gap: 26px;
+      border-top: 0;
+      border-left: 2px solid var(--ink);
+      padding: 0 0 0 22px;
+    }
+    .ax-i::before {
+      left: -22px;
+      top: 9px;
+      width: 14px;
+      height: 2px;
+    }
+    .ax-ends {
       flex-direction: column;
+      gap: 4px;
     }
-    .mt-r {
-      order: -1;
-      top: calc(var(--hdr) + 8px);
-      z-index: 2;
-      width: 100%;
-      background: var(--film);
-      padding: 0 0 12px;
-      margin-bottom: 20px;
-    }
-    /* phones: a 4:3 window onto the screen's key area, never a 4px-text miniature */
-    .mt-stack {
-      aspect-ratio: 4 / 3;
-    }
-    .mt-stack img {
-      object-fit: cover;
-      object-position: var(--pos);
-    }
-    .mt-c {
-      font-size: 15px;
-    }
-    .mt-caps {
-      margin-top: 10px;
-    }
-    .mt-s {
-      padding: 2.4vh 0;
+    .en-g {
+      grid-template-columns: 1fr;
+      gap: 12px;
     }
     .en-hd .t-h2,
     .en-lede,
     .en-need,
     .en-keep,
     .sc-l,
-    .sc-r,
-    .ag-p {
+    .sc-r {
       grid-column: 1 / -1;
     }
     .sc-r {
       grid-template-columns: 1fr;
     }
-    .ap-scale {
-      display: none;
-    }
-  }
-  @media (max-width: 560px) {
-    .en-g,
-    .ap-g {
-      grid-template-columns: 1fr;
-    }
-    .ap-t {
-      min-height: 0;
-    }
-    .ap-bar {
-      height: 8px;
-      margin-bottom: 14px;
-      background: linear-gradient(to right, var(--ink) calc(var(--k) * 16.666%), var(--bone-2) 0);
+    .en-key {
+      white-space: normal;
     }
   }
 </style>

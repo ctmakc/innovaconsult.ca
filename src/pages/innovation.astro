@@ -9,6 +9,7 @@ import SectionHead from '../components/SectionHead.astro';
 import Brief from '../components/cap/Brief.astro';
 import CapNext from '../components/cap/CapNext.astro';
 import { SHOT, RIDEAU_CREDIT } from '../components/cap/media';
+import { WOS3 } from '../data/wos3';
 import { visibleProjects, projectHref, type Project } from '../data/projects';
 import { STAGES, type Span } from '../data/stages';
 
@@ -60,7 +61,7 @@ const publicSector = ['Digital services', 'Workflow automation', 'Knowledge syst
     { name: 'Capabilities', path: '/capabilities' },
     { name: 'Innovation & R&D', path: '/innovation' }
   ]}
-  cta={{ photo: 'festival' }}
+  cta={{ title: 'Bring us a research question.', lede: 'Tell us the question and what you already know. Every message is read by a person, and we reply by email.', link: { href: '/partnerships', label: 'Partnership models' } }}
   credits={[RIDEAU_CREDIT]}
 >
   <CapHead
@@ -149,7 +150,7 @@ const publicSector = ['Digital services', 'Workflow automation', 'Knowledge syst
             statusLabel="Prototype · demo data"
             material="navy"
             fact="Online since 1 October 2026 as an invite-only demo with a fictional 30-person services firm and 15 mapped workflows."
-            screens={[{ ...SHOT.wosMap, l: '7%', t: '10%', width: '86%', lm: '5%', tm: '10%', wm: '90%' }]}
+            screens={[{ src: WOS3.discovery.src, srcset: WOS3.discovery.srcset, w: WOS3.discovery.w * 2, h: WOS3.discovery.h * 2, alt: WOS3.discovery.alt, poster: 'dark', l: '5%', t: '12%', width: '90%', lm: '4%', tm: '10%', wm: '92%' }]}
           />
         )
       }

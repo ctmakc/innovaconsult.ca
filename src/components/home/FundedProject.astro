@@ -1,57 +1,73 @@
 ---
-// Home: "What a funded project with INNOVA looks like" — one compact screen for IRAP / Invest Ottawa
-// readers. The four parts are worded exactly as on /innovation (and the a593688 home); the example is
-// OpenField, a real screenshot in its world (dawn field with a robot). Facts: src/data/projects.ts.
-import MediaFrame from '../MediaFrame.astro';
+// Home: "What a funded project with INNOVA looks like" (round 5) — one compact screen for IRAP /
+// Invest Ottawa readers. The four parts (as on /innovation) are filled with the concrete OpenField
+// instance, set as one table at body size, with the R&D links beside it. Every OpenField line restates
+// src/data/projects.ts or /innovation (prototype on demo and simulated data; field validation planned
+// for the 2027 season with Ontario dealers and growers running robots from more than one manufacturer).
+// The picture is the technician's "Needs a person" screen at its natural size (3x capture).
 import StatusTag from '../StatusTag.astro';
-import { asScreen } from '../../data/crops';
 import { HOME_MEDIA } from './media';
 import { visibleProjects, projectHref } from '../../data/projects';
 
 const of = visibleProjects.find((p) => p.slug === 'openfield')!;
+const shot = HOME_MEDIA.openfieldEntry;
 
 const PARTS = [
-  { k: 'Question', t: 'A written technical question and the uncertainty behind it.' },
-  { k: 'Baseline and target', t: 'A starting point and a target for the work.' },
-  { k: 'Milestones', t: 'Two or three milestones, each ending in something a reviewer can run.' },
-  { k: 'Results', t: 'Measured results, including the experiments that failed.' }
+  {
+    k: 'Question',
+    t: 'Can one logbook record what farm robots from different manufacturers did, where they failed and what the grower must report?'
+  },
+  {
+    k: 'Baseline and target',
+    t: 'Today dealers who service robots from many brands keep no common record. Target: field validation in the 2027 season with Ontario dealers and growers running robots from more than one manufacturer.'
+  },
+  { k: 'Milestones', t: 'A working prototype on demo and simulated data, done. Field validation in the 2027 growing season, planned.' },
+  { k: 'Results', t: 'Reported against the target after the 2027 season, including the experiments that fail.' }
 ];
 ---
 
 <section class="fp shell" id="funded" aria-labelledby="fp-h">
-  <div class="fp-g inset">
-    <div class="fp-l">
-      <h2 id="fp-h" class="fp-h" data-rise>What a funded project with INNOVA looks like</h2>
-      <p class="fp-lede">Four parts, written before the work starts and reported against when it ends.</p>
-      <ol class="fp-parts">
-        {
-          PARTS.map((p) => (
-            <li>
-              <b>{p.k}</b>
-              <span>{p.t}</span>
-            </li>
-          ))
-        }
-      </ol>
-      <p class="fp-links">
-        <a class="lnk" href="/innovation#funded">How we run R&amp;D <span class="ar" aria-hidden="true">→</span></a>
-        <a class="lnk" href="/partnerships">Partnership models <span class="ar" aria-hidden="true">→</span></a>
-      </p>
+  <div class="inset">
+    <div class="fp-hd">
+      <h2 id="fp-h" class="t-h2 fp-h" data-rise>What a funded project with INNOVA looks like</h2>
+      <p class="fp-lede">Four parts, written before the work starts and reported against when it ends. The example is <a href={projectHref(of)}>{of.short}</a>, our logbook for ag-robot fleets.</p>
     </div>
 
-    <MediaFrame
-      class="fp-ex"
-      href={projectHref(of)}
-      size="half"
-      aspect="16 / 10.4"
-      aspectM="4 / 3.8"
-      world={{ src: '/img/field-robot.webp', src800: '/img/field-robot-800.webp', w: 1376, h: 768, pos: '50% 60%' }}
-      screens={[asScreen(HOME_MEDIA.openfieldEntry, { l: '40%', t: '7%', width: '54%', lm: '30%', tm: '7%', wm: '62%' })]}
-    >
-      <StatusTag status={of.status} />
-      <p class="fp-exn two-tone">Example: {of.short}<span class="d">{of.tagline}</span></p>
-      <p class="fp-exf">Prototype on demo data today; field validation planned for the 2027 season.</p>
-    </MediaFrame>
+    <div class="fp-g">
+      <table class="fp-t">
+        <caption class="sr-only">The four parts of a funded project, with OpenField as the example</caption>
+        <tbody>
+          {
+            PARTS.map((p) => (
+              <tr>
+                <th scope="row">{p.k}</th>
+                <td>{p.t}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+
+      <div class="fp-side">
+        <a class="fp-shot" href={projectHref(of)} aria-label={`${of.short}: open the project`}>
+          <img
+            src={shot.src}
+            srcset={shot.srcset}
+            sizes="(max-width: 900px) 86vw, 400px"
+            alt={shot.alt}
+            width={shot.w}
+            height={shot.h}
+            loading="lazy"
+            decoding="async"
+          />
+        </a>
+        <p class="fp-cap"><StatusTag status={of.status} /> <span>Technician entry screen, demo data</span></p>
+        <p class="fp-links">
+          <a class="lnk" href="/innovation#funded">How we run R&amp;D <span class="ar" aria-hidden="true">→</span></a>
+          <a class="lnk" href="/partnerships">Partnership models <span class="ar" aria-hidden="true">→</span></a>
+        </p>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -59,94 +75,114 @@ const PARTS = [
   .fp {
     padding-top: var(--sec);
   }
-  .fp-g {
-    display: grid;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    column-gap: var(--col-gap);
-    align-items: center;
-  }
-  .fp-l {
-    grid-column: 1 / span 5;
+  .fp-hd {
+    max-width: 980px;
   }
   .fp-h {
-    font-size: clamp(36px, 3.6vw, 58px);
-    font-weight: 500;
-    letter-spacing: -0.04em;
-    line-height: 1;
-    text-wrap: balance;
-    max-width: 13ch;
+    max-width: 16ch;
   }
   .fp-lede {
-    margin-top: 18px;
-    max-width: 36ch;
-    font-size: 18px;
+    margin-top: 20px;
+    max-width: 52ch;
+    font-size: var(--fs-copy);
     line-height: 1.5;
-    color: var(--ash);
+    color: var(--copy);
   }
-  .fp-parts {
-    list-style: none;
-    margin: clamp(28px, 3vw, 40px) 0 0;
-    padding: 0;
+  .fp-lede a {
+    color: var(--print);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 4px;
+  }
+  .fp-g {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: clamp(22px, 2.2vw, 32px) var(--col-gap);
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 400px);
+    column-gap: clamp(32px, 5vw, 96px);
+    align-items: start;
+    margin-top: clamp(36px, 4vw, 56px);
   }
-  .fp-parts li {
-    display: grid;
-    gap: 6px;
-    align-content: start;
+  .fp-t {
+    width: 100%;
+    border-collapse: collapse;
   }
-  .fp-parts b {
+  .fp-t tr {
+    border-top: 1px solid var(--rule-film);
+  }
+  .fp-t tr:last-child {
+    border-bottom: 1px solid var(--rule-film);
+  }
+  .fp-t th,
+  .fp-t td {
+    padding: clamp(18px, 1.8vw, 26px) 0;
+    vertical-align: top;
+    text-align: left;
+  }
+  .fp-t th {
+    width: 32%;
+    padding-right: 24px;
     font-size: clamp(20px, 1.6vw, 24px);
-    font-weight: 600;
+    font-weight: 500;
     letter-spacing: -0.02em;
-    line-height: 1.15;
+    line-height: 1.2;
     color: var(--print);
   }
-  /* a 2x2 grid reads in source order; no arrows, because a → after the second part would point away from the third */
-  .fp-parts span {
-    font-size: 17px;
-    line-height: 1.45;
+  .fp-t td {
+    font-size: var(--fs-copy);
+    line-height: 1.5;
+    color: var(--copy);
+    max-width: 52ch;
+  }
+  .fp-shot {
+    display: block;
+    border-radius: var(--r);
+    overflow: hidden;
+    box-shadow: var(--shadow-screen);
+    background: var(--bone-2);
+    transition: transform 0.55s var(--e-out);
+  }
+  .fp-shot:hover {
+    transform: translateY(-6px);
+  }
+  .fp-shot img {
+    width: 100%;
+  }
+  .fp-cap {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 14px;
+    margin-top: 14px;
+    font-size: 15px;
     color: var(--ash);
   }
   .fp-links {
     display: flex;
     flex-wrap: wrap;
     gap: 12px 28px;
-    margin-top: clamp(28px, 3vw, 40px);
+    margin-top: 24px;
     font-size: 17px;
-  }
-  .fp-g > :global(.fp-ex) {
-    grid-column: 7 / -1;
-  }
-  .fp-exn {
-    margin-top: 12px;
-    font-size: clamp(24px, 2vw, 32px);
-    font-weight: 500;
-    letter-spacing: -0.03em;
-    line-height: 1.05;
-  }
-  .fp-exf {
-    margin-top: 10px;
-    font-size: 17px;
-    line-height: 1.45;
-    color: var(--print);
-    max-width: 48ch;
   }
 
   @media (max-width: 900px) {
     .fp-g {
-      display: flex;
-      flex-direction: column;
-      align-items: stretch;
-      gap: 36px;
-    }
-    .fp-parts {
       grid-template-columns: 1fr;
-      gap: 20px;
+      row-gap: 36px;
     }
-    .fp-g > :global(.fp-ex) {
-      margin-inline: calc(var(--in) * -1);
+    .fp-t th,
+    .fp-t td {
+      display: block;
+      width: auto;
+      padding: 0;
+    }
+    .fp-t th {
+      padding-top: 18px;
+      font-size: 20px;
+    }
+    .fp-t td {
+      padding: 6px 0 18px;
+    }
+    .fp-side {
+      max-width: 420px;
     }
   }
 </style>

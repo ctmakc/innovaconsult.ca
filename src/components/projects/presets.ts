@@ -7,6 +7,8 @@ import type { FrameScreen, FrameWorld } from '../MediaFrame.astro';
 import type { ProofImage } from '../../data/projects';
 import { CROPS, asScreen } from '../../data/crops';
 import { WOS2, CARD, hires } from './shots';
+import { HOME_MEDIA } from '../home/media';
+import { WOS3 } from '../../data/wos3';
 // Placements use l/lm only: MediaFrame writes `r` to the --r custom property, which is also the
 // global corner-radius token, so an `r` offset would round the screenshot's corners by that much.
 
@@ -31,6 +33,9 @@ export interface Preset {
   extra?: ProofImage[];
   /** Screenshots already shown in the detail hero, left out of its gallery. */
   heroSrcs?: string[];
+  /** Round 5: what the /projects tile shows when it differs from the detail-page hero
+   *  (one visual per card; no crop repeated from the home page). */
+  tile?: { world?: FrameWorld | null; material?: Material; full?: FrameScreen[]; half?: FrameScreen[]; aspectM?: string };
 }
 
 const S0 = {
@@ -105,7 +110,14 @@ export const PRESETS: Record<string, Preset> = {
     full: [asScreen(CROPS.uafestForm, { l: '50%', t: '10%', width: '45%', lm: '6%', tm: '7%', wm: '88%' })],
     half: [asScreen(CROPS.uafestForm, { l: '30%', t: '19%', width: '64%', lm: '6%', tm: '16%', wm: '88%', depth: D })],
     aspectM: '4 / 3.3',
-    heroSrcs: [CROPS.uafestForm.src]
+    heroSrcs: [CROPS.uafestForm.src],
+    // /projects: the certificate register alone on the festival's navy, large enough to read
+    tile: {
+      world: null,
+      material: 'navy',
+      full: [asScreen(HOME_MEDIA.uafestCert, { l: '45%', t: '24%', width: '50%', lm: '5%', tm: '22%', wm: '90%' })],
+      aspectM: '4 / 2.4'
+    }
   },
   foundwall: {
     fact: 'Web platform live; iOS and Android apps in public beta. Every photo loses its location data before anyone sees it.',
@@ -115,14 +127,18 @@ export const PRESETS: Record<string, Preset> = {
       { ...S.fwPhone, l: '82.5%', t: '17%', width: '12.5%', lm: '67%', tm: '16%', wm: '27%', depth: 1.6 }
     ],
     half: [asScreen(CROPS.foundwall, { l: '11%', t: '11.5%', width: '78%', lm: '8%', tm: '16%', wm: '84%', depth: D })],
-    heroSrcs: [S.fwHome.src, S.fwPhone.src]
+    heroSrcs: [S.fwHome.src, S.fwPhone.src],
+    // /projects: a notice page (home shows the Lost, Stolen, Found front page)
+    tile: { half: [asScreen(CROPS.foundwallNotice, { l: '6%', t: '7%', width: '88%', lm: '5%', tm: '6%', wm: '90%', depth: D })] }
   },
   babakokum: {
     fact: 'On the App Store since 24 September 2026, and playable on the web. Runs fully offline.',
     world: { src: '/img/babakokum-title.webp', src800: '/img/babakokum-title-800.webp', w: 1376, h: 768, pos: '30% 40%' },
     full: [{ ...S.bkRules, l: '62%', t: '9%', width: '34%', lm: '14%', tm: '7%', wm: '72%' }],
     half: [asScreen(CROPS.babakokum, { l: '9%', t: '17.5%', width: '82%', lm: '6%', tm: '22%', wm: '88%', depth: D })],
-    heroSrcs: [S.bkRules.src]
+    heroSrcs: [S.bkRules.src],
+    // /projects: the rules card on the porch art (home shows the key art alone)
+    tile: { world: { src: '/img/babakokum-porch.webp', w: 760, h: 720, pos: '50% 30%' } }
   },
   openfield: {
     fact: 'Field validation is planned for the 2027 season, with Ontario dealers and growers running robots from more than one manufacturer.',
@@ -143,7 +159,9 @@ export const PRESETS: Record<string, Preset> = {
         caption: 'OpenField dispatcher view with demo data: stops that need a person, then the fleet.'
       }
     ],
-    heroSrcs: [S.ofReport.src, S.ofPhone.src]
+    heroSrcs: [S.ofReport.src, S.ofPhone.src],
+    // /projects: the technician's "Needs a person" screen at its natural size
+    tile: { half: [asScreen(HOME_MEDIA.openfieldEntry, { l: '33%', t: '6%', width: '58%', lm: '22%', tm: '6%', wm: '72%', depth: D })], aspectM: '4 / 3.6' }
   },
   'workflow-os': {
     fact: 'Invite-only demo online since 1 October 2026, on a fictional 30-person firm with 15 mapped workflows. 226 automated tests.',
@@ -154,7 +172,11 @@ export const PRESETS: Record<string, Preset> = {
       { ...WOS2.route, poster: 'dark', l: '46%', t: '12%', width: '50%', lm: '6%', tm: '10%', wm: '88%', depth: 0.8 },
       { ...WOS2.score, poster: 'dark', l: '52%', t: '50%', width: '44%', lm: '20%', tm: '52%', wm: '74%', depth: 1.3 }
     ],
-    half: [{ ...CARD.wosScore, poster: 'dark', l: '10%', t: '21%', width: '80%', lm: '6%', tm: '24.5%', wm: '88%', depth: D }]
+    half: [{ ...CARD.wosScore, poster: 'dark', l: '10%', t: '21%', width: '80%', lm: '6%', tm: '24.5%', wm: '88%', depth: D }],
+    // /projects: the process landscape (the score waterfall stays in the home hero and module 02)
+    tile: {
+      half: [{ src: WOS3.m_land2.src, srcset: WOS3.m_land2.srcset, w: WOS3.m_land2.w * 3, h: WOS3.m_land2.h * 3, alt: WOS3.m_land2.alt, poster: 'dark', l: '15%', t: '8%', width: '70%', lm: '6%', tm: '7%', wm: '88%', depth: D }]
+    }
   },
   aicrmius: {
     fact: 'Agents propose, a person approves, every change can be undone.',

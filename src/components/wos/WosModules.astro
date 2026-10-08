@@ -1,13 +1,21 @@
 ---
-// Five modules (round 4): ONE signature section, a sticky deck. Each module is a card in its own
-// material with a real Workflow OS UI v2 crop on it at (or above) its natural size, so the UI text
-// reads at 12-14 css px. On desktop the cards stick and stack; the card underneath recedes as the
-// next one slides over it (transform + overlay only). Tablets and phones get the app's own 390px
-// layout of the same panel as a 2x crop. Factor lists, patterns, levels, phases, the technology and
-// the data/AI note live in two collapsed <details>; the product boundary is a two-line callout.
+// Five modules (round 5): ONE dark stage. A five-step rail on the left (Discover · Score · Design ·
+// Deliver · Impact) and ONE framed 2x crop of the Workflow OS UI v2 on the right (about 8 of 12
+// columns); a step swaps the screen instantly. Each crop is one region cut on panel boundaries
+// (src/data/wos3.ts), shown at 1 to 1.15x its natural CSS size, so UI text reads at 13 px or more.
+// No coloured plates, no numerals, no app buttons in the crops. Phones: each step shows the app's
+// own 390 px layout of the same panel under its text, full width. Factor lists, patterns, levels,
+// phases, the technology and the data/AI note live in two collapsed <details>.
 import { MODULES, QA, RISK, TECHNOLOGY } from './data';
+import { WOS3 } from '../../data/wos3';
 
-const MAT = ['var(--m-evergreen)', 'var(--m-navy)', 'var(--m-loam)', 'var(--m-evergreen)', 'var(--m-navy)'];
+const STEPS = [
+  { k: 'Discover', d: WOS3.discovery, m: WOS3.m_discovery },
+  { k: 'Score', d: WOS3.score, m: WOS3.m_score },
+  { k: 'Design', d: WOS3.route, m: WOS3.m_route },
+  { k: 'Deliver', d: WOS3.plan, m: WOS3.m_plan },
+  { k: 'Impact', d: WOS3.impact, m: WOS3.m_impact }
+].map((x, i) => ({ ...x, mod: MODULES[i] }));
 const score = MODULES.find((m) => m.formula)!;
 const design = MODULES.find((m) => m.patterns)!;
 const impl = MODULES.find((m) => m.phases)!;
@@ -21,39 +29,57 @@ const impl = MODULES.find((m) => m.phases)!;
       <p class="mods-note">Screens from the working prototype. The company in them is fictional and every number is illustrative.</p>
     </div>
 
-    <ol class="deck" data-deck>
-      {
-        MODULES.map((m, i) => (
-          <li class="card" id={`module-${i + 1}`} style={`--i:${i};--mat:${MAT[i]}`} data-card>
-            <div class="card-hd">
-              <h3 class="card-h">
-                <span class="card-n tnum" aria-hidden="true">
-                  {String(i + 1).padStart(2, '0')}
-                </span>
-                {m.name}
-              </h3>
-              <p class="card-l">{m.line}</p>
-            </div>
-            <figure class="card-scr">
-              <picture>
-                {m.shot.m && <source media="(max-width: 999px)" srcset={`${m.shot.m.src} 764w`} sizes="(max-width: 760px) 92vw, 420px" width={m.shot.m.w} height={m.shot.m.h} />}
+    <div class="stg inset" data-stg>
+      <ol class="stg-rail">
+        {
+          STEPS.map((x, i) => (
+            <li class:list={['stg-step', { on: i === 0 }]} id={`module-${i + 1}`} data-step={i}>
+              <button type="button" class="stg-b" aria-pressed={i === 0 ? 'true' : 'false'} aria-controls="stg-frame">
+                <span class="stg-k">{x.k}</span>
+                <span class="stg-n">{x.mod.name}</span>
+                <span class="stg-l">{x.mod.line}</span>
+              </button>
+              <figure class="stg-m">
                 <img
-                  class="scr-dark"
-                  src={m.shot.src2x}
-                  srcset={`${m.shot.src} ${m.shot.w}w, ${m.shot.src2x} ${m.shot.w * 2}w`}
-                  sizes={`(min-width: 1400px) ${Math.round(m.shot.w * 1.25)}px, ${m.shot.w}px`}
-                  width={m.shot.w}
-                  height={m.shot.h}
-                  alt={m.shot.alt}
+                  src={x.m.src}
+                  srcset={x.m.srcset}
+                  sizes="100vw"
+                  alt={x.m.alt}
+                  width={x.m.w}
+                  height={x.m.h}
                   loading="lazy"
                   decoding="async"
+                  style={`background-image:url(${x.m.lqip})`}
                 />
-              </picture>
-            </figure>
-          </li>
-        ))
-      }
-    </ol>
+              </figure>
+            </li>
+          ))
+        }
+      </ol>
+      <figure class="stg-f" id="stg-frame">
+        <div class="stg-box" role="region" aria-label="Workflow OS screen">
+          {
+            STEPS.map((x, i) => (
+              <img
+                class:list={['stg-img', { on: i === 0 }]}
+                data-img={i}
+                src={x.d.src}
+                srcset={x.d.srcset}
+                sizes={`(max-width: 900px) 1px, ${Math.round(x.d.w * 1.15)}px`}
+                alt={x.d.alt}
+                width={x.d.w}
+                height={x.d.h}
+                loading={i < 2 ? 'eager' : 'lazy'}
+                fetchpriority="low"
+                decoding="async"
+                style={`--w:${x.d.w}px;background-image:url(${x.d.lqip})`}
+              />
+            ))
+          }
+        </div>
+        <figcaption class="stg-cap">Demo data: Northstar Professional Services is a fictional 30-person firm, and every number is illustrative.</figcaption>
+      </figure>
+    </div>
 
     <div class="inset">
       <div class="more">
@@ -138,57 +164,30 @@ const impl = MODULES.find((m) => m.phases)!;
 </section>
 
 <script>
-  // The card underneath recedes while the next one slides over it: --p 0→1 drives scale + overlay.
-  // Runs only where the deck is sticky (same media query as the CSS) and motion is allowed.
-  const deck = document.querySelector<HTMLElement>('[data-deck]');
-  const mq = window.matchMedia('(min-width: 1000px) and (min-height: 700px) and (prefers-reduced-motion: no-preference)');
-  if (deck) {
-    const cards = Array.from(deck.querySelectorAll<HTMLElement>('[data-card]'));
-    const scrs = Array.from(deck.querySelectorAll<HTMLElement>('.card-scr'));
-    let raf = 0;
-    const tick = () => {
-      raf = 0;
-      if (!mq.matches) {
-        cards.forEach((c) => c.style.removeProperty('--p'));
-        scrs.forEach((f) => {
-          f.classList.remove('is-cut');
-          f.style.removeProperty('max-width');
-        });
-        return;
-      }
-      const vh = window.innerHeight;
-      // Fit each screen to the card height: as wide as the card allows, never below its natural
-      // size (the UI text stays >= 11.5 css px); a crop that still does not fit is cut and faded.
-      scrs.forEach((f) => {
-        const img = f.querySelector('img');
-        const card = f.parentElement;
-        if (!img || !card) return;
-        const w = Number(img.getAttribute('width')) || 0;
-        const h = Number(img.getAttribute('height')) || 1;
-        const cs = getComputedStyle(card);
-        const hd = card.firstElementChild as HTMLElement | null;
-        const avail = card.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - (hd ? hd.offsetHeight : 0) - parseFloat(cs.rowGap || '0');
-        const full = card.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
-        const fit = Math.max(w, Math.min(full, (avail * w) / h, w * 1.25));
-        f.style.maxWidth = `${Math.floor(fit)}px`;
-        f.classList.toggle('is-cut', (fit * h) / w > avail + 1);
+  // A step picks the screen. Instant swap (visibility), so the frame is never blank.
+  const stg = document.querySelector<HTMLElement>('[data-stg]');
+  if (stg) {
+    const steps = [...stg.querySelectorAll<HTMLElement>('[data-step]')];
+    const imgs = [...stg.querySelectorAll<HTMLElement>('[data-img]')];
+    const pick = (i: number) => {
+      steps.forEach((s, j) => {
+        s.classList.toggle('on', j === i);
+        s.querySelector('button')?.setAttribute('aria-pressed', j === i ? 'true' : 'false');
       });
-      for (let i = 0; i < cards.length - 1; i++) {
-        const next = cards[i + 1];
-        const stick = parseFloat(getComputedStyle(next).top) || 0;
-        const t = next.getBoundingClientRect().top;
-        const p = Math.min(1, Math.max(0, (vh - t) / (vh - stick)));
-        cards[i].style.setProperty('--p', p.toFixed(3));
-      }
+      imgs.forEach((m, j) => m.classList.toggle('on', j === i));
     };
-    const req = () => {
-      if (!raf) raf = requestAnimationFrame(tick);
+    steps.forEach((s, i) => {
+      const b = s.querySelector('button');
+      b?.addEventListener('click', () => pick(i));
+      b?.addEventListener('mouseenter', () => window.matchMedia('(hover: hover) and (min-width: 901px)').matches && pick(i));
+    });
+    // links to #module-n (the six questions) open that step
+    const fromHash = () => {
+      const m = /^#module-(\d)$/.exec(location.hash);
+      if (m) pick(Number(m[1]) - 1);
     };
-    window.addEventListener('scroll', req, { passive: true });
-    window.addEventListener('resize', req);
-    deck.querySelectorAll('img').forEach((im) => im.addEventListener('load', req));
-    mq.addEventListener('change', req);
-    tick();
+    window.addEventListener('hashchange', fromHash);
+    fromHash();
   }
 </script>
 
@@ -212,130 +211,139 @@ const impl = MODULES.find((m) => m.phases)!;
     color: var(--ash);
   }
 
-  /* ── the deck ─────────────────────────────────────────────── */
-  .deck {
+  /* ── the stage ─────────────────────────────────────────────── */
+  .stg {
+    display: grid;
+    grid-template-columns: minmax(280px, 4fr) minmax(0, 8fr);
+    column-gap: clamp(28px, 3vw, 56px);
+    align-items: start;
+    padding-right: 0;
+  }
+  .stg-rail {
     list-style: none;
     margin: 0;
     padding: 0;
     display: grid;
-    gap: 20px;
+    gap: 4px;
   }
-  .card {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    padding: clamp(18px, 2vw, 28px);
-    border-radius: var(--r);
-    background: var(--mat);
-    box-shadow: 0 30px 60px -30px rgb(0 0 0 / 0.7);
-    color: var(--print);
+  .stg-b {
+    display: grid;
+    gap: 4px;
+    width: 100%;
+    padding: 16px 0 16px 20px;
+    border: 0;
+    border-left: 2px solid var(--rule-film);
+    background: none;
+    color: var(--ash);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition:
+      color var(--t-micro) var(--e-out),
+      border-color var(--t-micro) var(--e-out);
   }
-  .card-h {
-    display: flex;
-    align-items: baseline;
-    gap: 14px;
-    font-size: clamp(26px, 2.5vw, 40px);
+  .stg-k {
+    font-size: clamp(24px, 2vw, 32px);
     font-weight: 500;
     letter-spacing: -0.03em;
     line-height: 1.05;
   }
-  .card-n {
-    font-size: 17px;
-    font-weight: 600;
-    letter-spacing: 0;
-    color: var(--flare-hi); /* 4.6:1 on evergreen, the darkest pairing */
+  .stg-n {
+    font-size: 15px;
+    font-weight: 500;
   }
-  .card-l {
-    margin-top: 10px;
-    max-width: 74ch;
-    font-size: 18px;
-    line-height: 1.5;
+  .stg-l {
+    display: none;
+    margin-top: 6px;
+    font-size: 17px;
+    line-height: 1.45;
+    color: var(--copy);
+    max-width: 40ch;
+  }
+  .stg-step.on .stg-b,
+  .stg-b:hover {
     color: var(--print);
   }
-  .card-scr {
-    position: relative;
+  .stg-step.on .stg-b {
+    border-left-color: var(--print);
+  }
+  .stg-step.on .stg-l {
+    display: block;
+  }
+  .stg-m {
+    display: none;
     margin: 0;
-    min-height: 0;
-    border-radius: var(--r);
-    overflow: hidden;
+  }
+  .stg-f {
+    position: sticky;
+    top: calc(var(--hdr) + 24px);
+    margin: 0;
+  }
+  .stg-box {
+    position: relative;
+    aspect-ratio: 16 / 8.4;
+    border-radius: var(--r) 0 0 var(--r);
     background: var(--ui-dark);
     box-shadow: 0 0 0 1px var(--rule-film);
   }
-  .card-scr img {
-    display: block;
-    width: 100%;
+  .stg-img {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: min(calc(100% - 48px), calc(var(--w) * 1.15));
     height: auto;
+    max-height: calc(100% - 48px);
+    object-fit: contain;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    visibility: hidden;
+  }
+  .stg-img.on {
+    visibility: visible;
+  }
+  .stg-cap {
+    margin-top: 14px;
+    font-size: 15px;
+    line-height: 1.45;
+    color: var(--ash);
+    max-width: 64ch;
   }
 
-  @media (min-width: 1000px) and (min-height: 700px) {
-    .deck {
-      gap: 0;
-      padding-bottom: 8vh;
+  /* phones and tablets: every step shows its own screen, full width, under its text */
+  @media (max-width: 900px) {
+    .stg {
+      display: block;
+      padding-right: var(--in);
     }
-    .card {
-      position: sticky;
-      top: calc(var(--hdr) + 12px + var(--i) * 12px);
-      height: min(calc(100svh - var(--hdr) - 24px - 48px), 860px);
-      transform-origin: 50% 0;
+    .stg-rail {
+      gap: clamp(40px, 8vw, 56px);
     }
-    .card + .card {
-      margin-top: 22vh;
+    .stg-b {
+      padding: 0;
+      border: 0;
+      color: var(--print);
+      cursor: default;
+      pointer-events: none;
     }
-    /* nothing slides over the last card, so it hugs its (short) impact crop instead of leaving an empty band */
-    .card:last-child {
-      height: auto;
+    .stg-l {
+      display: block;
     }
-    /* the screen keeps its natural height; a crop taller than the card is cut and faded (.is-cut) */
-    .card-scr {
-      flex: 0 1 auto;
+    .stg-m {
+      display: block;
+      margin: 18px calc(var(--in) * -1 - var(--gut)) 0;
+      background: var(--ui-dark);
+    }
+    .stg-m img {
       width: 100%;
+      background-size: 100% 100%;
     }
-    .card-scr.is-cut {
-      mask-image: linear-gradient(to bottom, black calc(100% - 44px), transparent);
+    .stg-f {
+      position: static;
+      margin-top: 24px;
     }
-    @media (prefers-reduced-motion: no-preference) {
-      .card {
-        transform: scale(calc(1 - var(--p, 0) * 0.05));
-      }
-      .card::after {
-        content: '';
-        position: absolute;
-        inset: 0;
-        border-radius: inherit;
-        background: var(--film);
-        opacity: calc(var(--p, 0) * 0.6);
-        pointer-events: none;
-      }
-    }
-  }
-
-  /* tablets: the text beside the phone-layout crop */
-  @media (min-width: 761px) and (max-width: 999px) {
-    .card {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 420px);
-      align-items: start;
-      gap: 28px;
-    }
-  }
-  @media (max-width: 760px) {
-    .card {
-      gap: 16px;
-      padding: 18px 14px 0;
-      overflow: hidden;
-    }
-    /* the phone crop bleeds to the card edges so its UI text keeps ~0.96 of its size */
-    .card-scr {
-      margin-inline: -14px;
-      border-radius: 0;
-      box-shadow: none;
-    }
-    .card-h {
-      font-size: 28px;
-    }
-    .card-l {
-      font-size: 17px;
+    .stg-box {
+      display: none;
     }
   }
 
@@ -352,9 +360,9 @@ const impl = MODULES.find((m) => m.phases)!;
   }
   .dt summary {
     display: grid;
-    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr) 44px;
+    grid-template-columns: minmax(0, 1fr) 44px;
     align-items: center;
-    gap: 8px var(--col-gap);
+    gap: 4px var(--col-gap);
     min-height: 72px;
     padding: 16px 0;
     cursor: pointer;
@@ -369,10 +377,14 @@ const impl = MODULES.find((m) => m.phases)!;
     letter-spacing: -0.022em;
   }
   .dt-s {
-    color: var(--ash);
+    grid-column: 1;
+    grid-row: 2;
+    color: var(--copy);
     font-size: 17px;
   }
   .dt-i {
+    grid-column: 2;
+    grid-row: 1 / span 2;
     justify-self: end;
     position: relative;
     width: 18px;

@@ -1,9 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import ProjectCard from '../components/ProjectCard.astro';
-import { visibleProjects, type Project } from '../data/projects';
+import { visibleProjects, projectHref, type Project } from '../data/projects';
 import { SITE } from '../data/site';
-import { CROPS, asScreen } from '../data/crops';
 
 const P = Object.fromEntries(visibleProjects.map((p) => [p.slug, p])) as Record<string, Project>;
 
@@ -30,99 +28,92 @@ const jsonLd = [
   description="INNOVA CONSULT LTD. is an Ottawa applied AI and software company, incorporated federally in 2023. Its founder has worked in business and technology since 2012."
   path="/about"
   jsonLd={jsonLd}
-  cta={{ title: 'Talk to the founder.' }}
+  cta={{ title: 'Talk to the founder.', lede: 'Tell us what you are working on. Every message is read by a person, and we reply by email.' }}
   breadcrumbs={[
     { name: 'Home', path: '/' },
     { name: 'About', path: '/about' }
   ]}
 >
-  <!-- ═══ HERO (round 4): a quiet dark field, the founder's name and one line ═══ -->
+  <!-- ═══ HERO (round 5): the founder's name and one line, beside the federal record as the document ═══ -->
   <section class="ah shell" aria-labelledby="ah-h" data-hero>
-    <div class="inset ah-in">
-      <p class="t-label ah-crumb"><a href="/">INNOVA</a><span aria-hidden="true">/</span><span>About</span></p>
-      <h1 id="ah-h" class="ah-t">Maksym Stepanenko</h1>
-      <p class="ah-l">Founder and director of {SITE.legalName}, an applied AI and software company in {SITE.city}.</p>
+    <div class="inset ah-g">
+      <div class="ah-l">
+        <p class="t-label ah-crumb"><a href="/">INNOVA</a><span aria-hidden="true">/</span><span>About</span></p>
+        <h1 id="ah-h" class="ah-t">Maksym Stepanenko</h1>
+        <p class="ah-d">Founder and director of {SITE.legalName}, an applied AI and software company in {SITE.city}.</p>
+      </div>
+      <div class="ah-rec tnum" id="record" aria-labelledby="rc-h">
+        <h2 id="rc-h" class="ah-rh">Federal corporation</h2>
+        <p class="ah-num">{SITE.corporationNumber}</p>
+        <dl class="ah-dl">
+          <div><dt>Name</dt><dd>{SITE.legalName}</dd></div>
+          <div><dt>Incorporated</dt><dd>{SITE.incorporated}, {SITE.city}, {SITE.region}</dd></div>
+          <div><dt><abbr title="NATO Commercial and Government Entity code, assigned by DND">NCAGE</abbr></dt><dd>{SITE.ncage}</dd></div>
+          <div><dt>D-U-N-S</dt><dd>{SITE.duns}</dd></div>
+        </dl>
+        <p class="ah-v"><span class="lnk" role="link" tabindex="0" data-x={verifyX}>Verify on Corporations Canada <span aria-hidden="true">↗</span></span></p>
+      </div>
     </div>
   </section>
 
-  <!-- ═══ THE FOUNDER (bone): the three facts folded into one bold sentence, then two stepped notes ═══ -->
+  <!-- ═══ THE FOUNDER (bone): one statement and two short notes in one column ═══ -->
   <section class="fd tone-bone" id="founder" aria-labelledby="founder-h">
     <div class="shell">
-      <div class="inset fd-g">
+      <div class="inset fd-c">
         <h2 id="founder-h" class="sr-only">The founder</h2>
         <p class="fd-st" data-rise>
           Since <b>{SITE.experienceSince}</b> Maksym has worked with businesses in <b>more than 50&nbsp;countries</b> on strategy, legal structure, tax and marketing, and in <b>{SITE.incorporated}</b> he incorporated INNOVA in {SITE.city} to build applied AI and software.
         </p>
-        <p class="t-copy fd-a">In recent years he has brought applied AI into those businesses and into INNOVA’s own products. He holds an MA in Economic Theory (honours).</p>
-        <div class="fd-b">
-          <p class="t-copy">For funded and client projects, engineering, security review and domain specialists join as named subcontractors or partner firms, listed in the proposal before work starts.</p>
-          <a class="lnk fd-k" href="/partnerships">How partnerships work <span class="ar" aria-hidden="true">→</span></a>
-        </div>
+        <p class="t-copy fd-p">In recent years he has brought applied AI into those businesses and into INNOVA’s own products. He holds an MA in Economic Theory (honours).</p>
+        <p class="t-copy fd-p">For funded and client projects, engineering, security review and domain specialists join as named subcontractors or partner firms, listed in the proposal before work starts.</p>
+        <a class="lnk fd-k" href="/partnerships">How partnerships work <span class="ar" aria-hidden="true">→</span></a>
       </div>
     </div>
   </section>
 
-  <!-- ═══ WHERE IT HAS LED: the festival photo carries the heading, two products follow ═══ -->
+  <!-- ═══ WHERE IT HAS LED: the festival photo, then one sentence with links ═══ -->
   <section class="led shell" aria-labelledby="led-h">
-    <div class="led-top">
-      <figure class="led-ph frame" data-dolly-bg>
-        <img
-          src="/img/uafest-venue.webp"
-          srcset="/img/uafest-venue-800.webp 800w, /img/uafest-venue.webp 1280w"
-          sizes="100vw"
-          alt="UAFest in Carleton Place: the audience on the lawn in front of the festival stage, under the trees by the river."
-          width="1280"
-          height="851"
-          loading="lazy"
-          decoding="async"
-        />
-        <figcaption class="led-cap">UAFest, Carleton Place: the festival of the Ukrainian Community of Lanark County, a non-profit co-founded by INNOVA’s founder. Its applications, participant cabinets and registers run on the platform INNOVA built.</figcaption>
-      </figure>
-      <div class="led-hd inset">
-        <h2 id="led-h" class="t-h2">Where this has led so far</h2>
-        <a class="lnk" href="/projects">All projects <span class="ar" aria-hidden="true">→</span></a>
-      </div>
-    </div>
-    <div class="led-g">
-      <ProjectCard
-        project={P.uafest}
-        fact="Applications, participant cabinets, sponsor and finance registers for a Ukrainian festival in Carleton Place, Ontario. In production since August 2026."
-        world={{ src: '/img/uafest-dance.webp', src800: '/img/uafest-dance-800.webp', w: 1280, h: 818, pos: '22% 50%' }}
-        screens={[asScreen(CROPS.uafestForm, { l: '30%', t: '12%', width: '64%', lm: '6%', tm: '10%', wm: '88%', depth: 0.5 })]}
-        credit="UAFest festival, Carleton Place"
+    <figure class="led-ph frame" data-dolly-bg>
+      <img
+        src="/img/uafest-venue.webp"
+        srcset="/img/uafest-venue-800.webp 800w, /img/uafest-venue.webp 1280w"
+        sizes="100vw"
+        alt="UAFest in Carleton Place: the audience on the lawn in front of the festival stage, under the trees by the river."
+        width="1280"
+        height="851"
+        loading="lazy"
+        decoding="async"
       />
-      <ProjectCard
-        project={P.babakokum}
-        fact="On the App Store since 24 September 2026, and playable on the web. Runs fully offline."
-        world={{ src: '/img/babakokum-porch.webp', w: 760, h: 720, pos: '50% 30%' }}
-        screens={[asScreen(CROPS.babakokum, { l: '9%', t: '16%', width: '82%', lm: '6%', tm: '16%', wm: '88%', depth: 0.5 })]}
-      />
-    </div>
-  </section>
-
-  <!-- ═══ COMPANY RECORD: two lines, linked to Corporations Canada ═══ -->
-  <section class="rc shell" id="record" aria-labelledby="rc-h">
-    <div class="inset rc-in">
-      <h2 id="rc-h" class="sr-only">Company record</h2>
-      <p class="rc-1 tnum">{SITE.legalName} · Federal corporation <b>{SITE.corporationNumber}</b>, incorporated {SITE.incorporated} · {SITE.city}, {SITE.region}</p>
-      <p class="rc-2 tnum">
-        <span><abbr title="NATO Commercial and Government Entity code, assigned by DND">NCAGE</abbr> <b>{SITE.ncage}</b></span>
-        <span>D-U-N-S <b>{SITE.duns}</b></span>
-        <span class="lnk rc-v" role="link" tabindex="0" data-x={verifyX}>Verify on Corporations Canada <span aria-hidden="true">↗</span></span>
+      <figcaption class="led-cap">UAFest, Carleton Place: the festival of the Ukrainian Community of Lanark County, a non-profit co-founded by INNOVA’s founder. Its applications, participant cabinets and registers run on the platform INNOVA built.</figcaption>
+    </figure>
+    <div class="inset led-t">
+      <h2 id="led-h" class="led-h">Where this has led so far</h2>
+      <p class="led-p">
+        <a href={projectHref(P.uafest)}>UAFest</a>, a festival operations platform in production since August 2026;
+        <a href={projectHref(P.foundwall)}>FoundWall</a>, a lost and found network with its web platform live;
+        and <a href={projectHref(P.babakokum)}>Porch Print Shop</a>, a puzzle game on the App Store since 24 September 2026.
+        <a class="lnk led-all" href="/projects">All projects <span class="ar" aria-hidden="true">→</span></a>
       </p>
     </div>
   </section>
 </BaseLayout>
 
 <style>
-  /* ── hero: a quiet dark field ── */
+  /* ── hero: name and line left, the federal record right ── */
   .ah {
-    padding-top: clamp(28px, 3.4vw, 56px);
+    padding-top: clamp(24px, 3vw, 48px);
   }
-  .ah-in {
+  .ah-g {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(320px, 0.75fr);
+    column-gap: clamp(32px, 5vw, 96px);
+    align-items: end;
+    min-height: min(58svh, 560px);
+  }
+  .ah-l {
     display: flex;
     flex-direction: column;
-    min-height: clamp(360px, 52svh, 560px);
+    height: 100%;
   }
   .ah-crumb {
     display: flex;
@@ -139,39 +130,80 @@ const jsonLd = [
   }
   .ah-t {
     margin-top: auto;
-    font-size: clamp(52px, 8vw, 132px);
+    padding-top: 48px;
+    font-size: clamp(48px, 5.2vw, 80px);
     font-weight: 500;
-    letter-spacing: -0.05em;
-    line-height: 0.9;
-    margin-left: -0.04em;
+    letter-spacing: -0.045em;
+    line-height: 0.95;
+    margin-left: -0.03em;
   }
-  .ah-l {
-    margin-top: clamp(18px, 2vw, 30px);
+  .ah-d {
+    margin-top: clamp(16px, 1.6vw, 24px);
     max-width: 34ch;
-    font-size: clamp(20px, 1.7vw, 27px);
-    line-height: 1.3;
-    letter-spacing: -0.015em;
+    font-size: clamp(20px, 1.6vw, 25px);
+    line-height: 1.32;
+    letter-spacing: -0.012em;
     color: var(--copy);
     text-wrap: pretty;
   }
-
-  /* ── founder (bone): one bold sentence, two stepped notes ── */
-  .fd {
-    margin-top: clamp(56px, 6vw, 104px);
-    padding-block: var(--sec);
+  /* the record reads as a document: bone paper, the number large, four fields under it */
+  .ah-rec {
+    padding: clamp(24px, 2.4vw, 36px);
+    border-radius: var(--r);
+    background: var(--bone);
+    color: var(--ink);
   }
-  .fd-g {
+  .ah-rh {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--ink-soft);
+  }
+  .ah-num {
+    margin-top: 6px;
+    font-size: clamp(44px, 4.4vw, 68px);
+    font-weight: 600;
+    letter-spacing: -0.035em;
+    line-height: 1;
+  }
+  .ah-dl {
     display: grid;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    column-gap: var(--col-gap);
-    row-gap: clamp(28px, 3vw, 44px);
+    grid-template-columns: 1fr 1fr;
+    gap: 16px var(--col-gap);
+    margin: clamp(22px, 2vw, 30px) 0 0;
+    padding-top: clamp(18px, 1.6vw, 24px);
+    border-top: 1px solid var(--rule-ink);
+  }
+  .ah-dl dt {
+    font-size: 15px;
+    color: var(--ink-soft);
+  }
+  .ah-dl abbr {
+    text-decoration: none;
+  }
+  .ah-dl dd {
+    margin: 2px 0 0;
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 1.3;
+  }
+  .ah-v {
+    margin-top: 22px;
+    font-size: 17px;
+  }
+
+  /* ── founder (bone): one column ── */
+  .fd {
+    margin-top: clamp(56px, 6vw, 96px);
+    padding-block: calc(var(--sec) * 0.8);
+  }
+  .fd-c {
+    max-width: calc(980px + 2 * var(--in));
   }
   .fd-st {
-    grid-column: 1 / span 11;
-    font-size: clamp(32px, 3.9vw, 64px);
+    font-size: clamp(30px, 3.2vw, 52px);
     font-weight: 400;
-    letter-spacing: -0.035em;
-    line-height: 1.08;
+    letter-spacing: -0.032em;
+    line-height: 1.1;
     color: var(--copy-ink);
     text-wrap: pretty;
   }
@@ -179,33 +211,24 @@ const jsonLd = [
     font-weight: 600;
     color: var(--ink);
   }
-  .fd-a {
-    grid-column: 5 / span 4;
-    margin-top: clamp(12px, 2vw, 32px);
+  .fd-p {
+    max-width: 640px;
+    margin-top: clamp(20px, 2vw, 28px);
   }
-  .fd-b {
-    grid-column: 9 / span 4;
-    margin-top: clamp(12px, 2vw, 32px);
+  .fd-p + .fd-p {
+    margin-top: 14px;
   }
   .fd-k {
-    margin-top: 22px;
+    margin-top: 24px;
   }
 
   /* ── where it has led ── */
   .led {
     padding-top: var(--sec);
   }
-  .led-top {
-    display: grid;
-    margin-bottom: clamp(10px, 1.2vw, 18px);
-  }
-  .led-ph,
-  .led-hd {
-    grid-area: 1 / 1;
-  }
   .led-ph {
     margin: 0;
-    aspect-ratio: 16 / 7.4;
+    aspect-ratio: 16 / 7;
     background: var(--reel);
   }
   .led-ph img {
@@ -220,24 +243,7 @@ const jsonLd = [
     content: '';
     position: absolute;
     inset: 0;
-    background:
-      linear-gradient(180deg, rgb(13 12 11 / 0.78) 0%, rgb(13 12 11 / 0.2) 30%, rgb(13 12 11 / 0) 48%),
-      linear-gradient(0deg, rgb(13 12 11 / 0.85) 0%, rgb(13 12 11 / 0.25) 24%, rgb(13 12 11 / 0) 42%);
-  }
-  .led-hd {
-    position: relative;
-    z-index: 1;
-    align-self: start;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: 24px;
-    padding-top: clamp(24px, 3vw, 48px);
-    padding-inline: clamp(18px, 2.6vw, 44px);
-  }
-  .led-hd .t-h2 {
-    max-width: 14ch;
+    background: linear-gradient(0deg, rgb(13 12 11 / 0.85) 0%, rgb(13 12 11 / 0.25) 26%, rgb(13 12 11 / 0) 44%);
   }
   .led-cap {
     position: absolute;
@@ -249,70 +255,54 @@ const jsonLd = [
     line-height: 1.45;
     color: var(--print);
   }
-  .led-g {
+  .led-t {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: clamp(10px, 1.2vw, 18px);
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    column-gap: var(--col-gap);
+    margin-top: clamp(40px, 4vw, 64px);
   }
-
-  /* ── company record: two lines ── */
-  .rc {
-    padding-top: clamp(48px, 5vw, 80px);
+  .led-h {
+    font-size: clamp(30px, 2.9vw, 48px);
+    font-weight: 500;
+    letter-spacing: -0.035em;
+    line-height: 1;
+    max-width: 12ch;
   }
-  .rc-1 {
-    font-size: var(--fs-copy);
-    color: var(--print);
-  }
-  .rc-2 {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px 28px;
-    margin-top: 6px;
-    font-size: var(--fs-copy);
+  .led-p {
+    font-size: clamp(20px, 1.6vw, 25px);
+    line-height: 1.45;
+    letter-spacing: -0.012em;
     color: var(--copy);
+    max-width: 48ch;
   }
-  .rc-in b {
-    font-weight: 600;
-    white-space: nowrap;
+  .led-p a:not(.lnk) {
+    color: var(--print);
+    font-weight: 500;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-decoration-color: rgb(238 234 226 / 0.45);
+    text-underline-offset: 5px;
   }
-  .rc-in abbr {
-    text-decoration: none;
+  .led-p a:not(.lnk):hover {
+    text-decoration-color: var(--print);
   }
-  .rc-v {
+  .led-all {
+    margin-left: 6px;
     color: var(--print);
   }
 
-  @media (max-width: 1100px) {
-    .fd-a {
-      grid-column: 1 / span 6;
-    }
-    .fd-b {
-      grid-column: 7 / span 6;
-    }
-  }
   @media (max-width: 900px) {
-    .ah-in {
+    .ah-g {
+      grid-template-columns: 1fr;
       min-height: 0;
+      row-gap: 36px;
     }
     .ah-t {
-      margin-top: clamp(56px, 16vw, 96px);
+      padding-top: 40px;
+      font-size: clamp(44px, 12vw, 64px);
     }
-    .fd-st,
-    .fd-a,
-    .fd-b {
-      grid-column: 1 / -1;
-    }
-    .fd-a,
-    .fd-b {
-      margin-top: 0;
-    }
-    .led-ph,
-    .led-hd {
-      grid-area: auto;
-    }
-    .led-hd {
-      order: -1;
-      padding: 0 var(--in) 24px;
+    .ah-dl {
+      grid-template-columns: 1fr 1fr;
     }
     .led-ph {
       aspect-ratio: auto;
@@ -335,8 +325,9 @@ const jsonLd = [
       padding: 16px 18px 20px;
       font-size: 16px;
     }
-    .led-g {
+    .led-t {
       grid-template-columns: 1fr;
+      row-gap: 18px;
     }
   }
 </style>

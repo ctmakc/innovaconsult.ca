@@ -17,7 +17,7 @@
   --reel-2: #201e1b;
   --print: #eeeae2;
   --ash: #b8b1a4; /* meta, captions, labels */
-  --copy: #d6cfc3; /* body copy on film: warm off-white, one step under --print (round 4) */
+  --copy: #e6e1d8; /* body copy on film: warm off-white, a hair under --print (round 5: lifted from #d6cfc3) */
   --rule-film: rgb(238 234 226 / 0.14);
 
   /* bone (light material) */
@@ -37,7 +37,7 @@
   --m-evergreen: #1d3a2e;
   --m-loam: #2c2a22;
   --m-navy: #1a2240;
-  --ui-dark: #0f1416; /* poster colour of dark product screenshots (Workflow OS) */
+  --ui-dark: #0f1012; /* = the Workflow OS UI v2 background, so crops sit on it seamlessly */
 
   /* type */
   --fs-copy: clamp(17px, 0.9vw + 5px, 19px); /* body copy: 17px on phones, 18-19px on desktop */

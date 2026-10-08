@@ -20,7 +20,7 @@ interface Props {
   /** Attribution lines for third-party (CC) photos on this page; printed in the footer. */
   credits?: string[];
   /** Closing band: optional headline, lede and photo (default: Rideau Canal at night). */
-  cta?: { title?: string; lede?: string; photo?: 'ottawa' | 'festival'; link?: { href: string; label: string } };
+  cta?: { title?: string; lede?: string; photo?: 'ottawa' | 'festival'; link?: { href: string; label: string }; variant?: 'band' | 'line' };
 }
 
 const { title, description = SITE.defaultDescription, path, ogImage = '/og/innova-og.png', noindex = false, jsonLd = [], footerCta = true, breadcrumbs, credits = [], cta = {} } = Astro.props;

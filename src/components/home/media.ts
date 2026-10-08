@@ -44,6 +44,14 @@ export const HOME_MEDIA = {
     'Workflow OS business case for Client Onboarding: staff hours a month before and after the design, 100 to 40, an estimated $43,200 a year in labour value, payback in 4.5 months and Year-1 ROI of 129.4%, each marked projected or estimated (illustrative demo data).',
     true
   ),
+  wosBeforeAfter: {
+    src: '/proof/wos3/impact-hd-2202.webp',
+    srcset: '/proof/wos3/impact-hd-1101.webp 1101w, /proof/wos3/impact-hd-1468.webp 1468w, /proof/wos3/impact-hd-2202.webp 2202w',
+    w: 2202,
+    h: 630,
+    alt: 'Workflow OS before and after chart for Client Onboarding: 100 staff hours a month today and 40 hours projected with the design, on one scale (illustrative demo data).',
+    dark: true
+  },
   openfieldEntry: mk(
     'openfield-entry',
     1170,

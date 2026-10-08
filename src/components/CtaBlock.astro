@@ -5,18 +5,22 @@
 // /contact without JS), the email follows as plain text. Default photo: Rideau Canal at night (Ottawa);
 // pages whose own hero already uses that photo pass photo="festival". The CC credit is printed on the band.
 // Pages never add a second closing CTA box above it; a page with nothing to close passes footerCta={false}.
+// Round 5: the photo band closes HOME only (variant="band"). Every other page ends with variant="line":
+// the page's own closing sentence at H3 size and one text action beside it, no photo, no box.
 import { SITE } from '../data/site';
 interface Props {
   title?: string;
   lede?: string;
   photo?: 'ottawa' | 'festival';
   link?: { href: string; label: string };
+  variant?: 'band' | 'line';
 }
 const {
   title = 'Start a conversation.',
   lede = 'Tell us what you are working on. Every message is read by a person, and we reply by email.',
   photo = 'ottawa',
-  link
+  link,
+  variant = 'line'
 } = Astro.props;
 
 const PH = {
@@ -39,6 +43,20 @@ const PH = {
 }[photo];
 ---
 
+{variant === 'line' ? (
+<section class="cl shell" aria-labelledby="cta-h">
+  <div class="inset cl-g">
+    <h2 id="cta-h" class="cl-h">{title}</h2>
+    <div class="cl-r">
+      <p class="cl-p">{lede}</p>
+      <p class="cl-a">
+        <a class="btn btn--flare" href="/contact" data-open-contact>Write to us <span class="ar" aria-hidden="true">→</span></a>
+        <span class="cl-mail">or email <a href={`mailto:${SITE.email}`}>{SITE.email}</a>{link && (<><span aria-hidden="true"> · </span><a href={link.href}>{link.label}</a></>)}</span>
+      </p>
+    </div>
+  </div>
+</section>
+) : (
 <section class="cta" aria-labelledby="cta-h">
   <div class="cta-ph">
     <div class="cta-z" data-dolly-bg>
@@ -67,8 +85,64 @@ const PH = {
     </div>
   </div>
 </section>
+)}
 
 <style>
+  /* ── line variant (inner pages) ── */
+  .cl {
+    margin-top: calc(var(--sec) * 0.5);
+    padding-bottom: clamp(56px, 6vw, 96px);
+  }
+  .cl-g {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: var(--col-gap);
+    align-items: end;
+    padding-top: clamp(32px, 3.4vw, 48px);
+    border-top: 1px solid var(--rule-film);
+  }
+  .cl-h {
+    font-size: clamp(32px, 3.2vw, 52px);
+    font-weight: 500;
+    letter-spacing: -0.035em;
+    line-height: 1;
+    max-width: 16ch;
+    text-wrap: balance;
+  }
+  .cl-p {
+    max-width: 44ch;
+    font-size: var(--fs-copy);
+    line-height: 1.5;
+    color: var(--copy);
+  }
+  .cl-a {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 22px;
+    margin-top: 20px;
+  }
+  .cl-mail {
+    font-size: 17px;
+    color: var(--copy);
+  }
+  .cl-mail a {
+    color: var(--print);
+    font-weight: 500;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 5px;
+  }
+  .cl-mail a:hover {
+    color: var(--flare-hi);
+  }
+  @media (max-width: 900px) {
+    .cl-g {
+      grid-template-columns: 1fr;
+      row-gap: 20px;
+    }
+  }
+
   .cta {
     position: relative;
     isolation: isolate;

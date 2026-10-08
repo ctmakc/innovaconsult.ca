@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import HeroFilm from '../components/HeroFilm.astro';
+import HeroStage from '../components/HeroStage.astro';
+import { WOS3 } from '../data/wos3';
 import FundedProject from '../components/home/FundedProject.astro';
 import Button from '../components/Button.astro';
 import ProjectCard from '../components/ProjectCard.astro';
@@ -27,10 +28,10 @@ const LAB: { p: Project; d: string }[] = [
    The hero film already shows the process landscape and the score waterfall, so these are the
    other three moments: the opportunity map, the automation route with its human approval gates,
    and the before/after business case. Copy from src/components/wos/data.ts. */
-const WOS = [
+const WOS: { k: string; t: string; c: typeof HOME_MEDIA.wosMap; x: number; fit?: boolean }[] = [
   { k: 'Score every process', t: 'Fourteen factors minus a risk penalty, with the reason behind every number.', c: HOME_MEDIA.wosMap, x: 0.14 },
   { k: 'Design the architecture', t: 'Six patterns and five levels of human control.', c: HOME_MEDIA.wosRoute, x: 0 },
-  { k: 'Measure the return', t: 'A projected return that can be checked after go-live.', c: HOME_MEDIA.wosImpact, x: 0 }
+  { k: 'Measure the return', t: 'Staff hours before and after on one scale, checked against the baseline after go-live.', c: HOME_MEDIA.wosBeforeAfter, x: 0, fit: true }
 ];
 ---
 
@@ -41,15 +42,16 @@ const WOS = [
   cta={{
     title: `Founder-led since ${SITE.experienceSince}. Start a conversation.`,
     lede: `${SITE.legalName} is a federal corporation in Ottawa, led by its founder, Maksym Stepanenko, who has worked with companies in more than 50 countries. Every message is read by a person.`,
-    link: { href: '/about', label: 'About INNOVA' }
+    link: { href: '/about', label: 'About INNOVA' },
+    variant: 'band'
   }}
 >
   <Fragment slot="head">
-    <link rel="preload" as="image" href="/media/hero-film-poster-m.webp" media="(max-width: 900px)" fetchpriority="high" />
-    <link rel="preload" as="image" imagesrcset="/media/hero-film-poster-1280.webp 1280w, /media/hero-film-poster-1920.webp 1920w" imagesizes="100vw" media="(min-width: 901px)" fetchpriority="high" />
+    <link rel="preload" as="image" media="(max-width: 900px)" imagesrcset={WOS3.m_land2.srcset} imagesizes="92vw" fetchpriority="high" />
+    <link rel="preload" as="image" media="(min-width: 901px)" imagesrcset={WOS3.landscape.srcset} imagesizes="56vw" fetchpriority="high" />
   </Fragment>
 
-  <HeroFilm />
+  <HeroStage />
 
   <!-- ═══ IN USE: the three live products, each screen in its world, each one readable crop ═══ -->
   <section class="work shell" id="work" aria-labelledby="work-h">
@@ -64,23 +66,21 @@ const WOS = [
         eager
         headline="A festival ran on it."
         fact="199 participant cabinets and 13 shared mailboxes in one record, for a Ukrainian festival in Carleton Place, Ontario."
-        world={{ src: '/img/uafest-dance.webp', src800: '/img/uafest-dance-800.webp', w: 1280, h: 818, pos: '22% 50%' }}
-        screens={[asScreen(HOME_MEDIA.uafestCert, { l: '55%', t: '7%', width: '40%', lm: '7%', tm: '7%', wm: '86%' })]}
+        world={{ src: '/img/uafest-dance.webp', src800: '/img/uafest-dance-800.webp', w: 1280, h: 818, pos: '62% 40%' }}
         credit="UAFest festival, Carleton Place"
-        aspect="16 / 8"
-        aspectM="4 / 3.3"
+        aspect="16 / 7.4"
+        aspectM="4 / 3"
       />
       <ProjectCard
         project={P.foundwall}
         material="evergreen"
         fact="Web platform live; iOS and Android apps in public beta. Every photo loses its location data before anyone sees it."
-        screens={[asScreen(CROPS.foundwall, { l: '7%', t: '9%', width: '86%', lm: '6%', tm: '8%', wm: '88%' })]}
+        screens={[asScreen(CROPS.foundwall, { l: '5%', t: '6%', width: '90%', lm: '5%', tm: '6%', wm: '90%' })]}
       />
       <ProjectCard
         project={P.babakokum}
-        world={{ src: '/img/babakokum-porch.webp', w: 760, h: 720, pos: '50% 30%' }}
+        world={{ src: '/img/babakokum-title.webp', src800: '/img/babakokum-title-800.webp', w: 1376, h: 768, pos: '50% 40%', alt: 'BABA & KOKUM key art: two grandmothers laughing on a porch over a printed scarf.' }}
         fact="On the App Store since 24 September 2026, and playable on the web. Runs fully offline."
-        screens={[asScreen(CROPS.babakokum, { l: '9%', t: '13%', width: '82%', lm: '6%', tm: '14%', wm: '88%' })]}
       />
     </div>
 
@@ -124,19 +124,22 @@ const WOS = [
             <div class="wos-stack" data-wpan role="region" aria-label="Workflow OS screen">
               {
                 WOS.map((s, i) => (
-                  <img
-                    class:list={['scr-img scr-dark', { on: i === 0 }]}
-                    data-wimg={i}
-                    data-x0={s.x}
-                    src={s.c.src}
-                    srcset={s.c.srcset}
-                    sizes="(max-width: 900px) 250vw, 92vw"
-                    alt={s.c.alt}
-                    width={s.c.w}
-                    height={s.c.h}
-                    loading="lazy"
-                    decoding="async"
-                  />
+                  <picture>
+                    {s.fit && <source media="(max-width: 900px)" srcset={WOS3.m_impact.srcset} sizes="100vw" width={WOS3.m_impact.w} height={WOS3.m_impact.h} />}
+                    <img
+                      class:list={['scr-img scr-dark', { on: i === 0, fit: s.fit }]}
+                      data-wimg={i}
+                      data-x0={s.x}
+                      src={s.c.src}
+                      srcset={s.c.srcset}
+                      sizes={s.fit ? '(max-width: 900px) 100vw, 80vw' : '(max-width: 900px) 250vw, 92vw'}
+                      alt={s.c.alt}
+                      width={s.c.w}
+                      height={s.c.h}
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </picture>
                 ))
               }
             </div>
@@ -171,6 +174,7 @@ const WOS = [
         t.setAttribute('aria-pressed', j === i ? 'true' : 'false');
       });
       imgs.forEach((m, j) => m.classList.toggle('on', j === i));
+      pan?.classList.toggle('is-fit', !!imgs[i]?.classList.contains('fit'));
       if (pan) pan.scrollLeft = (Number(imgs[i]?.dataset.x0) || 0) * pan.scrollWidth;
     };
     tabs.forEach((t, i) => {
@@ -307,6 +311,9 @@ const WOS = [
     position: relative;
     aspect-ratio: 2288 / 1192;
   }
+  .wos-stack picture {
+    display: contents;
+  }
   .wos-stack img {
     position: absolute;
     inset: 0;
@@ -319,6 +326,12 @@ const WOS = [
   }
   .wos-stack img.on {
     visibility: visible;
+  }
+  /* a single-panel crop (before/after chart) sits centred on the app's own ground at up to 1.3x */
+  .wos-stack img.fit {
+    object-fit: contain;
+    object-position: 50% 50%;
+    padding: 6% 9%;
   }
   .pan-hint {
     display: none;
@@ -379,6 +392,18 @@ const WOS = [
     .pan-hint {
       display: inline;
       color: var(--ink);
+    }
+    .wos-stack.is-fit {
+      overflow: hidden;
+      height: auto;
+      aspect-ratio: 374 / 300;
+    }
+    .wos-stack img.fit {
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      padding: 12px;
     }
   }
 </style>
