@@ -19,9 +19,11 @@ interface Props {
   breadcrumbs?: { name: string; path: string }[];
   /** Attribution lines for third-party (CC) photos on this page; printed in the footer. */
   credits?: string[];
+  /** Closing band: optional headline, lede and photo (default: Rideau Canal at night). */
+  cta?: { title?: string; lede?: string; photo?: 'ottawa' | 'festival'; link?: { href: string; label: string } };
 }
 
-const { title, description = SITE.defaultDescription, path, ogImage = '/og/innova-og.png', noindex = false, jsonLd = [], footerCta = true, breadcrumbs, credits = [] } = Astro.props;
+const { title, description = SITE.defaultDescription, path, ogImage = '/og/innova-og.png', noindex = false, jsonLd = [], footerCta = true, breadcrumbs, credits = [], cta = {} } = Astro.props;
 const cleanPath = path ?? (Astro.url.pathname.replace(/\.html$/, '').replace(/\/$/, '') || '/');
 const canonical = new URL(cleanPath === '/' ? '/' : cleanPath, SITE.url).href;
 const ogUrl = new URL(ogImage, SITE.url).href;
@@ -124,7 +126,7 @@ const ld = [org, website, ...(breadcrumbLd ? [breadcrumbLd] : []), ...jsonLd];
     <Header />
     <main id="main">
       <slot />
-      {footerCta && <CtaBlock />}
+      {footerCta && <CtaBlock {...cta} />}
     </main>
     <Footer credits={credits} />
     <ContactDialog />

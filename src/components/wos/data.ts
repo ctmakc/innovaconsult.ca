@@ -7,6 +7,7 @@
 export interface Shot {
   src: string;
   src800: string;
+  src2000?: string;
   w: number;
   h: number;
   alt: string;
@@ -18,6 +19,8 @@ export interface Shot {
 const shot = (name: string) => ({
   src: `/proof/workflow-os-${name}-1440-1600.webp`,
   src800: `/proof/workflow-os-${name}-1440-800.webp`,
+  /** 2000w variant for the big sticky stage (retina at ~1000 css px). */
+  src2000: `/proof/workflow-os-${name}-1440-2000.webp`,
   w: 1600,
   h: 1000
 });

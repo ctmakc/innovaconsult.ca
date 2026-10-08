@@ -1,9 +1,10 @@
 ---
-// HOME HERO — the product reel. Three live products take turns as «screen in its world» slides
-// behind the giant statement; the proof row at the bottom names them, links to them and shows
-// which one is on screen. Every slide is in the HTML at first paint (no lazy gap); only the
-// first one is visible before JS. Reduced motion: no autoplay, no Ken Burns, hover/focus still switches.
-// Facts are copied from src/data/projects.ts (outcome, technology) — nothing new.
+// HOME HERO (round 3) — one full-bleed real photograph, one statement.
+// The UAFest Unity Ride aerial fills the frame; nothing floats on top of it except the giant
+// statement, the lede and two buttons. The proof row at the bottom is text only: the three live
+// products with one hard number each, so the photo is tied to the software that runs the festival.
+// The H1 is in its final place at first paint (no mask, no JS); only the photo drifts (Ken Burns).
+// Facts are copied from src/data/projects.ts — nothing new.
 import FitText from '../FitText.astro';
 import Button from '../Button.astro';
 import { visibleProjects, projectHref, type Project } from '../../data/projects';
@@ -11,165 +12,34 @@ import { SITE } from '../../data/site';
 
 const P = Object.fromEntries(visibleProjects.map((p) => [p.slug, p])) as Record<string, Project>;
 
-interface Scr {
-  src: string;
-  src800: string;
-  w: number;
-  h: number;
-  alt: string;
-  kind?: 'desktop' | 'phone' | 'tablet';
-  /** desktop: left, top, width (% of the frame); mobile: of the picture area */
-  d: [string, string, string];
-  m: [string, string, string];
-}
-interface Slide {
-  p: Project;
-  world?: { src: string; srcset: string; m?: string; pos: string; posM?: string; w: number; h: number };
-  material?: 'evergreen' | 'loam';
-  credit?: string;
-  thumb: string;
-  num: string;
-  line: string;
-  screens: Scr[];
-}
-
-const SLIDES: Slide[] = [
-  {
-    p: P.uafest,
-    world: {
-      src: '/img/uafest-unity-ride.webp',
-      srcset: '/img/uafest-unity-ride-800.webp 800w, /img/uafest-unity-ride-1200.webp 1200w, /img/uafest-unity-ride.webp 1920w',
-      m: '/img/uafest-unity-ride-m.webp',
-      pos: '50% 60%',
-      posM: '50% 50%',
-      w: 1920,
-      h: 960
-    },
-    credit: 'UAFest Unity Ride, Carleton Place',
-    thumb: '/proof/uafest-applications-1440-800.webp',
-    num: '199 participant cabinets',
-    line: 'The 13 September 2026 festival ran on it',
-    screens: [
-      {
-        src: '/proof/uafest-applications-1440-1600.webp',
-        src800: '/proof/uafest-applications-1440-800.webp',
-        w: 1600,
-        h: 1000,
-        alt: 'UAFest 2027 sign-up page on uafest.ca: one form with participation types for guests, volunteers, vendors, performers, sponsors and the organizing team.',
-        d: ['55%', '13%', '39%'],
-        m: ['8%', '13%', '84%']
-      }
-    ]
-  },
-  {
-    p: P.foundwall,
-    material: 'evergreen',
-    thumb: '/proof/foundwall-home-1440-800.webp',
-    num: 'Web live',
-    line: 'iOS and Android apps in public beta',
-    screens: [
-      {
-        src: '/proof/foundwall-board-1440-1600.webp',
-        src800: '/proof/foundwall-board-1440-800.webp',
-        w: 1600,
-        h: 1000,
-        alt: 'FoundWall public recovery board: notice cards with status bands (stolen, lost, found), area-level locations and recognition details.',
-        d: ['51%', '13%', '36%'],
-        m: ['6%', '13%', '72%']
-      },
-      {
-        src: '/proof/foundwall-board-390-800.webp',
-        src800: '/proof/foundwall-board-390-400.webp',
-        w: 800,
-        h: 1731,
-        alt: 'FoundWall board on a phone: stacked notice cards for a stolen bike and a lost cat (sample notices).',
-        kind: 'phone',
-        d: ['85%', '19%', '10%'],
-        m: ['68%', '19%', '26%']
-      }
-    ]
-  },
-  {
-    p: P.babakokum,
-    world: {
-      src: '/img/babakokum-porch-night.webp',
-      srcset: '/img/babakokum-porch-night-800.webp 800w, /img/babakokum-porch-night.webp 1376w',
-      m: '/img/babakokum-porch-night-m.webp',
-      pos: '50% 50%',
-      w: 1376,
-      h: 768
-    },
-    credit: 'Key art from the game',
-    thumb: '/proof/babakokum-rules-tablet-800.webp',
-    num: 'On the App Store',
-    line: 'Since 24 September 2026, and playable on the web',
-    screens: [
-      {
-        src: '/proof/babakokum-rules-tablet-1600.webp',
-        src800: '/proof/babakokum-rules-tablet-800.webp',
-        w: 1600,
-        h: 1331,
-        alt: 'BABA & KOKUM rules card: six scoring patterns for placing printed tiles on a scarf grid and the five ink colours.',
-        kind: 'tablet',
-        d: ['60%', '11%', '28%'],
-        m: ['16%', '11%', '68%']
-      }
-    ]
-  }
+const PROOF: { p: Project; num: string; line: string }[] = [
+  { p: P.uafest, num: '199 participant cabinets.', line: 'The 13 September 2026 festival ran on it.' },
+  { p: P.foundwall, num: 'Web platform live.', line: 'iOS and Android apps in public beta.' },
+  { p: P.babakokum, num: 'On the App Store.', line: 'Since 24 September 2026, and playable on the web.' }
 ];
-/* Slides 2 and 3 get their files after the page has loaded (site perf), long before the reel turns. */
-const lazyAttr = (i: number, a: 'src' | 'srcset', v: string) => ({ [i === 0 ? a : `data-${a}`]: v });
-const pos = (s: Scr) => `--l:${s.d[0]};--t:${s.d[1]};--w:${s.d[2]};--lm:${s.m[0]};--tm:${s.m[1]};--wm:${s.m[2]}`;
 ---
 
 <section class="hr-sec shell" aria-labelledby="h1" data-hero>
-  <div class="hr frame" data-reel>
-    <div class="hr-stage">
-      {
-        SLIDES.map((s, i) => (
-          <div class:list={['hr-slide', s.material && `mat-${s.material}`, { on: i === 0 }]} data-slide={i} aria-hidden={i === 0 ? undefined : 'true'}>
-            {s.world && (
-              <div class="hr-world" aria-hidden="true">
-                <picture>
-                  {s.world.m && <source media="(max-width: 700px)" {...lazyAttr(i, 'srcset', s.world.m)} />}
-                  <img
-                    {...lazyAttr(i, 'src', s.world.src)}
-                    {...lazyAttr(i, 'srcset', s.world.srcset)}
-                    sizes="100vw"
-                    alt=""
-                    width={s.world.w}
-                    height={s.world.h}
-                    fetchpriority={i === 0 ? 'high' : 'low'}
-                    decoding="async"
-                    style={`--pos:${s.world.pos};--pos-m:${s.world.posM ?? s.world.pos}`}
-                  />
-                </picture>
-              </div>
-            )}
-            {s.screens.map((sc, j) => (
-              <div class:list={['hr-scr', `hr-scr--${sc.kind ?? 'desktop'}`]} style={pos(sc) + `;--j:${j}`}>
-                <img
-                  class="scr-img"
-                  {...lazyAttr(i, 'src', sc.src)}
-                  {...lazyAttr(i, 'srcset', `${sc.src800} ${Math.round(sc.w / 2)}w, ${sc.src} ${sc.w}w`)}
-                  sizes={`(max-width: 900px) ${Math.ceil(parseFloat(sc.m[2]))}vw, ${Math.ceil(parseFloat(sc.d[2]))}vw`}
-                  alt={sc.alt}
-                  width={sc.w}
-                  height={sc.h}
-                  fetchpriority={i === 0 ? 'high' : 'low'}
-                  decoding="async"
-                />
-              </div>
-            ))}
-            {s.credit && <span class="hr-credit">{s.credit}</span>}
-          </div>
-        ))
-      }
+  <div class="hr frame">
+    <div class="hr-world" aria-hidden="true">
+      <picture>
+        <source media="(max-width: 700px)" srcset="/img/uafest-unity-ride-m.webp" />
+        <img
+          src="/img/uafest-unity-ride.webp"
+          srcset="/img/uafest-unity-ride-800.webp 800w, /img/uafest-unity-ride-1200.webp 1200w, /img/uafest-unity-ride.webp 1920w"
+          sizes="100vw"
+          alt=""
+          width="1920"
+          height="960"
+          fetchpriority="high"
+          decoding="async"
+        />
+      </picture>
     </div>
 
     <p class="hr-top t-label">
       <span>{SITE.city}, {SITE.country}</span>
-      <span class="hr-top-r tnum">Federal corporation {SITE.corporationNumber} · founder in business since {SITE.experienceSince}</span>
+      <span class="hr-top-r tnum">Federal corporation {SITE.corporationNumber}</span>
     </p>
 
     <div class="hr-copy">
@@ -181,25 +51,22 @@ const pos = (s: Scr) => `--l:${s.d[0]};--t:${s.d[1]};--w:${s.d[2]};--lm:${s.m[0]
       </div>
     </div>
 
+    <p class="hr-credit">UAFest Unity Ride, Carleton Place. The festival runs on our operations platform.</p>
+
     <ol class="hr-proof" aria-label="Live now">
       {
-        SLIDES.map((s, i) => (
+        PROOF.map(({ p, num, line }) => (
           <li>
-            <a class:list={['hr-tab', { on: i === 0 }]} href={projectHref(s.p)} data-tab={i}>
-              <span class="hr-th" aria-hidden="true">
-                <img src={s.thumb} alt="" width="160" height="100" decoding="async" />
+            <a class="hr-tab" href={projectHref(p)}>
+              <span class="hr-tn">
+                <i class="hr-dot" aria-hidden="true" />
+                {p.short}
+                <span class="sr-only">, live:</span>
+                <span class="ar" aria-hidden="true">→</span>
               </span>
-              <span class="hr-tt">
-                <span class="hr-tn">
-                  <i class="hr-dot" aria-hidden="true" />
-                  {s.p.short}
-                  <span class="sr-only">, live:</span>
-                </span>
-                <span class="hr-tf">
-                  <b>{s.num}.</b> {s.line}.
-                </span>
+              <span class="hr-tf">
+                <b>{num}</b> {line}
               </span>
-              <span class="hr-bar" aria-hidden="true"><span /></span>
             </a>
           </li>
         ))
@@ -208,110 +75,14 @@ const pos = (s: Scr) => `--l:${s.d[0]};--t:${s.d[1]};--w:${s.d[2]};--lm:${s.m[0]
   </div>
 </section>
 
-<script>
-  // Reel: autoplay every 6 s while the hero is on screen and nobody is pointing at it.
-  // Hover or focus on a proof tab shows that product; clicking it opens the project.
-  const reel = document.querySelector<HTMLElement>('[data-reel]');
-  if (reel) {
-    const slides = [...reel.querySelectorAll<HTMLElement>('[data-slide]')];
-    const fill = () =>
-      reel.querySelectorAll<HTMLElement>('[data-src], [data-srcset]').forEach((el) => {
-        if (el.dataset.srcset) el.setAttribute('srcset', el.dataset.srcset);
-        if (el.dataset.src) el.setAttribute('src', el.dataset.src);
-      });
-    if (document.readyState === 'complete') fill();
-    else window.addEventListener('load', fill, { once: true });
-    const tabs = [...reel.querySelectorAll<HTMLElement>('[data-tab]')];
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const DUR = 6000;
-    let cur = 0;
-    let timer = 0;
-    let visible = true;
-    let held = false;
-    const show = (n: number) => {
-      cur = (n + slides.length) % slides.length;
-      slides.forEach((s, i) => {
-        s.classList.toggle('on', i === cur);
-        if (i === cur) s.removeAttribute('aria-hidden');
-        else s.setAttribute('aria-hidden', 'true');
-      });
-      tabs.forEach((t, i) => t.classList.toggle('on', i === cur));
-    };
-    const stop = () => {
-      clearTimeout(timer);
-      reel.classList.remove('playing');
-    };
-    const play = () => {
-      stop();
-      if (reduce || !visible || held || document.hidden) return;
-      void reel.offsetWidth; // restart the progress bar
-      reel.classList.add('playing');
-      timer = window.setTimeout(() => {
-        show(cur + 1);
-        play();
-      }, DUR);
-    };
-    tabs.forEach((t, i) => {
-      const hold = () => {
-        held = true;
-        show(i);
-        stop();
-      };
-      t.addEventListener('mouseenter', hold);
-      t.addEventListener('focus', hold);
-    });
-    reel.addEventListener('mouseleave', () => {
-      held = false;
-      play();
-    });
-    reel.addEventListener('focusout', (e) => {
-      if (!reel.contains(e.relatedTarget as Node)) {
-        held = false;
-        play();
-      }
-    });
-    document.addEventListener('visibilitychange', play);
-    if ('IntersectionObserver' in window) {
-      new IntersectionObserver(([e]) => {
-        visible = e.isIntersecting;
-        play();
-      }, { threshold: 0.35 }).observe(reel);
-    } else play();
-  }
-</script>
-
 <style>
   .hr {
     --pad: clamp(18px, 2.4vw, 40px);
-    --proof: clamp(118px, 13vh, 138px);
+    --proof: clamp(112px, 12.5vh, 132px);
     height: calc(100svh - var(--hdr) - var(--gut));
     min-height: 640px;
     max-height: 1040px;
-    background: var(--film);
-  }
-
-  /* ── slides ── */
-  .hr-stage {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-  }
-  .hr-slide {
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    visibility: hidden;
-    transition:
-      opacity 0.9s var(--e-out),
-      visibility 0s linear 0.9s;
-  }
-  .hr-slide.on {
-    opacity: 1;
-    visibility: visible;
-    transition: opacity 0.9s var(--e-out);
-  }
-  .mat-evergreen {
-    background: radial-gradient(110% 100% at 75% 25%, color-mix(in srgb, var(--m-evergreen) 72%, var(--print) 12%) 0%, var(--m-evergreen) 50%, color-mix(in srgb, var(--m-evergreen) 55%, var(--film)) 100%);
+    background: var(--reel);
   }
   .hr-world,
   .hr-world picture,
@@ -322,44 +93,14 @@ const pos = (s: Scr) => `--l:${s.d[0]};--t:${s.d[1]};--w:${s.d[2]};--lm:${s.m[0]
     height: 100%;
   }
   .hr-world {
+    z-index: 0;
     overflow: hidden;
-    background: var(--reel);
   }
   .hr-world img {
     object-fit: cover;
-    object-position: var(--pos);
+    object-position: 50% 60%;
   }
-  .hr-scr {
-    position: absolute;
-    left: var(--l);
-    top: var(--t);
-    width: var(--w);
-    z-index: 1;
-    transform: translate3d(0, 28px, 0);
-    transition: transform 1.1s var(--e-out);
-  }
-  .hr-slide.on .hr-scr {
-    transform: none;
-    transition-delay: calc(var(--j) * 90ms);
-  }
-  .hr-scr img {
-    width: 100%;
-  }
-  .hr-scr--phone img {
-    border-radius: 14px;
-  }
-  .hr-credit {
-    position: absolute;
-    right: var(--pad);
-    bottom: calc(var(--proof) + 12px);
-    z-index: 2;
-    padding: 3px 8px;
-    border-radius: 4px;
-    font-size: 13px;
-    color: var(--print);
-    background: rgb(13 12 11 / 0.6);
-  }
-  /* scrims: left for the statement, bottom for the proof row */
+  /* scrims: left for the statement, bottom for the proof row, top for the record line */
   .hr::after {
     content: '';
     position: absolute;
@@ -367,29 +108,27 @@ const pos = (s: Scr) => `--l:${s.d[0]};--t:${s.d[1]};--w:${s.d[2]};--lm:${s.m[0]
     z-index: 1;
     pointer-events: none;
     background:
-      linear-gradient(90deg, rgb(13 12 11 / 0.86) 0%, rgb(13 12 11 / 0.64) 32%, rgb(13 12 11 / 0) 58%),
-      linear-gradient(0deg, rgb(13 12 11 / 0.96) 0%, rgb(13 12 11 / 0.8) calc(var(--proof) * 0.9), rgb(13 12 11 / 0) calc(var(--proof) + 240px)),
-      linear-gradient(180deg, rgb(13 12 11 / 0.5) 0%, rgb(13 12 11 / 0) 90px);
+      linear-gradient(90deg, rgb(13 12 11 / 0.82) 0%, rgb(13 12 11 / 0.55) 34%, rgb(13 12 11 / 0) 62%),
+      linear-gradient(0deg, rgb(13 12 11 / 0.95) 0%, rgb(13 12 11 / 0.78) calc(var(--proof) * 0.9), rgb(13 12 11 / 0) calc(var(--proof) + 260px)),
+      linear-gradient(180deg, rgb(13 12 11 / 0.72) 0%, rgb(13 12 11 / 0.3) 70px, rgb(13 12 11 / 0) 130px);
   }
 
-  /* ── copy ── */
   .hr-top {
     position: absolute;
     z-index: 3;
-    top: clamp(16px, 2vw, 28px);
+    top: clamp(16px, 2vw, 26px);
     left: var(--pad);
     right: var(--pad);
     display: flex;
     justify-content: space-between;
     gap: 24px;
-    text-shadow: 0 1px 12px rgb(13 12 11 / 0.8);
   }
   .hr-copy {
     position: absolute;
     z-index: 3;
     left: var(--pad);
-    bottom: calc(var(--proof) + clamp(22px, 3.4vh, 40px));
-    width: min(47%, 720px);
+    bottom: calc(var(--proof) + clamp(26px, 4vh, 48px));
+    width: min(54%, 820px);
   }
   .hr-h {
     margin-left: -0.04em;
@@ -397,18 +136,29 @@ const pos = (s: Scr) => `--l:${s.d[0]};--t:${s.d[1]};--w:${s.d[2]};--lm:${s.m[0]
   .hr-lede {
     margin-top: clamp(18px, 2.4vh, 28px);
     max-width: 34ch;
-    font-size: clamp(18px, 1.4vw, 22px);
+    font-size: clamp(19px, 1.45vw, 23px);
     line-height: 1.4;
-    text-shadow: 0 1px 18px rgb(13 12 11 / 0.8);
   }
   .hr-ctas {
     display: flex;
     flex-wrap: wrap;
     gap: 12px;
-    margin-top: clamp(18px, 2.6vh, 28px);
+    margin-top: clamp(20px, 2.8vh, 30px);
+  }
+  .hr-credit {
+    position: absolute;
+    z-index: 3;
+    right: var(--pad);
+    bottom: calc(var(--proof) + 14px);
+    max-width: 30ch;
+    font-size: 14px;
+    line-height: 1.35;
+    text-align: right;
+    color: var(--print);
+    text-shadow: 0 1px 2px rgb(13 12 11 / 0.9), 0 0 14px rgb(13 12 11 / 0.7);
   }
 
-  /* ── proof row: live products, the reel's index ── */
+  /* ── proof row: text only, the three live products ── */
   .hr-proof {
     position: absolute;
     z-index: 3;
@@ -424,117 +174,55 @@ const pos = (s: Scr) => `--l:${s.d[0]};--t:${s.d[1]};--w:${s.d[2]};--lm:${s.m[0]
     column-gap: var(--col-gap);
   }
   .hr-tab {
-    position: relative;
-    display: flex;
-    align-items: center;
-    gap: 16px;
+    display: grid;
+    align-content: start;
+    padding-top: clamp(18px, 2.2vh, 24px);
+    gap: 6px;
     height: 100%;
-    padding-top: 4px;
     text-decoration: none;
     color: var(--ash);
-    border-top: 1px solid var(--rule-film);
-    transition: color var(--t-micro) var(--e-out);
+    border-top: 1px solid rgb(238 234 226 / 0.22);
+    transition: border-color var(--t-micro) var(--e-out);
   }
-  .hr-tab.on,
   .hr-tab:hover {
-    color: var(--print);
-  }
-  .hr-th {
-    flex: none;
-    width: clamp(76px, 6.6vw, 104px);
-    aspect-ratio: 16 / 10;
-    border-radius: 4px;
-    overflow: hidden;
-    background: var(--bone-2);
-    box-shadow: 0 0 0 1px var(--rule-film);
-    opacity: 0.6;
-    transition: opacity var(--t-micro) var(--e-out);
-  }
-  .hr-tab.on .hr-th,
-  .hr-tab:hover .hr-th {
-    opacity: 1;
-  }
-  .hr-th img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: 0 0;
-  }
-  .hr-tt {
-    display: grid;
-    gap: 3px;
-    min-width: 0;
+    border-color: var(--print);
   }
   .hr-tn {
     display: inline-flex;
     align-items: center;
-    gap: 9px;
-    font-size: clamp(18px, 1.35vw, 21px);
+    gap: 10px;
+    font-size: clamp(20px, 1.5vw, 24px);
     font-weight: 600;
-    letter-spacing: -0.015em;
+    letter-spacing: -0.02em;
     color: var(--print);
+  }
+  .hr-tn .ar {
+    font-weight: 400;
+    transition: transform 0.3s var(--e-out);
+  }
+  .hr-tab:hover .ar {
+    transform: translateX(6px);
   }
   .hr-dot {
     width: 8px;
     height: 8px;
     border-radius: 50%;
     background: var(--flare);
-    box-shadow: 0 0 0 4px rgb(255 91 34 / 0.2);
+    box-shadow: 0 0 0 4px rgb(255 91 34 / 0.22);
   }
   .hr-tf {
     font-size: 16px;
-    line-height: 1.35;
+    line-height: 1.4;
   }
   .hr-tf b {
     font-weight: 600;
     color: var(--print);
   }
-  .hr-bar {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: -1px;
-    height: 2px;
-    overflow: hidden;
-  }
-  .hr-bar span {
-    display: block;
-    height: 100%;
-    background: var(--print);
-    transform: scaleX(0);
-    transform-origin: 0 50%;
-  }
-  .hr-tab.on .hr-bar span {
-    transform: scaleX(1);
-  }
-  .playing .hr-tab.on .hr-bar span {
-    animation: hr-bar 6s linear both;
-  }
-  @keyframes hr-bar {
-    from {
-      transform: scaleX(0);
-    }
-    to {
-      transform: scaleX(1);
-    }
-  }
 
-  /* ── entrance + Ken Burns (CSS only, first paint already shows the photo) ── */
+  /* the photo is there at first paint; it only drifts */
   @media (prefers-reduced-motion: no-preference) {
-    .hr-slide.on .hr-world img {
-      animation: hr-kb 9s var(--e-out) both;
-    }
-    .hr-h :global(.ln .fit) {
-      animation: hr-rise 0.8s var(--e-out) 0.1s both;
-    }
-    .hr-h :global(.ln + .ln .fit) {
-      animation-delay: 0.18s;
-    }
-    .hr-lede,
-    .hr-ctas,
-    .hr-proof,
-    .hr-top {
-      animation: hr-in 0.6s var(--e-out) 0.35s both;
+    .hr-world img {
+      animation: hr-kb 14s var(--e-out) both;
     }
   }
   @keyframes hr-kb {
@@ -545,33 +233,17 @@ const pos = (s: Scr) => `--l:${s.d[0]};--t:${s.d[1]};--w:${s.d[2]};--lm:${s.m[0]
       transform: scale(1.01);
     }
   }
-  @keyframes hr-rise {
-    from {
-      transform: translateY(105%);
-    }
-    to {
-      transform: none;
-    }
-  }
-  @keyframes hr-in {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
 
   @media (max-width: 1100px) {
-    .hr-tf {
-      font-size: 15px;
+    .hr-copy {
+      width: min(64%, 820px);
     }
-    .hr-th {
+    .hr-credit {
       display: none;
     }
   }
 
-  /* ── phones and tablets: picture on top, the statement over its lower edge, proof below ── */
+  /* ── phones and tablets: the photo on top, the statement over its lower edge, proof below ── */
   @media (max-width: 900px) {
     .hr {
       height: auto;
@@ -584,48 +256,38 @@ const pos = (s: Scr) => `--l:${s.d[0]};--t:${s.d[1]};--w:${s.d[2]};--lm:${s.m[0]
     .hr::after {
       display: none;
     }
-    .hr-stage {
+    .hr-world {
       position: relative;
       inset: auto;
-      aspect-ratio: 4 / 4.3;
-      overflow: hidden;
+      height: auto;
+      aspect-ratio: 4 / 4.4;
     }
-    .hr-stage::after {
+    .hr-world::after {
       content: '';
       position: absolute;
       inset: 0;
-      z-index: 2;
-      pointer-events: none;
-      background: linear-gradient(180deg, rgb(13 12 11 / 0.55) 0%, rgb(13 12 11 / 0) 16%, rgb(13 12 11 / 0) 50%, rgb(13 12 11 / 0.88) 86%, var(--film) 100%);
+      background: linear-gradient(180deg, rgb(13 12 11 / 0.6) 0%, rgb(13 12 11 / 0) 18%, rgb(13 12 11 / 0) 46%, rgb(13 12 11 / 0.9) 84%, var(--film) 100%);
     }
     .hr-world img {
-      object-position: var(--pos-m);
-    }
-    .hr-scr {
-      left: var(--lm);
-      top: var(--tm);
-      width: var(--wm);
-    }
-    .hr-credit {
-      top: 12px;
-      bottom: auto;
-      right: auto;
-      left: 12px;
-      font-size: 12px;
+      object-position: 50% 50%;
     }
     .hr-top {
-      display: none;
+      top: 14px;
+      left: 16px;
+      right: 16px;
+      font-size: 13px;
+      white-space: nowrap;
     }
     .hr-copy {
       position: relative;
       left: auto;
       bottom: auto;
       width: auto;
-      margin-top: -27vw;
+      margin-top: -30vw;
       padding: 0 16px;
     }
     .hr-lede {
-      font-size: 17px;
+      font-size: 18px;
     }
     .hr-ctas :global(.btn) {
       flex: 1 1 auto;
@@ -634,14 +296,10 @@ const pos = (s: Scr) => `--l:${s.d[0]};--t:${s.d[1]};--w:${s.d[2]};--lm:${s.m[0]
       position: relative;
       height: auto;
       grid-template-columns: 1fr;
-      padding: 24px 16px 4px;
+      padding: 28px 16px 4px;
     }
     .hr-tab {
-      padding-block: 14px;
-    }
-    .hr-th {
-      display: block;
-      width: 72px;
+      padding-block: 16px;
     }
   }
 </style>

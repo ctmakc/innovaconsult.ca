@@ -25,6 +25,10 @@ export interface FrameScreen {
   depth?: number;
   /** Hide this screen on phones (≤900px). */
   desktopOnly?: boolean;
+  /** Full srcset string (e.g. 2x crops); overrides src800. */
+  srcset?: string;
+  /** Poster colour while decoding: 'light' (default, bone) or 'dark' (dark product UI). */
+  poster?: 'light' | 'dark';
 }
 export interface FrameWorld {
   src: string;
@@ -40,7 +44,8 @@ interface Props {
   world?: FrameWorld;
   material?: 'evergreen' | 'loam' | 'navy' | 'reel' | 'bone';
   screens?: FrameScreen[];
-  /** full: 16/8.6 · half: 5/4.6 · stage: 4/3 · custom via aspect. Phones: picture area aspectM (default 4/3.3), caption below it. */
+  /** full: 16/8.6 · half: picture 16/10.6 with the caption BELOW it (round 3) · stage: 4/3 · custom via aspect.
+   *  For half frames `aspect` is the picture's aspect. Phones: picture area aspectM (default 4/3.3), caption below it. */
   size?: 'full' | 'half' | 'stage';
   aspect?: string;
   aspectM?: string;
@@ -57,7 +62,7 @@ interface Props {
 }
 const { world, material = 'reel', screens = [], size = 'half', aspect, aspectM, scrim = 'bottom', href, credit, dolly = true, eager = false, class: cls, ariaLabel, ...rest } = Astro.props;
 const Tag = href ? 'a' : 'div';
-const AR = { full: '16 / 8.6', half: '5 / 4.6', stage: '4 / 3' } as const;
+const AR = { full: '16 / 8.6', half: '16 / 10.6', stage: '4 / 3' } as const;
 const style = `--ar:${aspect ?? AR[size]};--ar-m:${aspectM ?? '4 / 3.3'}`;
 const pos = (s: FrameScreen) =>
   [
@@ -101,10 +106,10 @@ const sizes = (s: FrameScreen) => `(max-width: 900px) ${vw(s.wm, 88, 1)}, ${vw(s
       <div class:list={['mf-scr', `mf-scr--${s.kind ?? 'desktop'}`, { 'mf-dsk': s.desktopOnly }]} style={pos(s)} data-depth={s.depth ?? 1}>
         <div class="mf-lift">
           <img
-            class="scr-img"
             src={s.src}
-            srcset={s.src800 ? `${s.src800} ${Math.round(s.w / 2)}w, ${s.src} ${s.w}w` : undefined}
-            sizes={s.src800 ? sizes(s) : undefined}
+            class:list={['scr-img', { 'scr-dark': s.poster === 'dark' }]}
+            srcset={s.srcset ?? (s.src800 ? `${s.src800} ${Math.round(s.w / 2)}w, ${s.src} ${s.w}w` : undefined)}
+            sizes={s.srcset || s.src800 ? sizes(s) : undefined}
             alt={s.alt}
             width={s.w}
             height={s.h}
@@ -211,6 +216,36 @@ const sizes = (s: FrameScreen) => `(max-width: 900px) ${vw(s.wm, 88, 1)}, ${vw(s
     color: rgb(238 234 226 / 0.78);
     text-shadow: 0 1px 2px rgb(13 12 11 / 0.85), 0 0 12px rgb(13 12 11 / 0.6);
   }
+  /* Half frames (round 3): the picture on top in its own aspect box, the caption below it on solid
+     reel, so a title never sits on a screenshot. Rows of half frames share one height (grid stretch). */
+  .mf--half {
+    aspect-ratio: auto;
+    display: flex;
+    flex-direction: column;
+  }
+  .mf--half .mf-stage {
+    position: relative;
+    inset: auto;
+    z-index: 0;
+    aspect-ratio: var(--ar);
+    overflow: hidden;
+  }
+  .mf--half .mf-stage::after {
+    background: linear-gradient(180deg, rgb(13 12 11 / 0) 70%, rgb(13 12 11 / 0.35) 100%);
+  }
+  .mf--half .mf-cap {
+    position: relative;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    flex: 1;
+    padding: clamp(22px, 2.2vw, 34px) clamp(20px, 2.6vw, 44px) clamp(26px, 2.6vw, 40px);
+    background: var(--reel);
+  }
+  .mf--half .mf-credit {
+    bottom: auto;
+    top: 12px;
+  }
   /* Phones: the picture keeps its own aspect; the caption drops below it, never over a screen. */
   @media (max-width: 900px) {
     .mf {
@@ -257,6 +292,14 @@ const sizes = (s: FrameScreen) => `(max-width: 900px) ${vw(s.wm, 88, 1)}, ${vw(s
       background: rgb(13 12 11 / 0.62);
       color: rgb(238 234 226 / 0.92);
       text-shadow: none;
+    }
+  }
+  @media (max-width: 900px) {
+    .mf--half .mf-stage {
+      aspect-ratio: var(--ar-m);
+    }
+    .mf--half .mf-cap {
+      padding: 22px 20px 26px;
     }
   }
 </style>

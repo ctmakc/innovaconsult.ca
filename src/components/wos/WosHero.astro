@@ -5,7 +5,7 @@
 import FitText from '../FitText.astro';
 import Button from '../Button.astro';
 import StatusTag from '../StatusTag.astro';
-import { SHOTS, TECHNOLOGY } from './data';
+import { SHOTS } from './data';
 ---
 
 <section class="wh shell" aria-labelledby="wos-h1" data-hero>
@@ -22,7 +22,7 @@ import { SHOTS, TECHNOLOGY } from './data';
         <p class="wh-lede">From business processes to measurable AI automation.</p>
         <p class="wh-fit">Invite-only demo online since 1 October 2026. Built for firms of 20 to 200 people.</p>
         <Button href="/contact?topic=workflow-os" class="wh-cta">Request a demo invite</Button>
-        <p class="wh-sub">You receive a personal link to the working prototype, preloaded with a fictional sample company. The walkthrough takes about two minutes.</p>
+        <p class="wh-sub">You receive a personal link to the working prototype, preloaded with Northstar Professional Services, a fictional 30-person firm. All data shown is illustrative. The walkthrough takes about two minutes.</p>
       </div>
 
       <div class="wh-stage">
@@ -30,7 +30,7 @@ import { SHOTS, TECHNOLOGY } from './data';
           <img
             class="scr-img"
             src={SHOTS.overview.src}
-            srcset={`${SHOTS.overview.src800} 800w, ${SHOTS.overview.src} 1600w`}
+            srcset={`${SHOTS.overview.src800} 800w, ${SHOTS.overview.src} 1600w, ${SHOTS.overview.src2000} 2000w`}
             sizes="(max-width: 900px) 92vw, 62vw"
             width={SHOTS.overview.w}
             height={SHOTS.overview.h}
@@ -43,18 +43,12 @@ import { SHOTS, TECHNOLOGY } from './data';
     </div>
   </div>
 
-  <div class="wh-rec inset">
-    <p class="wh-rec-k t-label t-mute"><span class="wh-demo">Demo company: Northstar Professional Services, a fictional 30-person firm. All data shown is illustrative.</span></p>
-    <ul class="wh-tech" aria-label="Technology">
-      {TECHNOLOGY.map((t) => <li>{t}</li>)}
-    </ul>
-  </div>
 </section>
 
 <style>
   .wh-f {
     --pad: clamp(18px, 2.6vw, 40px);
-    height: calc(100svh - var(--hdr) - 118px); /* the record line shows in the first screen */
+    height: calc(100svh - var(--hdr) - var(--gut));
     min-height: 640px;
     max-height: 1040px;
     display: grid;
@@ -157,58 +151,10 @@ import { SHOTS, TECHNOLOGY } from './data';
       0 0 0 1px color-mix(in srgb, var(--ink) 18%, transparent);
   }
 
-  /* record line under the frame */
-  .wh-rec {
-    display: grid;
-    grid-template-columns: minmax(0, 3fr) minmax(0, 9fr);
-    column-gap: var(--col-gap);
-    row-gap: 14px;
-    padding-block: clamp(24px, 2.6vw, 40px) 0;
-  }
-  .wh-rec-k {
-    padding-top: 2px;
-  }
-  .wh-demo {
-    display: block;
-    margin-top: 8px;
-    font-weight: 400;
-    max-width: 34ch;
-  }
-  .wh-tech {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 12px var(--col-gap);
-    font-size: 17px;
-    line-height: 1.4;
-  }
-  .wh-tech li {
-    padding-left: 18px;
-    position: relative;
-  }
-  .wh-tech li::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0.55em;
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    border: 1.5px solid var(--ash);
-  }
-
   /* entrance: CSS only, done by about 1 s */
   @media (prefers-reduced-motion: no-preference) {
     .wh-f {
       animation: wh-gate 0.95s var(--e-gate) both;
-    }
-    .wh-h :global(.ln .fit) {
-      animation: wh-rise 0.95s var(--e-out) 0.14s both;
-    }
-    .wh-h :global(.ln + .ln .fit) {
-      animation-delay: 0.22s;
     }
     .wh-s1 > img {
       animation: wh-up 1.05s var(--e-out) 0.1s both;
@@ -260,9 +206,6 @@ import { SHOTS, TECHNOLOGY } from './data';
     .wh-stage {
       grid-column: 6 / span 7;
     }
-    .wh-tech {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
   }
   @media (max-width: 900px) {
     .wh-f {
@@ -294,14 +237,6 @@ import { SHOTS, TECHNOLOGY } from './data';
       right: var(--pad);
       top: 40%;
       width: 58%;
-    }
-    .wh-rec {
-      grid-template-columns: 1fr;
-    }
-  }
-  @media (max-width: 520px) {
-    .wh-tech {
-      grid-template-columns: 1fr;
     }
   }
 </style>

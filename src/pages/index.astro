@@ -2,30 +2,25 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import HeroReel from '../components/home/HeroReel.astro';
 import Button from '../components/Button.astro';
-import SectionHead from '../components/SectionHead.astro';
 import ProjectCard from '../components/ProjectCard.astro';
 import StatusTag from '../components/StatusTag.astro';
 import { visibleProjects, projectHref, type Project } from '../data/projects';
 import { SITE } from '../data/site';
+import { CROPS, asScreen } from '../data/crops';
 
 const P = Object.fromEntries(visibleProjects.map((p) => [p.slug, p])) as Record<string, Project>;
 const WORDS = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
 const total = WORDS[visibleProjects.length] ?? String(visibleProjects.length);
 
-/* In the lab: the work that is not in public use yet. Lines restate src/data/projects.ts. */
-const LAB: { p: Project; line: string; label?: string }[] = [
-  { p: P.openfield, line: 'Ag-robot fleet logbook. Field validation is planned for the 2027 season.', label: 'Prototype · demo data' },
-  { p: P.aicrmius, line: 'AI-native CRM: agents propose, a person approves, every change can be undone.' },
-  { p: P.finmozg, line: 'Eight finance agents and a CFO copilot on a real double-entry ledger.' },
-  { p: P['dual-use'], line: 'Defence-adjacent scouting. Research and lab work only; no contracts.' }
-];
+/* In the lab: the work that is not in public use yet, named in one line (src/data/projects.ts). */
+const LAB: Project[] = [P.openfield, P.aicrmius, P.finmozg, P['dual-use']];
 
-/* Workflow OS: four real screens, one sentence each (src/components/wos/data.ts). */
+/* Workflow OS on home: three readable close crops, one sentence each (src/components/wos/data.ts).
+   The Overview screen is kept for the /workflow-os hero. */
 const WOS = [
-  { k: 'Map the company', t: 'Processes, people and systems in one model.', src: 'overview', alt: 'Workflow OS overview of a fictional demo company: mapped processes and their automation scores.' },
-  { k: 'Score every process', t: 'Fourteen factors minus a risk penalty, with the reason behind every number.', src: 'opportunity-map', alt: 'Workflow OS Opportunity Map: 15 processes plotted by business value and feasibility, Client Onboarding ranked first at 88.' },
-  { k: 'Design the architecture', t: 'Six patterns and five levels of human control.', src: 'designer', alt: 'Workflow OS designer: the recommended architecture for one process, with its human-control level.' },
-  { k: 'Measure the return', t: 'A projected return that can be checked after go-live.', src: 'impact', alt: 'Workflow OS impact view: projected return over time for the selected automations.' }
+  { k: 'Score every process', t: 'Fourteen factors minus a risk penalty, with the reason behind every number.', c: CROPS.wosHomeMap },
+  { k: 'Design the architecture', t: 'Six patterns and five levels of human control.', c: CROPS.wosHomeDesigner },
+  { k: 'Measure the return', t: 'A projected return that can be checked after go-live.', c: CROPS.wosHomeImpact }
 ];
 ---
 
@@ -33,6 +28,11 @@ const WOS = [
   title="INNOVA · Applied AI & Software Company in Ottawa, Canada"
   description="INNOVA researches, prototypes, builds and deploys applied AI and custom software in Ottawa, with every project shown at its real stage, from R&D to live use."
   path="/"
+  cta={{
+    title: `Founder-led since ${SITE.experienceSince}. Start a conversation.`,
+    lede: `${SITE.legalName} is a federal corporation in Ottawa, led by its founder, Maksym Stepanenko, who has worked with companies in more than 50 countries. Every message is read by a person.`,
+    link: { href: '/about', label: 'About INNOVA' }
+  }}
 >
   <Fragment slot="head">
     <link rel="preload" as="image" href="/img/uafest-unity-ride-m.webp" media="(max-width: 700px)" fetchpriority="high" />
@@ -41,10 +41,11 @@ const WOS = [
 
   <HeroReel />
 
-  <!-- ═══ IN USE: the three live products, each screen in its world ═══ -->
+  <!-- ═══ IN USE: the three live products, each screen in its world, each one readable crop ═══ -->
   <section class="work shell" id="work" aria-labelledby="work-h">
-    <div class="inset">
-      <SectionHead id="work-h" title="In use today" size="h2" lede="Three products run in public. Each one carries its real status." link={{ href: '/projects', label: `All ${total} projects` }} />
+    <div class="inset work-hd">
+      <h2 id="work-h" class="t-h2" data-rise>In use today</h2>
+      <a class="lnk" href="/projects">All {total} projects <span class="ar" aria-hidden="true">→</span></a>
     </div>
     <div class="work-g">
       <ProjectCard
@@ -52,130 +53,39 @@ const WOS = [
         size="full"
         eager
         headline="A festival ran on it."
-        fact="Applications, participant cabinets, sponsor and finance registers for a Ukrainian festival in Carleton Place, Ontario. 199 participant cabinets and 13 shared mailboxes in one record."
-        world={{ src: '/img/uafest-dance.webp', src800: '/img/uafest-dance-800.webp', w: 1280, h: 818, pos: '30% 50%' }}
-        screens={[
-          {
-            src: '/proof/uafest-applications-1440-1600.webp',
-            src800: '/proof/uafest-applications-1440-800.webp',
-            w: 1600,
-            h: 1000,
-            alt: 'UAFest 2027 sign-up page on uafest.ca: one form with participation types for guests, volunteers, vendors, performers, sponsors and the organizing team.',
-            l: '45.5%',
-            t: '10%',
-            width: '50%',
-            lm: '7%',
-            tm: '10%',
-            wm: '86%'
-          },
-          {
-            src: '/proof/uafest-certificate-check-1440-1600.webp',
-            src800: '/proof/uafest-certificate-check-1440-800.webp',
-            w: 1600,
-            h: 473,
-            alt: 'UAFest certificate register on uafest.ca: a code field and Check button for verifying a printed certificate.',
-            l: '50%',
-            t: '64%',
-            width: '38%',
-            depth: 1.6,
-            desktopOnly: true
-          }
-        ]}
+        fact="199 participant cabinets and 13 shared mailboxes in one record, for a Ukrainian festival in Carleton Place, Ontario."
+        world={{ src: '/img/uafest-dance.webp', src800: '/img/uafest-dance-800.webp', w: 1280, h: 818, pos: '22% 50%' }}
+        screens={[asScreen(CROPS.uafestForm, { l: '49%', t: '10%', width: '46%', lm: '6%', tm: '7%', wm: '88%' })]}
         credit="UAFest festival, Carleton Place"
         aspect="16 / 8"
-        aspectM="4 / 3.4"
+        aspectM="4 / 3.3"
       />
       <ProjectCard
         project={P.foundwall}
         material="evergreen"
-        eager
-        aspect="5 / 4.2"
         fact="Web platform live; iOS and Android apps in public beta. Every photo loses its location data before anyone sees it."
-        screens={[
-          {
-            src: '/proof/foundwall-home-1440-1600.webp',
-            src800: '/proof/foundwall-home-1440-800.webp',
-            w: 1600,
-            h: 1000,
-            alt: 'FoundWall homepage: Lost, Stolen, Found headline beside sample notices for a bike, a beagle and a robotic mower.',
-            l: '8%',
-            t: '8%',
-            width: '62%',
-            lm: '6%',
-            tm: '9%',
-            wm: '76%'
-          },
-          {
-            src: '/proof/foundwall-board-390-800.webp',
-            src800: '/proof/foundwall-board-390-400.webp',
-            w: 800,
-            h: 1731,
-            alt: 'FoundWall board on a phone: stacked notice cards for a stolen bike and a lost cat (sample notices).',
-            kind: 'phone',
-            l: '73%',
-            t: '12%',
-            width: '19%',
-            lm: '67%',
-            tm: '16%',
-            wm: '27%',
-            depth: 1.6
-          }
-        ]}
+        screens={[asScreen(CROPS.foundwall, { l: '7%', t: '9%', width: '86%', lm: '6%', tm: '8%', wm: '88%' })]}
       />
       <ProjectCard
         project={P.babakokum}
         world={{ src: '/img/babakokum-porch.webp', w: 760, h: 720, pos: '50% 30%' }}
-        aspect="5 / 4.2"
         fact="On the App Store since 24 September 2026, and playable on the web. Runs fully offline."
-        screens={[
-          {
-            src: '/proof/babakokum-rules-tablet-1600.webp',
-            src800: '/proof/babakokum-rules-tablet-800.webp',
-            w: 1600,
-            h: 1331,
-            alt: 'BABA & KOKUM rules card: six scoring patterns for placing printed tiles on a scarf grid and the five ink colours.',
-            kind: 'tablet',
-            l: '20%',
-            t: '6%',
-            width: '58%',
-            lm: '14%',
-            tm: '7%',
-            wm: '72%'
-          }
-        ]}
+        screens={[asScreen(CROPS.babakokum, { l: '9%', t: '13%', width: '82%', lm: '6%', tm: '14%', wm: '88%' })]}
       />
     </div>
 
-    <div class="lab inset" aria-labelledby="lab-h">
-      <h3 id="lab-h" class="lab-k t-label t-mute">In the lab</h3>
-      <ul class="lab-g">
-        {
-          LAB.map(({ p, line, label }) => (
-            <li>
-              <a href={projectHref(p)} class="lab-i">
-                <StatusTag status={p.status} label={label} />
-                <span class="lab-n">
-                  {p.short}
-                  <span class="ar" aria-hidden="true">→</span>
-                </span>
-                <span class="lab-t">{line}</span>
-              </a>
-            </li>
-          ))
-        }
-      </ul>
-    </div>
+    <p class="lab inset">
+      <span class="lab-k">In the lab:</span> <a href={projectHref(LAB[0])}>{LAB[0].short}</a>, <a href={projectHref(LAB[1])}>{LAB[1].short}</a>, <a href={projectHref(LAB[2])}>{LAB[2].short}</a> and <a href={projectHref(LAB[3])}>{LAB[3].short}</a>.
+      <a class="lab-all" href="/projects">See all projects <span class="ar" aria-hidden="true">→</span></a>
+    </p>
   </section>
 
-  <!-- ═══ WORKFLOW OS: our own product, one big real screen on bone ═══ -->
+  <!-- ═══ WORKFLOW OS: our own product, readable close crops on bone ═══ -->
   <section class="wos tone-bone" id="workflow-os" aria-labelledby="wos-h">
     <div class="shell">
       <div class="inset">
         <div class="wos-hd">
-          <div class="wos-l">
-            <p class="t-label t-mute">Our own product</p>
-            <h2 id="wos-h" class="t-h2" data-rise>AI transformation starts with how work actually happens.</h2>
-          </div>
+          <h2 id="wos-h" class="t-h2 wos-h" data-rise>AI transformation starts with how work actually happens.</h2>
           <div class="wos-r">
             <p class="wos-name">INNOVA AI Workflow OS <StatusTag status="prototype" /></p>
             <p class="wos-body">Maps how a company works, scores every process for automation value and recommends an architecture for each one, from plain software to supervised AI agents.</p>
@@ -201,14 +111,15 @@ const WOS = [
               {
                 WOS.map((s, i) => (
                   <img
-                    class:list={['scr-img', { on: i === 0 }]}
+                    class:list={['scr-img scr-dark', { on: i === 0 }]}
                     data-wimg={i}
-                    src={`/proof/workflow-os-${s.src}-1440-1600.webp`}
-                    srcset={`/proof/workflow-os-${s.src}-1440-800.webp 800w, /proof/workflow-os-${s.src}-1440-1600.webp 1600w`}
-                    sizes="(max-width: 900px) 92vw, 64vw"
-                    alt={s.alt}
-                    width="1600"
-                    height="1000"
+                    src={s.c.src}
+                    srcset={s.c.srcset}
+                    sizes="(max-width: 900px) 92vw, 66vw"
+                    alt={s.c.alt}
+                    width={s.c.w}
+                    height={s.c.h}
+                    loading="lazy"
                     decoding="async"
                   />
                 ))
@@ -217,26 +128,6 @@ const WOS = [
             <figcaption class="disc">Online since 1 October 2026 as an invite-only demo. Northstar Professional Services is a fictional 30-person firm; all data shown is illustrative.</figcaption>
           </figure>
         </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══ WHO BUILDS IT: founder and the company, in one statement ═══ -->
-  <section class="who shell" aria-labelledby="who-h">
-    <div class="inset who-g">
-      <div class="who-l">
-        <p class="t-label t-mute">Who builds it</p>
-        <h2 id="who-h" class="who-h" data-rise>
-          Led by its founder, Maksym Stepanenko. In business since {SITE.experienceSince}, with companies in more than 50&nbsp;countries.
-        </h2>
-      </div>
-      <div class="who-r">
-        <p>{SITE.legalName} is a federal corporation in Ottawa, Ontario, incorporated in {SITE.incorporated}.</p>
-        <p class="t-mute">For funded and client projects, engineering, security review and domain specialists join as named subcontractors or partner firms, listed in the proposal before work starts.</p>
-        <p class="who-k">
-          <a class="lnk" href="/about">About INNOVA <span class="ar" aria-hidden="true">→</span></a>
-          <a class="lnk" href="/partnerships">Partnerships <span class="ar" aria-hidden="true">→</span></a>
-        </p>
       </div>
     </div>
   </section>
@@ -267,6 +158,14 @@ const WOS = [
   .work {
     padding-top: var(--sec);
   }
+  .work-hd {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px 32px;
+    flex-wrap: wrap;
+    margin-bottom: clamp(24px, 2.6vw, 40px);
+  }
   .work-g {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -276,57 +175,44 @@ const WOS = [
     grid-column: 1 / -1;
   }
 
-  /* ── in the lab ── */
+  /* ── in the lab: one line ── */
   .lab {
-    display: grid;
-    grid-template-columns: minmax(0, 2fr) minmax(0, 10fr);
-    column-gap: var(--col-gap);
-    row-gap: 18px;
-    margin-top: clamp(40px, 4.4vw, 72px);
-  }
-  .lab-k {
-    padding-top: 22px;
-  }
-  .lab-g {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 24px var(--col-gap);
-  }
-  .lab-i {
-    display: grid;
-    align-content: start;
-    gap: 10px;
-    height: 100%;
-    padding-top: 20px;
-    border-top: 1px solid var(--rule-film);
-    text-decoration: none;
-    color: var(--ash);
-  }
-  .lab-i :global(.tag) {
-    color: var(--ash);
-  }
-  .lab-n {
-    font-size: clamp(22px, 1.8vw, 28px);
+    margin-top: clamp(36px, 4vw, 64px);
+    font-size: clamp(22px, 2vw, 32px);
     font-weight: 500;
     letter-spacing: -0.025em;
-    line-height: 1.1;
-    color: var(--print);
+    line-height: 1.3;
+    color: var(--ash);
+    max-width: 52ch;
+    text-wrap: pretty;
   }
-  .lab-n .ar {
-    display: inline-block;
-    margin-left: 6px;
-    font-weight: 400;
+  .lab-k {
+    color: var(--ash);
+  }
+  .lab a {
+    color: var(--print);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-decoration-color: rgb(238 234 226 / 0.35);
+    text-underline-offset: 6px;
+    transition: text-decoration-color var(--t-micro) var(--e-out);
+  }
+  .lab a:hover {
+    text-decoration-color: var(--print);
+  }
+  .lab .lab-all {
+    display: flex;
+    width: fit-content;
+    margin-top: 14px;
+    gap: 8px;
+    white-space: nowrap;
+    text-decoration: none;
+  }
+  .lab-all .ar {
     transition: transform 0.3s var(--e-out);
   }
-  .lab-i:hover .ar {
+  .lab-all:hover .ar {
     transform: translateX(6px);
-  }
-  .lab-t {
-    font-size: 16px;
-    line-height: 1.45;
   }
 
   /* ── workflow os ── */
@@ -341,11 +227,8 @@ const WOS = [
     row-gap: 28px;
     align-items: end;
   }
-  .wos-l {
+  .wos-h {
     grid-column: 1 / span 7;
-  }
-  .wos-l .t-h2 {
-    margin-top: 18px;
     max-width: 16ch;
   }
   .wos-r {
@@ -428,7 +311,7 @@ const WOS = [
   }
   .wos-stack {
     position: relative;
-    aspect-ratio: 16 / 10;
+    aspect-ratio: 1823 / 950;
   }
   .wos-stack img {
     position: absolute;
@@ -449,63 +332,12 @@ const WOS = [
     max-width: 80ch;
   }
 
-  /* ── who builds it ── */
-  .who {
-    padding-top: var(--sec);
-  }
-  .who-g {
-    display: grid;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    column-gap: var(--col-gap);
-    row-gap: 32px;
-    align-items: end;
-  }
-  .who-l {
-    grid-column: 1 / span 8;
-  }
-  .who-h {
-    margin-top: 18px;
-    font-size: clamp(32px, 3.6vw, 60px);
-    font-weight: 500;
-    letter-spacing: -0.035em;
-    line-height: 1.04;
-    max-width: 22ch;
-    text-wrap: balance;
-  }
-  .who-r {
-    grid-column: 9 / span 4;
-    display: grid;
-    gap: 14px;
-    font-size: 17px;
-    line-height: 1.5;
-    padding-bottom: 0.3em;
-  }
-  .who-k {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px 24px;
-    margin-top: 6px;
-  }
-
-  @media (max-width: 1100px) {
-    .lab-g {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
   @media (max-width: 900px) {
     .work-g {
       grid-template-columns: 1fr;
     }
-    .lab {
-      grid-template-columns: 1fr;
-    }
-    .lab-k {
-      padding-top: 0;
-    }
-    .wos-l,
-    .wos-r,
-    .who-l,
-    .who-r {
+    .wos-h,
+    .wos-r {
       grid-column: 1 / -1;
     }
     .wos-g {
@@ -517,22 +349,29 @@ const WOS = [
       padding-left: 0;
       width: 100%;
     }
+    .wos-stack {
+      margin-inline: calc(var(--in) * -1 - var(--gut));
+      aspect-ratio: 1.45;
+    }
+    .wos-stack img {
+      border-radius: 0;
+    }
     .wos-tabs {
-      grid-template-columns: 1fr 1fr;
-      column-gap: 16px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      column-gap: 12px;
       width: 100%;
     }
     .wos-tt span {
       display: none;
     }
     .wos-tab {
+      grid-template-columns: 1fr;
+      gap: 4px;
       padding: 14px 0;
       min-height: 44px;
     }
-  }
-  @media (max-width: 520px) {
-    .lab-g {
-      grid-template-columns: 1fr;
+    .wos-tt b {
+      font-size: 17px;
     }
   }
 </style>

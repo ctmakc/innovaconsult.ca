@@ -23,10 +23,14 @@ export function fitAll() {
   });
 }
 fitAll();
-document.fonts?.ready.then(() => {
+const refit = () => {
   fitAll();
   window.dispatchEvent(new Event('fit:done'));
-});
+};
+document.fonts?.ready.then(refit);
+// fonts.ready can resolve before a lazily-requested face starts loading; refit when any face lands.
+document.fonts?.addEventListener?.('loadingdone', refit);
+window.addEventListener('load', refit, { once: true });
 let rt = 0;
 let lastW = window.innerWidth;
 window.addEventListener('resize', () => {

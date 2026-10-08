@@ -1,87 +1,123 @@
 ---
-// Five modules on bone, one sentence each. Desktop: the module names scroll on the left while one
-// big sticky screen on the right swaps to the module being read (instant swap, never blank).
-// Phones: each module carries its own screen inline. The factor lists, patterns, levels and the six
-// questions sit in two collapsed <details> blocks below, for the reader who wants them.
-import { MODULES, QA, RISK, type Shot } from './data';
+// Five modules (round 3): ONE sticky product stage on a dark plate. Desktop: the module names
+// scroll on the left (300px column); the stage on the right (~1050px) swaps to the module being
+// read, and a close-up of the one number that matters (cut from the 2x master) sits on its corner.
+// Phones: each module shows only its close-up, which reads at phone width.
+// Factor lists, patterns, levels, phases, the technology and the data/AI note live in two
+// collapsed <details>; the product boundary is a two-line callout at the end.
+import { MODULES, QA, RISK, TECHNOLOGY } from './data';
+import { CROPS, type Crop } from '../../data/crops';
 
-const zoomStyle = (s: Shot) => (s.zoom ? `--zs:${s.zoom.s};--zx:${s.zoom.ox};--zy:${s.zoom.oy}` : undefined);
+/* Per module: the stage image (full screen or a readable panel) and its close-up. */
+const STAGE: { img: { src: string; srcset: string; w: number; h: number }; loupe?: Crop; lw?: string; crop: Crop }[] = MODULES.map((m, i) => {
+  const full = (sh: typeof m.shot) => ({
+    src: sh.src2000 ?? sh.src,
+    srcset: `${sh.src800} 800w, ${sh.src} 1600w${sh.src2000 ? `, ${sh.src2000} 2000w` : ''}`,
+    w: sh.w,
+    h: sh.h
+  });
+  switch (i) {
+    case 0:
+      return { img: full(m.shot), loupe: CROPS.wosOverview234, lw: '30%', crop: CROPS.wosOverview234 };
+    case 1:
+      return { img: full(m.shot), loupe: CROPS.wosMap88, lw: '40%', crop: CROPS.wosMap88 };
+    case 2:
+      return { img: full(m.shot), loupe: CROPS.wosDesigner60, lw: '46%', crop: CROPS.wosDesigner60 };
+    case 3:
+      return { img: { src: CROPS.wosImpl.src, srcset: CROPS.wosImpl.srcset, w: CROPS.wosImpl.w, h: CROPS.wosImpl.h }, crop: CROPS.wosImpl };
+    default:
+      return { img: full(m.shot), loupe: CROPS.wosImpactKpi, lw: '46%', crop: CROPS.wosImpactKpi };
+  }
+});
 const score = MODULES.find((m) => m.formula)!;
 const design = MODULES.find((m) => m.patterns)!;
 const impl = MODULES.find((m) => m.phases)!;
 ---
 
-<section class="mods tone-bone" aria-labelledby="mods-h">
+<section class="mods" aria-labelledby="mods-h">
   <div class="shell">
-    <div class="inset">
-      <div class="mods-hd">
-        <h2 id="mods-h" class="t-display" data-rise>Five modules.</h2>
-        <p class="t-lede mods-lede">Each module hands its output to the next. Risk controls run through all five.</p>
-      </div>
+    <div class="inset mods-hd">
+      <h2 id="mods-h" class="t-display" data-rise>Five modules.</h2>
+      <p class="t-lede mods-lede">Each module hands its output to the next. Risk controls run through all five.</p>
+    </div>
 
-      <div class="ms">
-        <ol class="ms-chs">
-          {
-            MODULES.map((m, i) => (
-              <li class="ch" id={`module-${i + 1}`} data-ch={i}>
-                <p class="ch-k t-label tnum">
-                  {i + 1} · {m.stations.join(' · ')}
-                </p>
-                <h3 class="ch-h">{m.name}</h3>
-                <p class="ch-l">{m.line}</p>
-                <figure class="ch-shot">
-                  <div class:list={['ch-img', { 'is-zoom': !!m.shot.zoom }]} style={zoomStyle(m.shot)}>
+    <div class="ms">
+      <ol class="ms-chs">
+        {
+          MODULES.map((m, i) => (
+            <li class:list={['ch', { on: i === 0 }]} id={`module-${i + 1}`} data-ch={i}>
+              <span class="ch-n tnum" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+              <h3 class="ch-h">{m.name}</h3>
+              <p class="ch-l">{m.line}</p>
+              <figure class="ch-shot">
+                <img
+                  class="scr-img scr-dark"
+                  src={STAGE[i].crop.src}
+                  srcset={STAGE[i].crop.srcset}
+                  sizes="92vw"
+                  width={STAGE[i].crop.w}
+                  height={STAGE[i].crop.h}
+                  alt={STAGE[i].crop.alt}
+                  loading="lazy"
+                  decoding="async"
+                />
+                <figcaption>{m.shot.caption}</figcaption>
+              </figure>
+            </li>
+          ))
+        }
+      </ol>
+
+      <div class="ms-stage" aria-hidden="true">
+        <div class="ms-sticky">
+          <div class="plate">
+            <div class="stack">
+              {
+                STAGE.map((s, i) => (
+                  <div class:list={['stk', { on: i === 0 }]} data-shot={i}>
                     <img
-                      class="scr-img"
-                      src={m.shot.src800}
-                      srcset={`${m.shot.src800} 800w, ${m.shot.src} 1600w`}
-                      sizes="92vw"
-                      width={m.shot.w}
-                      height={m.shot.h}
-                      alt={m.shot.alt}
+                      class="scr-img scr-dark"
+                      src={s.img.src}
+                      srcset={s.img.srcset}
+                      sizes="(max-width: 1440px) 74vw, 1080px"
+                      width={s.img.w}
+                      height={s.img.h}
+                      alt=""
                       loading={i === 0 ? undefined : 'lazy'}
                       decoding="async"
                     />
-                  </div>
-                  <figcaption>{m.shot.caption}</figcaption>
-                </figure>
-              </li>
-            ))
-          }
-        </ol>
-
-        <div class="ms-stage" aria-hidden="true">
-          <div class="ms-sticky">
-            <div class="stack">
-              {
-                MODULES.map((m, i) => (
-                  <div class:list={['stk', { on: i === 0, 'is-zoom': !!m.shot.zoom }]} data-shot={i} style={zoomStyle(m.shot)}>
-                    <img
-                      class="scr-img"
-                      src={m.shot.src}
-                      srcset={`${m.shot.src800} 800w, ${m.shot.src} 1600w`}
-                      sizes="(max-width: 1440px) 62vw, 900px"
-                      width={m.shot.w}
-                      height={m.shot.h}
-                      alt=""
-                      decoding="async"
-                    />
+                    {s.loupe && (
+                      <img
+                        class="loupe scr-img scr-dark"
+                        src={s.loupe.src}
+                        srcset={s.loupe.srcset}
+                        sizes="480px"
+                        width={s.loupe.w}
+                        height={s.loupe.h}
+                        alt=""
+                        loading={i === 0 ? undefined : 'lazy'}
+                        decoding="async"
+                        style={`--lw:${s.lw}`}
+                      />
+                    )}
                   </div>
                 ))
               }
             </div>
-            <div class="caps">
-              {MODULES.map((m, i) => <p class:list={{ on: i === 0 }} data-cap={i}>{m.shot.caption}</p>)}
-            </div>
+          </div>
+          <div class="caps">
+            {MODULES.map((m, i) => <p class:list={{ on: i === 0 }} data-cap={i}>{m.shot.caption}</p>)}
           </div>
         </div>
       </div>
+    </div>
 
+    <div class="inset">
       <div class="more">
         <details class="dt">
           <summary>
             <span class="dt-h">How the score works</span>
-            <span class="dt-s">Factors, patterns, control levels and delivery phases</span>
+            <span class="dt-s">Factors, patterns, control levels, delivery phases and the technology</span>
             <span class="dt-i" aria-hidden="true"></span>
           </summary>
           <div class="dt-b">
@@ -115,6 +151,16 @@ const impl = MODULES.find((m) => m.phases)!;
               <h4>Risk and governance, in every module</h4>
               <p>{RISK.join(', ')}.</p>
             </div>
+            <div class="dt-c">
+              <h4>Technology</h4>
+              <p>{TECHNOLOGY.join(', ')}.</p>
+            </div>
+            <div class="dt-c">
+              <h4>Data and AI</h4>
+              <p>
+                The demo runs on fictional data. Scoring, design and ROI are calculated without AI. Optional AI discovery sends the description you paste to an external AI model hosted outside Canada; when it is off or slow, a rules engine drafts the process model instead.
+              </p>
+            </div>
           </div>
         </details>
 
@@ -138,6 +184,12 @@ const impl = MODULES.find((m) => m.phases)!;
           </dl>
         </details>
       </div>
+
+      <p class="end" id="end">
+        <span class="end-h">Workflow OS decides what to automate and how.</span>
+        The automations run in the client’s existing platforms or in INNOVA products such as <a href="/projects/aicrmius">AICRMIUS</a>, so the plan stays independent of any single vendor, including us.
+        <a class="lnk end-k" href="/ai-transformation">Our AI transformation method <span class="ar" aria-hidden="true">→</span></a>
+      </p>
     </div>
   </div>
 </section>
@@ -170,77 +222,77 @@ const impl = MODULES.find((m) => m.phases)!;
 
 <style>
   .mods {
-    padding-block: calc(var(--sec) * 0.8);
+    padding-block: calc(var(--sec) * 0.8) calc(var(--sec) * 0.4);
   }
   .mods-hd {
-    display: grid;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    column-gap: var(--col-gap);
-    row-gap: 18px;
-    align-items: end;
     margin-bottom: clamp(32px, 4vw, 64px);
   }
-  .mods-hd .t-display {
-    grid-column: 1 / span 7;
-  }
   .mods-lede {
-    grid-column: 9 / span 4;
-    color: var(--ink-soft);
+    margin-top: 18px;
+    max-width: 40ch;
+    color: var(--ash);
   }
 
   .ms {
     display: grid;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    column-gap: var(--col-gap);
+    grid-template-columns: minmax(240px, 300px) minmax(0, 1fr);
+    column-gap: clamp(20px, 2.4vw, 40px);
   }
   .ms-chs {
-    grid-column: 1 / span 4;
     list-style: none;
     margin: 0;
-    padding: 0;
+    padding: 0 0 0 var(--in);
   }
   .ch {
-    min-height: 46vh;
-    padding: 22px 0 40px;
-    border-top: 1px solid var(--rule-ink);
-    color: var(--ink-soft);
+    min-height: 62vh;
+    padding: 4px 0 40px;
+    color: var(--ash);
     transition: color var(--t-micro) var(--e-out);
   }
   .ch:last-child {
     min-height: 0;
   }
-  .ch.on {
-    color: var(--ink);
-    border-top: 2px solid var(--ink);
-    padding-top: 21px;
+  .ch-n {
+    display: block;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ash);
   }
-  .ch.on .ch-k {
-    color: var(--flare-ink);
+  .ch.on {
+    color: var(--print);
+  }
+  .ch.on .ch-n {
+    color: var(--flare);
   }
   .ch-h {
-    margin-top: 10px;
-    font-size: clamp(26px, 2.3vw, 38px);
+    margin-top: 8px;
+    font-size: clamp(26px, 2.2vw, 36px);
     font-weight: 500;
     letter-spacing: -0.03em;
     line-height: 1.05;
   }
   .ch-l {
     margin-top: 12px;
-    font-size: 17px;
+    font-size: 18px;
     line-height: 1.5;
-    max-width: 38ch;
+    max-width: 30ch;
   }
   .ch-shot {
     display: none;
   }
 
   .ms-stage {
-    grid-column: 5 / -1;
-    padding-left: clamp(0px, 2vw, 32px);
+    min-width: 0;
   }
   .ms-sticky {
     position: sticky;
-    top: calc(var(--hdr) + 28px);
+    top: calc(var(--hdr) + 20px);
+  }
+  .plate {
+    padding: clamp(14px, 1.6vw, 24px) clamp(14px, 1.6vw, 24px) clamp(40px, 4vw, 64px);
+    border-radius: var(--r);
+    background: radial-gradient(120% 100% at 20% 0%, var(--reel-2) 0%, var(--reel) 60%);
+    box-shadow: inset 0 0 0 1px var(--rule-film);
   }
   .stack {
     position: relative;
@@ -249,28 +301,42 @@ const impl = MODULES.find((m) => m.phases)!;
   .stk {
     position: absolute;
     inset: 0;
-    overflow: hidden;
-    border-radius: var(--r);
     visibility: hidden;
-    box-shadow: var(--shadow-screen-bone);
   }
   .stk.on {
     visibility: visible;
   }
-  .stk img {
+  .stk > img:first-child {
     width: 100%;
     height: 100%;
     object-fit: cover;
     object-position: 0 0;
-    box-shadow: none;
   }
-  .is-zoom img {
-    transform: scale(var(--zs));
-    transform-origin: var(--zx) var(--zy);
+  .loupe {
+    position: absolute;
+    right: -2.4%;
+    bottom: -8%;
+    width: var(--lw, 40%);
+    box-shadow:
+      0 40px 80px -24px rgb(0 0 0 / 0.85),
+      0 0 0 1px rgb(238 234 226 / 0.28);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .stk.on .loupe {
+      animation: loupe 0.42s var(--e-out) both;
+    }
+  }
+  @keyframes loupe {
+    from {
+      transform: translate(10px, 14px) scale(0.94);
+    }
+    to {
+      transform: none;
+    }
   }
   .caps {
     position: relative;
-    margin-top: 14px;
+    margin-top: 16px;
     min-height: 3em;
   }
   .caps p {
@@ -278,7 +344,7 @@ const impl = MODULES.find((m) => m.phases)!;
     inset: 0 auto auto 0;
     font-size: 15px;
     line-height: 1.45;
-    color: var(--ink-soft);
+    color: var(--ash);
     visibility: hidden;
   }
   .caps p.on {
@@ -288,19 +354,21 @@ const impl = MODULES.find((m) => m.phases)!;
   /* collapsed detail */
   .more {
     display: grid;
-    gap: 12px;
-    margin-top: clamp(40px, 4.4vw, 72px);
+    margin-top: clamp(48px, 5vw, 88px);
   }
   .dt {
-    border-top: 1px solid var(--rule-ink);
+    border-top: 1px solid var(--rule-film);
+  }
+  .dt:last-child {
+    border-bottom: 1px solid var(--rule-film);
   }
   .dt summary {
     display: grid;
     grid-template-columns: minmax(0, 5fr) minmax(0, 6fr) 44px;
     align-items: center;
     gap: 8px var(--col-gap);
-    min-height: 64px;
-    padding: 14px 0;
+    min-height: 72px;
+    padding: 16px 0;
     cursor: pointer;
     list-style: none;
   }
@@ -313,8 +381,8 @@ const impl = MODULES.find((m) => m.phases)!;
     letter-spacing: -0.022em;
   }
   .dt-s {
-    color: var(--ink-soft);
-    font-size: 16px;
+    color: var(--ash);
+    font-size: 17px;
   }
   .dt-i {
     justify-self: end;
@@ -341,40 +409,64 @@ const impl = MODULES.find((m) => m.phases)!;
   }
   .dt-b {
     margin: 0;
-    padding: 8px 0 36px;
+    padding: 8px 0 40px;
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 28px var(--col-gap);
   }
   .dt-c h4,
   .dt-c dt {
-    font-size: 17px;
+    font-size: 18px;
     font-weight: 600;
     margin-bottom: 6px;
   }
   .dt-c p,
   .dt-c dd {
     margin: 0;
-    font-size: 16px;
+    font-size: 17px;
     line-height: 1.5;
-    color: var(--ink-soft);
+    color: var(--ash);
   }
   .dt-wide {
     grid-column: 1 / -1;
   }
   .fx {
     font-size: clamp(20px, 1.6vw, 26px) !important;
-    color: var(--ink) !important;
+    color: var(--print) !important;
     font-weight: 500;
   }
 
+  /* boundary: a two-line callout */
+  .end {
+    margin-top: clamp(48px, 5vw, 80px);
+    max-width: 62ch;
+    font-size: clamp(19px, 1.5vw, 23px);
+    line-height: 1.45;
+    color: var(--ash);
+  }
+  .end-h {
+    color: var(--print);
+    font-weight: 500;
+  }
+  .end a:not(.lnk) {
+    color: var(--print);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 5px;
+  }
+  .end-k {
+    display: inline-flex;
+    margin-left: 6px;
+    color: var(--print);
+    font-size: 18px;
+  }
+
   @media (max-width: 900px) {
-    .mods-hd .t-display,
-    .mods-lede {
-      grid-column: 1 / -1;
-    }
     .ms {
       display: block;
+    }
+    .ms-chs {
+      padding: 0 var(--in);
     }
     .ms-stage {
       display: none;
@@ -382,31 +474,23 @@ const impl = MODULES.find((m) => m.phases)!;
     .ch,
     .ch.on {
       min-height: 0;
-      color: var(--ink);
-      border-top: 1px solid var(--rule-ink);
-      padding: 20px 0 32px;
+      color: var(--print);
+      padding: 0 0 44px;
+    }
+    .ch .ch-n {
+      color: var(--flare);
     }
     .ch-shot {
       display: block;
       margin: 18px 0 0;
     }
-    .ch-img {
-      overflow: hidden;
-      border-radius: var(--r);
-      aspect-ratio: 16 / 10;
-      box-shadow: var(--shadow-screen-bone);
-    }
-    .ch-img img {
+    .ch-shot img {
       width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: 0 0;
-      box-shadow: none;
     }
     .ch-shot figcaption {
       margin-top: 10px;
       font-size: 15px;
-      color: var(--ink-soft);
+      color: var(--ash);
     }
     .dt summary {
       grid-template-columns: 1fr 44px;
@@ -414,6 +498,7 @@ const impl = MODULES.find((m) => m.phases)!;
     .dt-s {
       grid-column: 1;
       grid-row: 2;
+      font-size: 16px;
     }
     .dt-i {
       grid-column: 2;
@@ -421,6 +506,10 @@ const impl = MODULES.find((m) => m.phases)!;
     }
     .dt-b {
       grid-template-columns: 1fr;
+    }
+    .end-k {
+      display: flex;
+      margin: 14px 0 0;
     }
   }
 </style>

@@ -5,6 +5,7 @@
 // .proof-staging/MANIFEST.json (privacy-checked captures).
 import type { FrameScreen, FrameWorld } from '../MediaFrame.astro';
 import type { ProofImage } from '../../data/projects';
+import { CROPS, asScreen } from '../../data/crops';
 // Placements use l/lm only: MediaFrame writes `r` to the --r custom property, which is also the
 // global corner-radius token, so an `r` offset would round the screenshot's corners by that much.
 
@@ -102,16 +103,14 @@ const S = {
 
 export const PRESETS: Record<string, Preset> = {
   uafest: {
-    fact: 'Applications, participant cabinets, sponsor and finance registers for a Ukrainian festival in Carleton Place, Ontario. 199 participant cabinets and 13 shared mailboxes in one record.',
+    fact: '199 participant cabinets and 13 shared mailboxes in one record, for a Ukrainian festival in Carleton Place, Ontario.',
     world: { src: '/img/uafest-dance.webp', src800: '/img/uafest-dance-800.webp', w: 1280, h: 818, pos: '30% 50%' },
     credit: 'UAFest festival, Carleton Place',
-    full: [
-      { ...S.uafestApps, l: '45.5%', t: '10%', width: '50%', lm: '7%', tm: '14%', wm: '86%' },
-      { ...S.uafestCert, l: '48%', t: '63%', width: '40%', lm: '24%', tm: '68%', wm: '70%', depth: 1.6 }
-    ],
-    half: [{ ...S.uafestApps, l: '8%', t: '6%', width: '64%', lm: '7%', tm: '9%', wm: '86%' }],
-    aspectM: '4 / 3.6',
-    heroSrcs: [S.uafestApps.src, S.uafestCert.src]
+    // Round 3: one readable crop of the sign-up form (2x master), kept clear of the caption.
+    full: [asScreen(CROPS.uafestForm, { l: '50%', t: '10%', width: '45%', lm: '6%', tm: '7%', wm: '88%' })],
+    half: [asScreen(CROPS.uafestForm, { l: '30%', t: '9%', width: '64%', lm: '6%', tm: '8%', wm: '88%' })],
+    aspectM: '4 / 3.3',
+    heroSrcs: [CROPS.uafestForm.src]
   },
   foundwall: {
     fact: 'Web platform live; iOS and Android apps in public beta. Every photo loses its location data before anyone sees it.',
@@ -120,17 +119,14 @@ export const PRESETS: Record<string, Preset> = {
       { ...S.fwHome, l: '39%', t: '10%', width: '42%', lm: '6%', tm: '9%', wm: '76%' },
       { ...S.fwPhone, l: '82.5%', t: '17%', width: '12.5%', lm: '67%', tm: '16%', wm: '27%', depth: 1.6 }
     ],
-    half: [
-      { ...S.fwHome, l: '8%', t: '8%', width: '62%', lm: '6%', tm: '9%', wm: '76%' },
-      { ...S.fwPhone, l: '73%', t: '13%', width: '19%', lm: '67%', tm: '16%', wm: '27%', depth: 1.6 }
-    ],
+    half: [asScreen(CROPS.foundwall, { l: '7%', t: '9%', width: '86%', lm: '6%', tm: '8%', wm: '88%' })],
     heroSrcs: [S.fwHome.src, S.fwPhone.src]
   },
   babakokum: {
     fact: 'On the App Store since 24 September 2026, and playable on the web. Runs fully offline.',
-    world: { src: '/img/babakokum-porch.webp', w: 760, h: 720, pos: '50% 30%' },
-    full: [{ ...S.bkRules, l: '56%', t: '8%', width: '36%', lm: '14%', tm: '7%', wm: '72%' }],
-    half: [{ ...S.bkRules, l: '24%', t: '6%', width: '52%', lm: '14%', tm: '7%', wm: '72%' }],
+    world: { src: '/img/babakokum-title.webp', src800: '/img/babakokum-title-800.webp', w: 1376, h: 768, pos: '30% 40%' },
+    full: [{ ...S.bkRules, l: '62%', t: '9%', width: '34%', lm: '14%', tm: '7%', wm: '72%' }],
+    half: [asScreen(CROPS.babakokum, { l: '9%', t: '13%', width: '82%', lm: '6%', tm: '14%', wm: '88%' })],
     heroSrcs: [S.bkRules.src]
   },
   openfield: {
@@ -141,10 +137,7 @@ export const PRESETS: Record<string, Preset> = {
       { ...S.ofReport, l: '39%', t: '9%', width: '42%', lm: '6%', tm: '9%', wm: '74%' },
       { ...S.ofPhone, l: '82.5%', t: '14%', width: '12.5%', lm: '67%', tm: '14%', wm: '27%', depth: 1.6 }
     ],
-    half: [
-      { ...S.ofReport, l: '7%', t: '8%', width: '58%', lm: '6%', tm: '9%', wm: '74%' },
-      { ...S.ofPhone, l: '72%', t: '11%', width: '19%', lm: '67%', tm: '14%', wm: '27%', depth: 1.6 }
-    ],
+    half: [asScreen(CROPS.openfield, { l: '7%', t: '12%', width: '86%', lm: '6%', tm: '12%', wm: '88%' })],
     extra: [
       {
         src: '/proof/openfield-today-1440-1600.webp',
@@ -165,7 +158,7 @@ export const PRESETS: Record<string, Preset> = {
       { ...S.wosMap, l: '53.5%', t: '8%', width: '43%', lm: '25%', tm: '7%', wm: '70%', depth: 0.8 },
       { ...S.wosOverview, l: '44%', t: '36%', width: '37%', lm: '5%', tm: '40%', wm: '64%', depth: 1.4 }
     ],
-    half: [{ ...S.wosMap, l: '7%', t: '7%', width: '86%', lm: '6%', tm: '8%', wm: '88%' }]
+    half: [asScreen(CROPS.wosHomeMap, { l: '7%', t: '10%', width: '86%', lm: '6%', tm: '10%', wm: '88%' })]
   },
   aicrmius: {
     fact: 'Agents propose, a person approves, every change can be undone.',

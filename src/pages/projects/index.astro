@@ -21,6 +21,13 @@ const lab = projects.filter((p) => PRESETS[p.slug]?.words);
 const [lead, ...rest] = shown;
 
 /* Filter chips: one per status that has projects. */
+/* Status meanings live on the chips (title), not in a paragraph. */
+const MEANING: Partial<Record<ProjectStatus, string>> = {
+  live: 'Runs in production and is open to the public',
+  'in-development': 'The core works; the product is being engineered toward release',
+  prototype: 'A working version for testing and demonstrations',
+  exploring: 'Early scouting, nothing delivered yet'
+};
 const chips = order.map((s) => ({ s, n: projects.filter((p) => p.status === s).length })).filter((c) => c.n > 0);
 
 const itemList = {
@@ -55,7 +62,7 @@ const itemList = {
         <button type="button" class="px-chip on" aria-pressed="true" data-f="all">All <span class="tnum">{projects.length}</span></button>
         {
           chips.map((c) => (
-            <button type="button" class="px-chip" aria-pressed="false" data-f={c.s}>
+            <button type="button" class="px-chip" aria-pressed="false" data-f={c.s} title={MEANING[c.s]}>
               <StatusTag status={c.s} /> <span class="tnum">{c.n}</span>
             </button>
           ))
@@ -65,13 +72,13 @@ const itemList = {
 
     <div class="px-grid" data-grid>
       <ProjectTile project={lead} size="full" eager headingLevel="h2" id={lead.slug} data-s={lead.status} aspect="16 / 7.6" />
-      {rest.map((p, i) => <ProjectTile project={p} size="half" eager={i < 2} headingLevel="h2" id={p.slug} data-s={p.status} aspect="5 / 4.2" />)}
+      {rest.map((p, i) => <ProjectTile project={p} size="half" eager={i < 2} headingLevel="h2" id={p.slug} data-s={p.status} />)}
     </div>
 
     {
       lab.length > 0 && (
-        <div class="px-lab inset" aria-labelledby="lab-h">
-          <h2 id="lab-h" class="t-label t-mute px-lab-k">In the lab</h2>
+        <div class="px-lab" aria-labelledby="lab-h">
+          <h2 id="lab-h" class="t-h3 px-lab-k inset">In the lab</h2>
           <ul class="px-lab-g">
             {lab.map((p) => (
               <li data-s={p.status} id={p.slug}>
@@ -82,7 +89,6 @@ const itemList = {
                     <span class="ar" aria-hidden="true">→</span>
                   </span>
                   <span class="px-ld">{p.tagline}</span>
-                  <span class="px-lt">{PRESETS[p.slug]?.fact ?? p.summary}</span>
                 </a>
               </li>
             ))}
@@ -90,7 +96,6 @@ const itemList = {
         </div>
       )
     }
-    <p class="px-note inset t-mute">Status meanings: Live runs in production and is open to the public. In development: the core works and the product is being engineered toward release. Prototype: a working version for testing and demonstrations. Exploring: early scouting, nothing delivered yet.</p>
   </section>
 </BaseLayout>
 
@@ -145,20 +150,19 @@ const itemList = {
     text-underline-offset: 4px;
   }
   .px-t {
-    grid-column: 1 / span 7;
+    grid-column: 1 / -1;
     font-size: clamp(44px, 6.4vw, 108px);
     font-weight: 500;
     letter-spacing: -0.045em;
     line-height: 0.92;
-    animation: px-rise 0.6s var(--e-out) both;
+
   }
   .px-chips {
-    grid-column: 8 / span 5;
+    grid-column: 1 / -1;
     display: none;
     flex-wrap: wrap;
-    justify-content: flex-end;
     gap: 8px;
-    padding-bottom: 0.4em;
+    margin-top: 6px;
   }
   :global(.js) .px-chips {
     display: flex;
@@ -206,16 +210,12 @@ const itemList = {
     display: none !important;
   }
 
-  /* lab row */
+  /* lab row: three compact solid tiles (no ruled rows) */
   .px-lab {
-    display: grid;
-    grid-template-columns: minmax(0, 3fr) minmax(0, 9fr);
-    column-gap: var(--col-gap);
-    row-gap: 16px;
-    margin-top: clamp(40px, 4.4vw, 72px);
+    margin-top: clamp(48px, 5vw, 88px);
   }
   .px-lab-k {
-    padding-top: 22px;
+    margin-bottom: clamp(18px, 2vw, 28px);
   }
   .px-lab-g {
     list-style: none;
@@ -223,21 +223,29 @@ const itemList = {
     padding: 0;
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 24px var(--col-gap);
+    gap: clamp(10px, 1.2vw, 18px);
+  }
+  .px-lab-g > [hidden] {
+    display: none;
   }
   .px-li {
     display: grid;
     align-content: start;
-    gap: 8px;
+    gap: 10px;
     height: 100%;
-    padding-top: 20px;
-    border-top: 1px solid var(--rule-film);
+    padding: clamp(22px, 2vw, 32px);
+    border-radius: var(--r);
+    background: var(--reel);
     text-decoration: none;
     color: var(--ash);
+    transition: background-color var(--t-micro) var(--e-out);
+  }
+  .px-li:hover {
+    background: var(--reel-2);
   }
   .px-ln {
-    margin-top: 4px;
-    font-size: clamp(24px, 2vw, 32px);
+    margin-top: 8px;
+    font-size: clamp(26px, 2.2vw, 36px);
     font-weight: 500;
     letter-spacing: -0.03em;
     line-height: 1.05;
@@ -253,17 +261,8 @@ const itemList = {
     transform: translateX(6px);
   }
   .px-ld {
-    font-size: 17px;
-    color: var(--print);
-  }
-  .px-lt {
-    font-size: 16px;
-    line-height: 1.45;
-  }
-  .px-note {
-    margin-top: clamp(40px, 4vw, 64px);
-    font-size: 15px;
-    max-width: 96ch;
+    font-size: 18px;
+    color: var(--ash);
   }
   @keyframes px-rise {
     from {
@@ -282,14 +281,18 @@ const itemList = {
       grid-column: 1 / -1;
       justify-content: flex-start;
     }
+    :global(.js) .px-chips {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      margin-inline: calc(var(--in) * -1 - var(--gut));
+      padding-inline: calc(var(--in) + var(--gut));
+      scrollbar-width: none;
+    }
+    .px-chip {
+      flex: none;
+    }
     .px-grid {
       grid-template-columns: 1fr;
-    }
-    .px-lab {
-      grid-template-columns: 1fr;
-    }
-    .px-lab-k {
-      padding-top: 0;
     }
     .px-lab-g {
       grid-template-columns: 1fr;

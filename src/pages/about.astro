@@ -4,22 +4,9 @@ import ProjectCard from '../components/ProjectCard.astro';
 import RecordIds from '../components/RecordIds.astro';
 import { visibleProjects, type Project } from '../data/projects';
 import { SITE } from '../data/site';
+import { CROPS, asScreen } from '../data/crops';
 
 const P = Object.fromEntries(visibleProjects.map((p) => [p.slug, p])) as Record<string, Project>;
-
-/* Three facts, each with one plain line. All from the fact-checked founder bio and SITE. */
-const facts = [
-  { n: SITE.experienceSince, t: 'Business practice since then: strategy, legal structure, tax and marketing for small and mid-sized companies.' },
-  { n: '50+', t: 'Countries where those businesses operate. In recent years the work brought applied AI into them.' },
-  { n: SITE.incorporated, t: `${SITE.legalName} incorporated federally, based in ${SITE.city}.` }
-];
-
-const founderRecord = [
-  ['Role', 'Founder & director'],
-  ['Business practice', `Since ${SITE.experienceSince}`],
-  ['Incorporated', `${SITE.legalName}, ${SITE.incorporated}`],
-  ['Education', 'MA, Economic Theory (honours)']
-];
 
 const jsonLd = [
   {
@@ -45,77 +32,50 @@ const jsonLd = [
     { name: 'About', path: '/about' }
   ]}
 >
-  <Fragment slot="head">
-    <link rel="preload" as="image" imagesrcset="/img/uafest-venue-800.webp 800w, /img/uafest-venue.webp 1280w" imagesizes="100vw" fetchpriority="high" />
-  </Fragment>
-
-  <!-- ═══ HERO: one real photo, the founder's name ═══ -->
+  <!-- ═══ HERO: the name, and the three facts in one statement (round 3: no stat banner) ═══ -->
   <section class="ah shell" aria-labelledby="ah-h" data-hero>
-    <div class="ah-f frame">
-      <div class="ah-world" data-hero-still>
-        <img
-          src="/img/uafest-venue.webp"
-          srcset="/img/uafest-venue-800.webp 800w, /img/uafest-venue.webp 1280w"
-          sizes="100vw"
-          alt="UAFest in Carleton Place: the audience on the lawn in front of the festival stage, under the trees by the river."
-          width="1280"
-          height="851"
-          fetchpriority="high"
-          decoding="async"
-        />
-      </div>
+    <div class="inset ah-in">
       <p class="t-label ah-crumb"><a href="/">INNOVA</a><span aria-hidden="true">/</span><span>About</span></p>
-      <div class="ah-copy">
-        <p class="ah-k">Founder and director of {SITE.legalName}</p>
+      <div class="ah-g">
         <h1 id="ah-h" class="ah-t">Maksym Stepanenko</h1>
-        <p class="ah-lede">INNOVA is an applied AI and software company in {SITE.city}, {SITE.region}. It is founder-led.</p>
+        <p class="ah-st">
+          In business since {SITE.experienceSince}, with companies in more than 50&nbsp;countries. In {SITE.incorporated} he incorporated {SITE.legalName} in {SITE.city}, an applied AI and software company he leads as founder and director.
+        </p>
       </div>
-      <p class="ah-cap">UAFest, Carleton Place: the festival of the Ukrainian Community of Lanark County, a non-profit co-founded by INNOVA’s founder.</p>
     </div>
   </section>
 
-  <!-- ═══ THREE FACTS ═══ -->
-  <section class="af shell" aria-label="The founder in three facts">
-    <ul class="inset af-g">
-      {
-        facts.map((f) => (
-          <li>
-            <span class="af-n tnum" data-mask>
-              <span>{f.n}</span>
-            </span>
-            <span class="af-t">{f.t}</span>
-          </li>
-        ))
-      }
-    </ul>
+  <!-- ═══ ONE PHOTO BAND: the festival that runs on INNOVA software ═══ -->
+  <section class="ab shell" aria-label="UAFest, Carleton Place">
+    <figure class="ab-f frame" data-dolly-bg>
+      <img
+        src="/img/uafest-venue.webp"
+        srcset="/img/uafest-venue-800.webp 800w, /img/uafest-venue.webp 1280w"
+        sizes="100vw"
+        alt="UAFest in Carleton Place: the audience on the lawn in front of the festival stage, under the trees by the river."
+        width="1280"
+        height="851"
+        decoding="async"
+      />
+      <figcaption class="ab-cap">UAFest, Carleton Place: the festival of the Ukrainian Community of Lanark County, a non-profit co-founded by INNOVA’s founder. Its applications, participant cabinets and registers run on the platform INNOVA built.</figcaption>
+    </figure>
   </section>
 
-  <!-- ═══ BIO + RECORD (bone) ═══ -->
+  <!-- ═══ THE FOUNDER (bone): one statement, two sentences, one link ═══ -->
   <section class="fd tone-bone" id="founder" aria-labelledby="founder-h">
     <div class="shell">
-      <div class="inset fd-g">
-        <div class="fd-l">
-          <h2 id="founder-h" class="t-label t-mute">The founder</h2>
-          <p class="fd-bio" data-rise>
-            Since {SITE.experienceSince} Maksym has helped thousands of small and mid-sized businesses in more than 50 countries grow and protect themselves through strategy, legal structure, tax and marketing.
-          </p>
-          <p class="fd-p">
-            In recent years he has brought applied AI into those businesses and into INNOVA’s own products. He incorporated {SITE.legalName} in Ottawa in {SITE.incorporated}.
-          </p>
-          <p class="fd-p">
-            For funded and client projects, <strong>engineering, security review and domain specialists</strong> are brought in as named subcontractors or partner firms, listed in the proposal before work starts.
-          </p>
-        </div>
-        <dl class="fd-rec" aria-label="Founder record">
-          {
-            founderRecord.map(([k, v]) => (
-              <div>
-                <dt class="t-label">{k}</dt>
-                <dd>{v}</dd>
-              </div>
-            ))
-          }
-        </dl>
+      <div class="inset fd-in">
+        <h2 id="founder-h" class="sr-only">The founder</h2>
+        <p class="fd-bio" data-rise>
+          Since {SITE.experienceSince} Maksym has worked with small and mid-sized businesses in more than 50 countries on strategy, legal structure, tax and marketing.
+        </p>
+        <p class="fd-p">
+          In recent years he has brought applied AI into those businesses and into INNOVA’s own products. He holds an MA in Economic Theory (honours).
+        </p>
+        <p class="fd-p">
+          For funded and client projects, engineering, security review and domain specialists join as named subcontractors or partner firms, listed in the proposal before work starts.
+        </p>
+        <a class="lnk fd-k" href="/partnerships">How partnerships work <span class="ar" aria-hidden="true">→</span></a>
       </div>
     </div>
   </section>
@@ -129,269 +89,145 @@ const jsonLd = [
     <div class="led-g">
       <ProjectCard
         project={P.uafest}
-        aspect="5 / 4.2"
         fact="Applications, participant cabinets, sponsor and finance registers for a Ukrainian festival in Carleton Place, Ontario. In production since August 2026."
-        world={{ src: '/img/uafest-dance.webp', src800: '/img/uafest-dance-800.webp', w: 1280, h: 818, pos: '30% 50%' }}
-        screens={[
-          {
-            src: '/proof/uafest-applications-1440-1600.webp',
-            src800: '/proof/uafest-applications-1440-800.webp',
-            w: 1600,
-            h: 1000,
-            alt: 'UAFest 2027 sign-up page on uafest.ca: one form with participation types for guests, volunteers, vendors, performers, sponsors and the organizing team.',
-            l: '8%',
-            t: '7%',
-            width: '70%',
-            lm: '7%',
-            tm: '9%',
-            wm: '80%'
-          }
-        ]}
+        world={{ src: '/img/uafest-dance.webp', src800: '/img/uafest-dance-800.webp', w: 1280, h: 818, pos: '22% 50%' }}
+        screens={[asScreen(CROPS.uafestForm, { l: '30%', t: '9%', width: '64%', lm: '6%', tm: '8%', wm: '88%' })]}
         credit="UAFest festival, Carleton Place"
       />
       <ProjectCard
         project={P.babakokum}
-        aspect="5 / 4.2"
         fact="On the App Store since 24 September 2026, and playable on the web. Runs fully offline."
         world={{ src: '/img/babakokum-porch.webp', w: 760, h: 720, pos: '50% 30%' }}
-        screens={[
-          {
-            src: '/proof/babakokum-rules-tablet-1600.webp',
-            src800: '/proof/babakokum-rules-tablet-800.webp',
-            w: 1600,
-            h: 1331,
-            alt: 'BABA & KOKUM rules card: six scoring patterns for placing printed tiles on a scarf grid and the five ink colours.',
-            kind: 'tablet',
-            l: '22%',
-            t: '6%',
-            width: '56%',
-            lm: '14%',
-            tm: '7%',
-            wm: '72%'
-          }
-        ]}
+        screens={[asScreen(CROPS.babakokum, { l: '9%', t: '13%', width: '82%', lm: '6%', tm: '14%', wm: '88%' })]}
       />
     </div>
   </section>
 
-  <!-- ═══ COMPANY RECORD: one line to verify, the rest small ═══ -->
+  <!-- ═══ COMPANY RECORD: one line ═══ -->
   <section class="rc shell" id="record" aria-labelledby="rc-h">
     <div class="inset rc-g">
-      <h2 id="rc-h" class="t-label t-mute">Company record</h2>
-      <div class="rc-r">
-        <RecordIds />
-        <dl class="rc-dl">
-          <div><dt>Legal name</dt><dd>{SITE.legalName}</dd></div>
-          <div><dt>Operating name</dt><dd>INNOVA</dd></div>
-          <div><dt>Incorporated</dt><dd>Canada Business Corporations Act, {SITE.incorporated}</dd></div>
-          <div><dt>Location</dt><dd>{SITE.city}, {SITE.region}, {SITE.country}</dd></div>
-          <div><dt>Contact</dt><dd><a class="lnk" href={`mailto:${SITE.email}`}>{SITE.email}</a></dd></div>
-        </dl>
-      </div>
+      <h2 id="rc-h" class="sr-only">Company record</h2>
+      <RecordIds />
     </div>
   </section>
 </BaseLayout>
 
 <style>
-  /* ── hero ── */
-  .ah-f {
-    --pad: clamp(18px, 2.6vw, 44px);
-    height: calc(100svh - var(--hdr) - var(--gut));
-    min-height: 600px;
-    max-height: 980px;
-    background: var(--reel);
-  }
-  .ah-world {
-    position: absolute;
-    inset: 0;
-    z-index: -2;
-  }
-  .ah-world img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: 50% 45%;
-  }
-  .ah-f::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    background:
-      linear-gradient(180deg, rgb(13 12 11 / 0.55) 0%, rgb(13 12 11 / 0) 18%, rgb(13 12 11 / 0) 38%, rgb(13 12 11 / 0.6) 62%, rgb(13 12 11 / 0.92) 100%),
-      linear-gradient(90deg, rgb(13 12 11 / 0.35) 0%, rgb(13 12 11 / 0) 55%);
+  /* ── hero: type on film, the photo follows directly ── */
+  .ah {
+    padding-top: clamp(28px, 3.4vw, 56px);
   }
   .ah-crumb {
-    position: absolute;
-    top: clamp(16px, 2vw, 28px);
-    left: var(--pad);
     display: flex;
     gap: 10px;
-    color: var(--print);
+    color: var(--ash);
   }
   .ah-crumb a {
+    color: var(--print);
     text-decoration: none;
   }
   .ah-crumb a:hover {
     text-decoration: underline;
     text-underline-offset: 4px;
   }
-  .ah-copy {
-    position: absolute;
-    left: var(--pad);
-    right: var(--pad);
-    bottom: clamp(56px, 7vw, 96px);
-  }
-  .ah-k {
-    font-size: clamp(17px, 1.3vw, 20px);
-    font-weight: 500;
-    text-wrap: balance;
-  }
   .ah-t {
-    margin-top: 10px;
-    font-size: clamp(56px, 10.4vw, 176px);
-    font-weight: 500;
-    letter-spacing: -0.05em;
-    line-height: 0.88;
-    margin-left: -0.05em;
-  }
-  .ah-lede {
-    margin-top: clamp(16px, 2vw, 28px);
-    max-width: 40ch;
-    font-size: clamp(18px, 1.45vw, 22px);
-    line-height: 1.4;
-  }
-  .ah-cap {
-    position: absolute;
-    left: var(--pad);
-    right: var(--pad);
-    bottom: clamp(16px, 1.6vw, 24px);
-    font-size: 14px;
-    color: var(--ash);
-  }
-  @media (prefers-reduced-motion: no-preference) {
-    .ah-world img {
-      animation: ah-kb 2.2s var(--e-out) both;
-    }
-    .ah-t {
-      animation: ah-up 0.8s var(--e-out) 0.1s both;
-    }
-    .ah-k,
-    .ah-lede {
-      animation: ah-in 0.6s var(--e-out) 0.3s both;
-    }
-  }
-  @keyframes ah-kb {
-    from {
-      transform: scale(1.08);
-    }
-    to {
-      transform: scale(1.01);
-    }
-  }
-  @keyframes ah-up {
-    from {
-      opacity: 0;
-      transform: translateY(28px);
-    }
-    to {
-      opacity: 1;
-      transform: none;
-    }
-  }
-  @keyframes ah-in {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
-
-  /* ── facts ── */
-  .af {
-    padding-block: var(--sec);
-  }
-  .af-g {
-    list-style: none;
-    margin: 0;
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 40px var(--col-gap);
-  }
-  .af-g li {
-    display: grid;
-    gap: 18px;
-    align-content: start;
-  }
-  .af-n {
-    display: block;
-    overflow: hidden;
-    font-size: clamp(72px, 9vw, 152px);
+    margin-top: clamp(18px, 2.4vw, 36px);
+    font-size: clamp(54px, 10.6vw, 184px);
     font-weight: 500;
     letter-spacing: -0.055em;
-    line-height: 0.9;
-    padding-bottom: 0.04em;
+    line-height: 0.86;
+    margin-left: -0.05em;
   }
-  .af-n > span {
-    display: block;
-  }
-  .af-t {
-    max-width: 30ch;
-    font-size: clamp(17px, 1.3vw, 20px);
-    line-height: 1.45;
-    color: var(--ash);
-  }
-
-  /* ── founder bio (bone) ── */
-  .fd {
-    padding-block: var(--sec);
-  }
-  .fd-g {
+  .ah-g {
     display: grid;
     grid-template-columns: repeat(12, minmax(0, 1fr));
     column-gap: var(--col-gap);
-    row-gap: 48px;
-    align-items: start;
+    row-gap: clamp(24px, 3vw, 48px);
+    align-items: end;
   }
-  .fd-l {
-    grid-column: 1 / span 7;
+  .ah-g .ah-t {
+    grid-column: 1 / span 8;
+  }
+  .ah-st {
+    grid-column: 9 / span 4;
+    padding-bottom: 0.5em;
+    font-size: clamp(20px, 1.65vw, 27px);
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    line-height: 1.3;
+    text-wrap: pretty;
+  }
+  @media (max-width: 1100px) {
+    .ah-g .ah-t,
+    .ah-st {
+      grid-column: 1 / -1;
+    }
+    .ah-st {
+      max-width: 34ch;
+      padding-bottom: 0;
+    }
+  }
+
+  /* ── photo band ── */
+  .ab {
+    padding-top: clamp(36px, 4.4vw, 72px);
+  }
+  .ab-f {
+    margin: 0;
+    aspect-ratio: 16 / 7;
+    background: var(--reel);
+  }
+  .ab-f img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 45%;
+  }
+  .ab-f::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(0deg, rgb(13 12 11 / 0.85) 0%, rgb(13 12 11 / 0.3) 26%, rgb(13 12 11 / 0) 46%);
+  }
+  .ab-cap {
+    position: absolute;
+    z-index: 1;
+    left: clamp(18px, 2.6vw, 44px);
+    bottom: clamp(16px, 2vw, 32px);
+    max-width: 62ch;
+    font-size: 16px;
+    line-height: 1.45;
+  }
+
+  /* ── founder ── */
+  .fd {
+    margin-top: var(--sec);
+    padding-block: calc(var(--sec) * 0.8);
+  }
+  .fd-in {
+    max-width: 1080px;
   }
   .fd-bio {
-    margin-top: 18px;
-    font-size: clamp(28px, 2.8vw, 46px);
+    font-size: clamp(30px, 3.4vw, 56px);
     font-weight: 500;
-    letter-spacing: -0.03em;
-    line-height: 1.1;
+    letter-spacing: -0.035em;
+    line-height: 1.08;
     max-width: 24ch;
+    text-wrap: balance;
   }
   .fd-p {
-    margin-top: 20px;
-    max-width: 54ch;
+    margin-top: 22px;
+    max-width: 58ch;
+    font-size: clamp(18px, 1.35vw, 21px);
     color: var(--ink-soft);
   }
-  .fd-p strong {
-    color: var(--ink);
-    font-weight: 600;
+  .fd-p:first-of-type {
+    margin-top: clamp(28px, 3vw, 44px);
   }
-  .fd-rec {
-    grid-column: 9 / span 4;
-    margin: 0;
-    padding-top: 40px;
-    display: grid;
-    gap: 18px;
-  }
-  .fd-rec > div {
-    padding-top: 14px;
-    border-top: 1px solid var(--rule-ink);
-  }
-  .fd-rec dt {
-    color: var(--ink-soft);
-  }
-  .fd-rec dd {
-    margin: 4px 0 0;
-    font-size: 19px;
-    font-weight: 500;
+  .fd-k {
+    margin-top: 28px;
   }
 
   /* ── where it has led ── */
@@ -402,7 +238,7 @@ const jsonLd = [
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
-    align-items: flex-end;
+    align-items: baseline;
     gap: 24px;
     margin-bottom: clamp(24px, 3vw, 44px);
   }
@@ -412,80 +248,40 @@ const jsonLd = [
     gap: clamp(10px, 1.2vw, 18px);
   }
 
-  /* ── company record ── */
+  /* ── company record: one line ── */
   .rc {
-    padding-top: var(--sec);
+    padding-top: clamp(40px, 4.4vw, 72px);
   }
-  .rc-g {
-    display: grid;
-    grid-template-columns: minmax(0, 3fr) minmax(0, 9fr);
-    column-gap: var(--col-gap);
-    row-gap: 16px;
-    padding-top: 22px;
-    border-top: 1px solid var(--rule-film);
-  }
-  .rc-dl {
-    margin: 22px 0 0;
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 14px var(--col-gap);
-    font-size: 16px;
-  }
-  .rc-dl dt {
-    color: var(--ash);
-    font-size: 15px;
-  }
-  .rc-dl dd {
-    margin: 2px 0 0;
+  .rc-g :global(.rid) {
+    font-size: 18px;
   }
 
   @media (max-width: 900px) {
-    .ah-f {
-      height: auto;
-      aspect-ratio: auto;
-      min-height: 0;
-      max-height: none;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-      min-height: min(78svh, 640px);
-    }
-    .ah-copy {
-      position: relative;
-      left: auto;
-      right: auto;
-      bottom: auto;
-      padding: 0 var(--pad) 18px;
-    }
-    .ah-cap {
-      position: relative;
-      left: auto;
-      right: auto;
-      bottom: auto;
-      padding: 0 var(--pad) 18px;
-    }
-    .af-g {
-      grid-template-columns: 1fr;
-    }
-    .fd-l,
-    .fd-rec {
+    .ah-st {
       grid-column: 1 / -1;
     }
-    .fd-rec {
-      padding-top: 0;
+    .ab-f {
+      aspect-ratio: auto;
+      display: flex;
+      flex-direction: column;
+    }
+    .ab-f img {
+      position: relative;
+      inset: auto;
+      height: auto;
+      aspect-ratio: 4 / 3;
+    }
+    .ab-f::after {
+      display: none;
+    }
+    .ab-cap {
+      position: relative;
+      left: auto;
+      bottom: auto;
+      padding: 16px 18px 20px;
+      font-size: 15px;
     }
     .led-g {
-      grid-template-columns: 1fr;
-    }
-    .rc-g {
-      grid-template-columns: 1fr;
-    }
-    .rc-dl {
-      grid-template-columns: 1fr 1fr;
-    }
-  }
-  @media (max-width: 520px) {
-    .rc-dl {
       grid-template-columns: 1fr;
     }
   }

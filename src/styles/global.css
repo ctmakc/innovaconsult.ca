@@ -16,7 +16,7 @@
   --reel: #171614;
   --reel-2: #201e1b;
   --print: #eeeae2;
-  --ash: #aaa498;
+  --ash: #b8b1a4;
   --rule-film: rgb(238 234 226 / 0.14);
 
   /* bone (light material) */
@@ -35,6 +35,7 @@
   --m-evergreen: #1d3a2e;
   --m-loam: #2c2a22;
   --m-navy: #1a2240;
+  --ui-dark: #0f1416; /* poster colour of dark product screenshots (Workflow OS) */
 
   /* type */
   --font: 'Host Grotesk', 'Host Grotesk Fallback', ui-sans-serif, system-ui, sans-serif;
@@ -417,6 +418,9 @@ main {
   border-radius: var(--r);
   box-shadow: var(--shadow-screen);
   background: var(--bone-2); /* light poster colour while the screenshot decodes: never a black hole */
+}
+.scr-img.scr-dark {
+  background: var(--ui-dark); /* dark product UI decodes on its own colour, never a beige slab */
 }
 .tone-bone .scr-img {
   box-shadow: var(--shadow-screen-bone);

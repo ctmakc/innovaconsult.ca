@@ -52,7 +52,7 @@ const faq = {
     <link
       rel="preload"
       as="image"
-      imagesrcset={`${SHOTS.overview.src800} 800w, ${SHOTS.overview.src} 1600w`}
+      imagesrcset={`${SHOTS.overview.src800} 800w, ${SHOTS.overview.src} 1600w, ${SHOTS.overview.src2000} 2000w`}
       imagesizes="(max-width: 900px) 92vw, 62vw"
       fetchpriority="high"
     />
@@ -62,73 +62,4 @@ const faq = {
 
   <WosModules />
 
-  <!-- ═══ BOUNDARY (film) ═══ -->
-  <section class="gov shell pad-lg" aria-labelledby="end-h">
-    <div class="inset">
-      <div class="end">
-        <h2 id="end-h" class="t-display end-h" data-rise>Where Workflow OS ends.</h2>
-        <div class="end-r">
-          <p class="end-lede">
-            Workflow OS decides what to automate and how. The automations themselves run in the client’s existing platforms or in INNOVA products such as <a class="end-link" href="/projects/aicrmius">AICRMIUS</a>.
-          </p>
-          <p class="end-p">That boundary keeps the planning tool independent of any single vendor, including us.</p>
-          <p class="end-p end-demo">
-            The demo runs on fictional data. Scoring, design and ROI are calculated without AI. Optional AI discovery sends the description you paste to an external AI model hosted outside Canada; when it is off or slow, a rules engine drafts the process model instead.
-          </p>
-          <a class="lnk end-k" href="/ai-transformation">Our AI transformation method <span class="ar" aria-hidden="true">→</span></a>
-        </div>
-      </div>
-    </div>
-  </section>
 </BaseLayout>
-
-<style>
-  .end {
-    display: grid;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    column-gap: var(--col-gap);
-    row-gap: 32px;
-  }
-  .end-h {
-    grid-column: 1 / span 6;
-    max-width: 9ch;
-  }
-  .end-r {
-    grid-column: 8 / span 5;
-    padding-top: 0.6em;
-  }
-  .end-lede {
-    font-size: clamp(20px, 1.6vw, 25px);
-    line-height: 1.4;
-  }
-  .end-link {
-    font-weight: 500;
-    text-decoration: underline;
-    text-decoration-thickness: 1px;
-    text-underline-offset: 5px;
-  }
-  .end-link:hover {
-    color: var(--flare-hi);
-  }
-  .end-p {
-    margin-top: 18px;
-    max-width: 52ch;
-    color: var(--ash);
-  }
-  .end-demo {
-    font-size: 16px;
-  }
-  .end-k {
-    margin-top: 26px;
-  }
-
-  @media (max-width: 900px) {
-    .end-h,
-    .end-r {
-      grid-column: 1 / -1;
-    }
-    .end-r {
-      padding-top: 0;
-    }
-  }
-</style>
