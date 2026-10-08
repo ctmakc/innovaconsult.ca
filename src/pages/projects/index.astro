@@ -1,9 +1,9 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import PageHead from '../../components/PageHead.astro';
 import StatusTag from '../../components/StatusTag.astro';
 import ProjectTile from '../../components/projects/ProjectTile.astro';
-import { visibleProjects, STATUS_LABEL, projectHref, type ProjectStatus } from '../../data/projects';
+import { PRESETS } from '../../components/projects/presets';
+import { visibleProjects, projectHref, type ProjectStatus } from '../../data/projects';
 import { SITE } from '../../data/site';
 
 const order: ProjectStatus[] = ['live', 'built', 'in-development', 'prototype', 'research', 'exploring'];
@@ -11,33 +11,17 @@ const projects = [...visibleProjects].sort((a, b) => order.indexOf(a.status) - o
 const entityId = (p: (typeof projects)[number]) =>
   `${SITE.url}${projectHref(p)}#${p.domain === 'dual-use' ? 'project' : 'app'}`;
 
-const LEGEND: Record<ProjectStatus, string> = {
-  live: 'Running in production and open to the public.',
-  built: 'Complete and working; release or rollout in progress.',
-  'in-development': 'The core works; the product is being engineered toward release.',
-  prototype: 'A working version used for testing and demonstrations.',
-  research: 'Applied research: hypotheses, experiments and feasibility.',
-  exploring: 'Early scouting and program research; nothing delivered yet.',
-  'partner-opportunity': ''
-};
-const TONE: Record<ProjectStatus, string> = {
-  live: 'live',
-  built: 'build',
-  'in-development': 'build',
-  prototype: 'proto',
-  research: 'proto',
-  exploring: 'explore',
-  'partner-opportunity': 'explore'
-};
-const WORDS = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
-const count = (n: number) => `${WORDS[n] ?? n} project${n === 1 ? '' : 's'}`;
+const WORDS = ['No', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten'];
+const word = (n: number) => WORDS[n] ?? String(n);
+const liveN = projects.filter((p) => p.status === 'live').length;
 
-/* One chapter per status that has projects; an odd chapter opens with one full-width frame. */
-const chapters = order
-  .map((s) => ({ s, items: projects.filter((p) => p.status === s) }))
-  .filter((c) => c.items.length > 0);
-/* A lone typographic frame stays short so the page keeps moving. */
-const SHORT: Record<string, string> = { aicrmius: '16 / 6', 'dual-use': '16 / 5' };
+/* Projects with real screenshots get a «screen in its world» frame; the rest sit in one compact lab row. */
+const shown = projects.filter((p) => !PRESETS[p.slug]?.words);
+const lab = projects.filter((p) => PRESETS[p.slug]?.words);
+const [lead, ...rest] = shown;
+
+/* Filter chips: one per status that has projects. */
+const chips = order.map((s) => ({ s, n: projects.filter((p) => p.status === s).length })).filter((c) => c.n > 0);
 
 const itemList = {
   '@context': 'https://schema.org',
@@ -63,156 +47,252 @@ const itemList = {
     { name: 'Projects', path: '/projects' }
   ]}
 >
-  <PageHead
-    crumb="Projects"
-    title="Real work, with its real status."
-    lede={`${WORDS[projects.length] ? WORDS[projects.length][0].toUpperCase() + WORDS[projects.length].slice(1) : projects.length} projects across applied AI, software and AgriTech. Every project carries exactly one status.`}
-  >
-    <nav slot="aside" class="px-idx" aria-label="Projects by status">
-      {
-        chapters.map((c) => (
-          <a href={`#${c.s}`} class="px-ii">
-            <StatusTag status={c.s} />
-            <span class="px-ic tnum">{c.items.length}</span>
-          </a>
-        ))
-      }
-    </nav>
-  </PageHead>
+  <section class="px shell" aria-labelledby="px-h">
+    <div class="inset px-hd">
+      <p class="t-label px-crumb"><a href="/">INNOVA</a><span aria-hidden="true">/</span><span>Projects</span></p>
+      <h1 id="px-h" class="px-t">{word(projects.length)} projects. {word(liveN)} live.</h1>
+      <div class="px-chips" role="group" aria-label="Filter projects by status" data-filter>
+        <button type="button" class="px-chip on" aria-pressed="true" data-f="all">All <span class="tnum">{projects.length}</span></button>
+        {
+          chips.map((c) => (
+            <button type="button" class="px-chip" aria-pressed="false" data-f={c.s}>
+              <StatusTag status={c.s} /> <span class="tnum">{c.n}</span>
+            </button>
+          ))
+        }
+      </div>
+    </div>
 
-  {
-    chapters.map((c, ci) => (
-      <section class:list={['px-ch shell', { 'px-ch--first': ci === 0 }]} id={c.s} aria-labelledby={`${c.s}-h`}>
-        <div class="inset px-hd">
-          <h2 id={`${c.s}-h`} class:list={['px-t', ci === 0 ? 't-h2' : 't-h3']} data-rise>
-            <span class="px-g" data-tone={TONE[c.s]} aria-hidden="true" />
-            <span class="px-k">{STATUS_LABEL[c.s]}.</span> <span class="px-d">{LEGEND[c.s]}</span>
-          </h2>
-          <p class="px-n t-label t-mute">{count(c.items.length)}</p>
+    <div class="px-grid" data-grid>
+      <ProjectTile project={lead} size="full" eager headingLevel="h2" id={lead.slug} data-s={lead.status} aspect="16 / 7.6" />
+      {rest.map((p, i) => <ProjectTile project={p} size="half" eager={i < 2} headingLevel="h2" id={p.slug} data-s={p.status} aspect="5 / 4.2" />)}
+    </div>
+
+    {
+      lab.length > 0 && (
+        <div class="px-lab inset" aria-labelledby="lab-h">
+          <h2 id="lab-h" class="t-label t-mute px-lab-k">In the lab</h2>
+          <ul class="px-lab-g">
+            {lab.map((p) => (
+              <li data-s={p.status} id={p.slug}>
+                <a href={projectHref(p)} class="px-li">
+                  <StatusTag status={p.status} label={PRESETS[p.slug]?.statusLabel} />
+                  <span class="px-ln">
+                    {p.short}
+                    <span class="ar" aria-hidden="true">→</span>
+                  </span>
+                  <span class="px-ld">{p.tagline}</span>
+                  <span class="px-lt">{PRESETS[p.slug]?.fact ?? p.summary}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
         </div>
-        <div class="px-grid">
-          {c.items.map((p, i) => {
-            const full = c.items.length % 2 === 1 && i === 0;
-            return <ProjectTile project={p} size={full ? 'full' : 'half'} aspect={full && c.items.length === 1 ? SHORT[p.slug] : undefined} id={p.slug} />;
-          })}
-        </div>
-      </section>
-    ))
-  }
+      )
+    }
+    <p class="px-note inset t-mute">Status meanings: Live runs in production and is open to the public. In development: the core works and the product is being engineered toward release. Prototype: a working version for testing and demonstrations. Exploring: early scouting, nothing delivered yet.</p>
+  </section>
 </BaseLayout>
 
-<style>
-  /* ── head aside: the status index ── */
-  .px-idx {
-    display: grid;
-    gap: 2px;
-    max-width: 22rem;
+<script>
+  // Status chips filter the frames and the lab row. Without JS the chips stay hidden and everything shows.
+  const box = document.querySelector<HTMLElement>('[data-filter]');
+  if (box) {
+    const items = [...document.querySelectorAll<HTMLElement>('.px [data-s]')];
+    const chips = [...box.querySelectorAll<HTMLButtonElement>('[data-f]')];
+    chips.forEach((c) =>
+      c.addEventListener('click', () => {
+        const f = c.dataset.f;
+        chips.forEach((x) => {
+          x.classList.toggle('on', x === c);
+          x.setAttribute('aria-pressed', x === c ? 'true' : 'false');
+        });
+        items.forEach((it) => {
+          const st = it.dataset.s;
+          const match = f === 'all' || st === f;
+          it.hidden = !match;
+        });
+        document.querySelectorAll<HTMLElement>('.px-lab').forEach((l) => (l.hidden = ![...l.querySelectorAll<HTMLElement>('[data-s]')].some((x) => !x.hidden)));
+      })
+    );
   }
-  .px-ii {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 16px;
-    min-height: 44px;
-    padding: 6px 0;
-    text-decoration: none;
-    border-bottom: 1px solid var(--rule-film);
-  }
-  .px-ii :global(.tag) {
-    font-size: 17px;
-  }
-  .px-ic {
-    font-size: 17px;
-    font-weight: 500;
-    color: var(--ash);
-    transition: transform 0.3s var(--e-out), color 0.3s var(--e-out);
-  }
-  .px-ii:hover .px-ic {
-    color: var(--print);
-    transform: translateX(-4px);
-  }
+</script>
 
-  /* ── chapters ── */
-  .px-ch {
-    padding-top: calc(var(--sec) * 0.72);
-  }
-  .px-ch--first {
-    padding-top: 0;
+<style>
+  .px {
+    padding-top: clamp(28px, 3.4vw, 56px);
   }
   .px-hd {
     display: grid;
     grid-template-columns: repeat(12, minmax(0, 1fr));
     column-gap: var(--col-gap);
-    row-gap: 14px;
+    row-gap: 18px;
     align-items: end;
-    margin-bottom: clamp(24px, 3vw, 44px);
+    margin-bottom: clamp(24px, 2.6vw, 40px);
   }
-  .px-t {
-    grid-column: 1 / span 10;
-    max-width: 30ch;
-  }
-  .px-ch--first .px-t {
-    max-width: 22ch;
-  }
-  .px-k {
-    white-space: nowrap;
-  }
-  .px-d {
+  .px-crumb {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 10px;
     color: var(--ash);
   }
-  .px-n {
-    grid-column: 11 / span 2;
-    justify-self: end;
+  .px-crumb a {
+    color: var(--print);
+    text-decoration: none;
+  }
+  .px-crumb a:hover {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+  .px-t {
+    grid-column: 1 / span 7;
+    font-size: clamp(44px, 6.4vw, 108px);
+    font-weight: 500;
+    letter-spacing: -0.045em;
+    line-height: 0.92;
+    animation: px-rise 0.6s var(--e-out) both;
+  }
+  .px-chips {
+    grid-column: 8 / span 5;
+    display: none;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
     padding-bottom: 0.4em;
-    white-space: nowrap;
   }
-  /* status by form, at heading scale */
-  .px-g {
-    display: inline-block;
-    width: 0.36em;
-    height: 0.36em;
-    margin: 0 0.2em 0.12em 0;
-    border-radius: 50%;
-    vertical-align: middle;
+  :global(.js) .px-chips {
+    display: flex;
   }
-  .px-g[data-tone='live'] {
-    background: var(--flare);
-    box-shadow: 0 0 0 0.09em rgb(255 91 34 / 0.22);
+  .px-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 0 16px;
+    border-radius: 999px;
+    border: 1px solid var(--rule-film);
+    background: transparent;
+    color: var(--print);
+    font: 500 15px/1 var(--font);
+    cursor: pointer;
+    transition:
+      background-color var(--t-micro) var(--e-out),
+      border-color var(--t-micro) var(--e-out);
   }
-  .px-g[data-tone='build'] {
+  .px-chip .tnum {
+    color: var(--ash);
+  }
+  .px-chip:hover {
+    border-color: var(--ash);
+  }
+  .px-chip.on {
     background: var(--print);
+    color: var(--ink);
+    border-color: var(--print);
   }
-  .px-g[data-tone='proto'] {
-    border: 0.06em solid var(--print);
-  }
-  .px-g[data-tone='explore'] {
-    border: 0.06em dashed var(--print);
+  .px-chip.on .tnum,
+  .px-chip.on :global(.tag) {
+    color: var(--ink);
   }
   .px-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: clamp(10px, 1.2vw, 18px);
   }
-  .px-grid > :global(.mf--full),
-  .px-grid > :global(.tf--full) {
+  .px-grid > :global(.mf--full) {
     grid-column: 1 / -1;
+  }
+  .px-grid > :global([hidden]) {
+    display: none !important;
+  }
+
+  /* lab row */
+  .px-lab {
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(0, 9fr);
+    column-gap: var(--col-gap);
+    row-gap: 16px;
+    margin-top: clamp(40px, 4.4vw, 72px);
+  }
+  .px-lab-k {
+    padding-top: 22px;
+  }
+  .px-lab-g {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px var(--col-gap);
+  }
+  .px-li {
+    display: grid;
+    align-content: start;
+    gap: 8px;
+    height: 100%;
+    padding-top: 20px;
+    border-top: 1px solid var(--rule-film);
+    text-decoration: none;
+    color: var(--ash);
+  }
+  .px-ln {
+    margin-top: 4px;
+    font-size: clamp(24px, 2vw, 32px);
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+    color: var(--print);
+  }
+  .px-ln .ar {
+    display: inline-block;
+    margin-left: 6px;
+    font-weight: 400;
+    transition: transform 0.3s var(--e-out);
+  }
+  .px-li:hover .ar {
+    transform: translateX(6px);
+  }
+  .px-ld {
+    font-size: 17px;
+    color: var(--print);
+  }
+  .px-lt {
+    font-size: 16px;
+    line-height: 1.45;
+  }
+  .px-note {
+    margin-top: clamp(40px, 4vw, 64px);
+    font-size: 15px;
+    max-width: 96ch;
+  }
+  @keyframes px-rise {
+    from {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
   }
 
   @media (max-width: 900px) {
-    .px-t {
+    .px-t,
+    .px-chips {
       grid-column: 1 / -1;
-    }
-    .px-n {
-      grid-column: 1 / -1;
-      justify-self: start;
-      padding-bottom: 0;
-      order: -1;
+      justify-content: flex-start;
     }
     .px-grid {
       grid-template-columns: 1fr;
     }
-    .px-idx {
-      max-width: none;
+    .px-lab {
+      grid-template-columns: 1fr;
+    }
+    .px-lab-k {
+      padding-top: 0;
+    }
+    .px-lab-g {
+      grid-template-columns: 1fr;
     }
   }
 </style>

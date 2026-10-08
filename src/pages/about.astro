@@ -1,24 +1,17 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import MediaFrame from '../components/MediaFrame.astro';
 import ProjectCard from '../components/ProjectCard.astro';
 import RecordIds from '../components/RecordIds.astro';
-import LitText from '../components/company/LitText.astro';
 import { visibleProjects, type Project } from '../data/projects';
 import { SITE } from '../data/site';
 
 const P = Object.fromEntries(visibleProjects.map((p) => [p.slug, p])) as Record<string, Project>;
 
-const why = ['How companies operate', 'Economics', 'Processes', 'Regulation', 'Users', 'Implementation', 'Commercialization'];
-
-// The incorporation year sits on its own step; the products on the later steps date from 2026.
-const evolution: { label: string; year?: string }[] = [
-  { label: 'Business operations', year: SITE.experienceSince },
-  { label: 'Digital systems' },
-  { label: SITE.legalName, year: `${SITE.incorporated} · incorporated` },
-  { label: 'Software' },
-  { label: 'Applied AI' },
-  { label: 'Applied innovation', year: 'Now' }
+/* Three facts, each with one plain line. All from the fact-checked founder bio and SITE. */
+const facts = [
+  { n: SITE.experienceSince, t: 'Business practice since then: strategy, legal structure, tax and marketing for small and mid-sized companies.' },
+  { n: '50+', t: 'Countries where those businesses operate. In recent years the work brought applied AI into them.' },
+  { n: SITE.incorporated, t: `${SITE.legalName} incorporated federally, based in ${SITE.city}.` }
 ];
 
 const founderRecord = [
@@ -27,8 +20,6 @@ const founderRecord = [
   ['Incorporated', `${SITE.legalName}, ${SITE.incorporated}`],
   ['Education', 'MA, Economic Theory (honours)']
 ];
-
-const credits = ['Photo via Wikimedia Commons: Parliament Hill at dawn by joiseyshowaa, CC BY-SA 2.0 (colour graded)'];
 
 const jsonLd = [
   {
@@ -49,105 +40,96 @@ const jsonLd = [
   description="INNOVA CONSULT LTD. is an Ottawa applied AI and software company, incorporated federally in 2023. Its founder has worked in business and technology since 2012."
   path="/about"
   jsonLd={jsonLd}
-  credits={credits}
   breadcrumbs={[
     { name: 'Home', path: '/' },
     { name: 'About', path: '/about' }
   ]}
 >
-  <!-- ═══ HEAD: the statement, then the city at dawn with a real screen and the brief ═══ -->
-  <section class="hd shell" aria-labelledby="hd-h">
-    <div class="inset hd-g">
-      <p class="t-label hd-crumb"><a href="/">INNOVA</a><span aria-hidden="true">/</span><span>About</span></p>
-      <h1 id="hd-h" class="hd-t">An Ottawa applied-innovation and technology company.</h1>
-      <p class="t-lede hd-lede">INNOVA identifies high-value problems, develops technology around them and brings the right people, software and partners together to put it into use.</p>
-    </div>
-    <MediaFrame
-      size="full"
-      aspect="16 / 7.4"
-      aspectM="4 / 3.2"
-      scrim="left"
-      class="ab-hero"
-      world={{ src: '/img/ottawa-dawn-1440.webp', w: 1440, h: 1079, pos: '50% 36%', alt: 'The Ottawa River at dawn, with Parliament Hill above the treeline' }}
-      screens={[
-        {
-          src: '/proof/workflow-os-overview-1440-1600.webp',
-          src800: '/proof/workflow-os-overview-1440-800.webp',
-          w: 1600,
-          h: 1000,
-          alt: 'Workflow OS overview of a fictional demo company: mapped processes and their automation scores.',
-          l: '48%',
-          t: '13%',
-          width: '47%',
-          lm: '16%',
-          tm: '10%',
-          wm: '78%'
-        }
-      ]}
-      credit="Ottawa River, Parliament Hill"
-    >
-      <p class="t-label ab-hero-k">In brief</p>
-      <p class="ab-hero-p">
-        INNOVA ({SITE.legalName}) is an applied-innovation and technology company in Ottawa, Ontario, incorporated federally in {SITE.incorporated}. It researches, prototypes, builds and deploys applied AI and software, and shows each project with its real status.
-      </p>
-    </MediaFrame>
-  </section>
+  <Fragment slot="head">
+    <link rel="preload" as="image" imagesrcset="/img/uafest-venue-800.webp 800w, /img/uafest-venue.webp 1280w" imagesizes="100vw" fetchpriority="high" />
+  </Fragment>
 
-  <!-- ═══ BACKGROUND: one statement that lights up, then the path as big type ═══ -->
-  <section class="bg shell pad-lg" aria-labelledby="bg-h">
-    <div class="inset">
-      <div class="bg-g">
-        <h2 id="bg-h" class="t-label t-mute bg-k">Our background</h2>
-        <LitText
-          class="bg-lit"
-          text={`INNOVA’s founder brings *more* *than* *14* *years* of international business and technology experience, from ${SITE.experienceSince} onward, working with companies across many jurisdictions, industries and operating environments.`}
+  <!-- ═══ HERO: one real photo, the founder's name ═══ -->
+  <section class="ah shell" aria-labelledby="ah-h" data-hero>
+    <div class="ah-f frame">
+      <div class="ah-world" data-hero-still>
+        <img
+          src="/img/uafest-venue.webp"
+          srcset="/img/uafest-venue-800.webp 800w, /img/uafest-venue.webp 1280w"
+          sizes="100vw"
+          alt="UAFest in Carleton Place: the audience on the lawn in front of the festival stage, under the trees by the river."
+          width="1280"
+          height="851"
+          fetchpriority="high"
+          decoding="async"
         />
-        <p class="bg-p">
-          That work moved step by step from business operations to digital systems, to software products, to applied AI. {SITE.legalName} was incorporated federally in {SITE.incorporated} and is based in Ottawa, where it now focuses on applied innovation: building its own products and preparing joint projects with Canadian organizations.
-        </p>
       </div>
-      <ol class="path" aria-label="How the work evolved">
-        {
-          evolution.map((s, i, a) => (
-            <li class:list={{ now: i === a.length - 1, corp: s.label === SITE.legalName }}>
-              {s.year && <span class="path-y t-label">{s.year}</span>}
-              <span class="path-l">{s.label}</span>
-              {i < a.length - 1 && <span class="path-ar" aria-hidden="true">→</span>}
-            </li>
-          ))
-        }
-      </ol>
+      <p class="t-label ah-crumb"><a href="/">INNOVA</a><span aria-hidden="true">/</span><span>About</span></p>
+      <div class="ah-copy">
+        <p class="ah-k">Founder and director of {SITE.legalName}</p>
+        <h1 id="ah-h" class="ah-t">Maksym Stepanenko</h1>
+        <p class="ah-lede">INNOVA is an applied AI and software company in {SITE.city}, {SITE.region}. It is founder-led.</p>
+      </div>
+      <p class="ah-cap">UAFest, Carleton Place: the festival of the Ukrainian Community of Lanark County, a non-profit co-founded by INNOVA’s founder.</p>
     </div>
   </section>
 
-  <!-- ═══ WHY IT MATTERS: the claim, the seven disciplines, the proof ═══ -->
-  <section class="why shell" aria-labelledby="why-h">
-    <div class="inset why-g">
-      <div class="why-l">
-        <h2 id="why-h" class="t-label t-mute">Why this background matters</h2>
-        <p class="why-q" data-rise>Technology projects succeed when the builders understand the business around the code.</p>
-      </div>
-      <div class="why-r">
-        <ul class="why-list" aria-label="What the founder's background covers">
-          {why.map((w) => <li>{w}</li>)}
-        </ul>
-        <p class="why-p">That multidisciplinary view lets INNOVA study a problem, build the solution and see it adopted.</p>
+  <!-- ═══ THREE FACTS ═══ -->
+  <section class="af shell" aria-label="The founder in three facts">
+    <ul class="inset af-g">
+      {
+        facts.map((f) => (
+          <li>
+            <span class="af-n tnum" data-mask>
+              <span>{f.n}</span>
+            </span>
+            <span class="af-t">{f.t}</span>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <!-- ═══ BIO + RECORD (bone) ═══ -->
+  <section class="fd tone-bone" id="founder" aria-labelledby="founder-h">
+    <div class="shell">
+      <div class="inset fd-g">
+        <div class="fd-l">
+          <h2 id="founder-h" class="t-label t-mute">The founder</h2>
+          <p class="fd-bio" data-rise>
+            Since {SITE.experienceSince} Maksym has helped thousands of small and mid-sized businesses in more than 50 countries grow and protect themselves through strategy, legal structure, tax and marketing.
+          </p>
+          <p class="fd-p">
+            In recent years he has brought applied AI into those businesses and into INNOVA’s own products. He incorporated {SITE.legalName} in Ottawa in {SITE.incorporated}.
+          </p>
+          <p class="fd-p">
+            For funded and client projects, <strong>engineering, security review and domain specialists</strong> are brought in as named subcontractors or partner firms, listed in the proposal before work starts.
+          </p>
+        </div>
+        <dl class="fd-rec" aria-label="Founder record">
+          {
+            founderRecord.map(([k, v]) => (
+              <div>
+                <dt class="t-label">{k}</dt>
+                <dd>{v}</dd>
+              </div>
+            ))
+          }
+        </dl>
       </div>
     </div>
   </section>
 
-  <!-- ═══ WHERE IT HAS LED: real products, each at its real stage ═══ -->
-  <section class="led shell pad-lg" aria-labelledby="led-h">
+  <!-- ═══ WHERE IT HAS LED ═══ -->
+  <section class="led shell" aria-labelledby="led-h">
     <div class="inset led-head">
       <h2 id="led-h" class="t-h2" data-rise>Where this has led so far</h2>
-      <p class="led-p t-mute">
-        The <a class="lnk" href="/projects">projects <span class="ar" aria-hidden="true">→</span></a> show each one at its real stage, and the
-        <a class="lnk" href="/capabilities">capabilities <span class="ar" aria-hidden="true">→</span></a> page sets out the work INNOVA takes on.
-      </p>
+      <a class="lnk" href="/projects">All projects <span class="ar" aria-hidden="true">→</span></a>
     </div>
     <div class="led-g">
       <ProjectCard
         project={P.uafest}
+        aspect="5 / 4.2"
         fact="Applications, participant cabinets, sponsor and finance registers for a Ukrainian festival in Carleton Place, Ontario. In production since August 2026."
         world={{ src: '/img/uafest-dance.webp', src800: '/img/uafest-dance-800.webp', w: 1280, h: 818, pos: '30% 50%' }}
         screens={[
@@ -158,7 +140,7 @@ const jsonLd = [
             h: 1000,
             alt: 'UAFest 2027 sign-up page on uafest.ca: one form with participation types for guests, volunteers, vendors, performers, sponsors and the organizing team.',
             l: '8%',
-            t: '8%',
+            t: '7%',
             width: '70%',
             lm: '7%',
             tm: '9%',
@@ -169,6 +151,7 @@ const jsonLd = [
       />
       <ProjectCard
         project={P.babakokum}
+        aspect="5 / 4.2"
         fact="On the App Store since 24 September 2026, and playable on the web. Runs fully offline."
         world={{ src: '/img/babakokum-porch.webp', w: 760, h: 720, pos: '50% 30%' }}
         screens={[
@@ -179,9 +162,9 @@ const jsonLd = [
             h: 1331,
             alt: 'BABA & KOKUM rules card: six scoring patterns for placing printed tiles on a scarf grid and the five ink colours.',
             kind: 'tablet',
-            l: '24%',
+            l: '22%',
             t: '6%',
-            width: '52%',
+            width: '56%',
             lm: '14%',
             tm: '7%',
             wm: '72%'
@@ -191,100 +174,132 @@ const jsonLd = [
     </div>
   </section>
 
-  <!-- ═══ FOUNDER + RECORD: on bone ═══ -->
-  <section class="fd tone-bone" id="founder" aria-labelledby="founder-h">
-    <div class="shell">
-      <div class="inset">
-        <p class="t-label t-mute fd-k">Founder</p>
-        <h2 id="founder-h" class="t-display fd-name" data-rise>Maksym Stepanenko</h2>
-        <div class="fd-g">
-          <dl class="fd-rec" aria-label="Founder record">
-            {
-              founderRecord.map(([k, v]) => (
-                <div>
-                  <dt class="t-label">{k}</dt>
-                  <dd>{v}</dd>
-                </div>
-              ))
-            }
-          </dl>
-          <div class="fd-txt">
-            <p class="fd-bio">
-              Since {SITE.experienceSince} Maksym has helped thousands of small and mid-sized businesses in more than 50 countries grow and protect themselves through strategy, legal structure, tax and marketing. In recent years he has brought applied AI into those businesses and into INNOVA’s own products. He incorporated {SITE.legalName} in Ottawa in {SITE.incorporated}. Master’s degree in Economic Theory, with honours.
-            </p>
-            <p class="fd-staff">
-              INNOVA is founder-led. For funded and client projects, <strong>engineering, security review and domain specialists</strong> are brought in as named subcontractors or partner firms, listed in the proposal before work starts.
-            </p>
-          </div>
-        </div>
-
-        <div class="rc frame" id="record" aria-labelledby="rc-h">
-          <h2 id="rc-h" class="t-h3 rc-h">Company record</h2>
-          <RecordIds />
-          <dl class="rc-dl">
-            <div><dt class="t-label">Legal name</dt><dd>{SITE.legalName}</dd></div>
-            <div><dt class="t-label">Operating name</dt><dd>INNOVA</dd></div>
-            <div><dt class="t-label">Incorporated</dt><dd>Canada Business Corporations Act, {SITE.incorporated}</dd></div>
-            <div><dt class="t-label">Location</dt><dd>{SITE.city}, {SITE.region}, {SITE.country}</dd></div>
-            <div><dt class="t-label">Contact</dt><dd><a class="lnk" href={`mailto:${SITE.email}`}>{SITE.email}</a></dd></div>
-          </dl>
-        </div>
+  <!-- ═══ COMPANY RECORD: one line to verify, the rest small ═══ -->
+  <section class="rc shell" id="record" aria-labelledby="rc-h">
+    <div class="inset rc-g">
+      <h2 id="rc-h" class="t-label t-mute">Company record</h2>
+      <div class="rc-r">
+        <RecordIds />
+        <dl class="rc-dl">
+          <div><dt>Legal name</dt><dd>{SITE.legalName}</dd></div>
+          <div><dt>Operating name</dt><dd>INNOVA</dd></div>
+          <div><dt>Incorporated</dt><dd>Canada Business Corporations Act, {SITE.incorporated}</dd></div>
+          <div><dt>Location</dt><dd>{SITE.city}, {SITE.region}, {SITE.country}</dd></div>
+          <div><dt>Contact</dt><dd><a class="lnk" href={`mailto:${SITE.email}`}>{SITE.email}</a></dd></div>
+        </dl>
       </div>
     </div>
   </section>
 </BaseLayout>
 
 <style>
-  /* ── head ── */
-  .hd {
-    padding-top: clamp(32px, 4.4vw, 72px);
+  /* ── hero ── */
+  .ah-f {
+    --pad: clamp(18px, 2.6vw, 44px);
+    height: calc(100svh - var(--hdr) - var(--gut));
+    min-height: 600px;
+    max-height: 980px;
+    background: var(--reel);
   }
-  .hd-g {
-    display: grid;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    column-gap: var(--col-gap);
-    row-gap: 24px;
-    align-items: end;
-    margin-bottom: clamp(32px, 3.6vw, 56px);
+  .ah-world {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
   }
-  .hd-crumb {
-    grid-column: 1 / -1;
+  .ah-world img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 45%;
+  }
+  .ah-f::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+      linear-gradient(180deg, rgb(13 12 11 / 0.55) 0%, rgb(13 12 11 / 0) 18%, rgb(13 12 11 / 0) 38%, rgb(13 12 11 / 0.6) 62%, rgb(13 12 11 / 0.92) 100%),
+      linear-gradient(90deg, rgb(13 12 11 / 0.35) 0%, rgb(13 12 11 / 0) 55%);
+  }
+  .ah-crumb {
+    position: absolute;
+    top: clamp(16px, 2vw, 28px);
+    left: var(--pad);
     display: flex;
     gap: 10px;
-    color: var(--ash);
-  }
-  .hd-crumb a {
     color: var(--print);
+  }
+  .ah-crumb a {
     text-decoration: none;
   }
-  .hd-crumb a:hover {
+  .ah-crumb a:hover {
     text-decoration: underline;
     text-underline-offset: 4px;
   }
-  .hd-t {
-    grid-column: 1 / span 8;
-    font-size: clamp(44px, 5.6vw, 92px);
+  .ah-copy {
+    position: absolute;
+    left: var(--pad);
+    right: var(--pad);
+    bottom: clamp(56px, 7vw, 96px);
+  }
+  .ah-k {
+    font-size: clamp(17px, 1.3vw, 20px);
     font-weight: 500;
-    letter-spacing: -0.045em;
-    line-height: 0.95;
     text-wrap: balance;
-    animation: hd-rise 0.9s var(--e-out) 0.05s both;
   }
-  .hd-lede {
-    grid-column: 9 / span 4;
-    animation: hd-in 0.7s var(--e-out) 0.3s both;
+  .ah-t {
+    margin-top: 10px;
+    font-size: clamp(56px, 10.4vw, 176px);
+    font-weight: 500;
+    letter-spacing: -0.05em;
+    line-height: 0.88;
+    margin-left: -0.05em;
   }
-  @keyframes hd-rise {
+  .ah-lede {
+    margin-top: clamp(16px, 2vw, 28px);
+    max-width: 40ch;
+    font-size: clamp(18px, 1.45vw, 22px);
+    line-height: 1.4;
+  }
+  .ah-cap {
+    position: absolute;
+    left: var(--pad);
+    right: var(--pad);
+    bottom: clamp(16px, 1.6vw, 24px);
+    font-size: 14px;
+    color: var(--ash);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .ah-world img {
+      animation: ah-kb 2.2s var(--e-out) both;
+    }
+    .ah-t {
+      animation: ah-up 0.8s var(--e-out) 0.1s both;
+    }
+    .ah-k,
+    .ah-lede {
+      animation: ah-in 0.6s var(--e-out) 0.3s both;
+    }
+  }
+  @keyframes ah-kb {
+    from {
+      transform: scale(1.08);
+    }
+    to {
+      transform: scale(1.01);
+    }
+  }
+  @keyframes ah-up {
     from {
       opacity: 0;
-      transform: translateY(32px);
+      transform: translateY(28px);
     }
     to {
       opacity: 1;
       transform: none;
     }
   }
-  @keyframes hd-in {
+  @keyframes ah-in {
     from {
       opacity: 0;
     }
@@ -293,271 +308,183 @@ const jsonLd = [
     }
   }
 
-  /* ── head media: the city at dawn, a real screen, the brief as caption ── */
-  .ab-hero-k {
-    color: var(--ash);
-    margin-bottom: 12px;
-  }
-  .ab-hero-p {
-    font-size: clamp(18px, 1.4vw, 22px);
-    line-height: 1.45;
-    max-width: 34ch;
-    text-shadow: 0 1px 18px rgb(13 12 11 / 0.6);
-  }
-  :global(.ab-hero.mf--full .mf-cap) {
-    max-width: 36%;
-  }
-
-  /* ── background ── */
-  .bg-g {
-    display: grid;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    column-gap: var(--col-gap);
-    row-gap: 32px;
-    align-items: end;
-  }
-  .bg-k {
-    grid-column: 1 / -1;
-  }
-  :global(.bg-lit) {
-    grid-column: 1 / span 8;
-    font-size: clamp(30px, 3.6vw, 60px);
-    max-width: 24ch;
-  }
-  .bg-p {
-    grid-column: 9 / span 4;
-    color: var(--ash);
-    max-width: 44ch;
-  }
-  .path {
-    list-style: none;
-    margin: clamp(56px, 6vw, 104px) 0 0;
-    padding: 0;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-end;
-    row-gap: 22px;
-  }
-  .path li {
-    position: relative;
-    display: inline-flex;
-    align-items: baseline;
-    padding-top: 26px;
-  }
-  .path-y {
-    position: absolute;
-    top: 0;
-    left: 0;
-    color: var(--ash);
-    font-variant-numeric: tabular-nums;
-    white-space: nowrap;
-  }
-  .path-l {
-    font-size: clamp(30px, 3.4vw, 56px);
-    font-weight: 500;
-    letter-spacing: -0.035em;
-    line-height: 1;
-    color: var(--ash);
-    white-space: nowrap;
-  }
-  .path-ar {
-    margin: 0 0.35em;
-    font-size: clamp(26px, 2.8vw, 46px);
-    color: var(--ash);
-    font-weight: 300;
-  }
-  .path li.corp .path-l,
-  .path li.now .path-l {
-    color: var(--print);
-  }
-  .path li.now .path-y {
-    color: var(--flare);
-  }
-
-  /* ── why ── */
-  .why-g {
-    display: grid;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    column-gap: var(--col-gap);
-    row-gap: 48px;
-    padding-block: clamp(48px, 6vw, 96px);
-    border-block: 1px solid var(--rule-film);
-  }
-  .why-l {
-    grid-column: 1 / span 7;
-  }
-  .why-q {
-    margin-top: 28px;
-    font-size: clamp(36px, 4.4vw, 72px);
-    font-weight: 500;
-    letter-spacing: -0.04em;
-    line-height: 1;
-    max-width: 16ch;
-    text-wrap: balance;
-  }
-  .why-r {
-    grid-column: 9 / span 4;
-    align-self: end;
-  }
-  .why-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    gap: 6px;
-  }
-  .why-list li {
-    font-size: clamp(22px, 1.9vw, 30px);
-    font-weight: 500;
-    letter-spacing: -0.022em;
-    line-height: 1.2;
-  }
-  .why-p {
-    margin-top: 28px;
-    color: var(--ash);
-    max-width: 36ch;
-  }
-
-  /* ── where it has led ── */
-  .led-head {
-    display: grid;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    column-gap: var(--col-gap);
-    row-gap: 22px;
-    align-items: end;
-    margin-bottom: clamp(36px, 4vw, 64px);
-  }
-  .led-head .t-h2 {
-    grid-column: 1 / span 7;
-    max-width: 12ch;
-  }
-  .led-p {
-    grid-column: 9 / span 4;
-    font-size: clamp(18px, 1.35vw, 21px);
-    line-height: 1.5;
-  }
-  .led-p .lnk {
-    color: var(--print);
-    display: inline-flex;
-    gap: 6px;
-  }
-  .led-g {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--gut);
-  }
-
-  /* ── founder + record ── */
-  .fd {
+  /* ── facts ── */
+  .af {
     padding-block: var(--sec);
   }
-  .fd-name {
-    margin-top: 18px;
-    font-size: clamp(52px, 9vw, 152px);
-    max-width: none;
+  .af-g {
+    list-style: none;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 40px var(--col-gap);
+  }
+  .af-g li {
+    display: grid;
+    gap: 18px;
+    align-content: start;
+  }
+  .af-n {
+    display: block;
+    overflow: hidden;
+    font-size: clamp(72px, 9vw, 152px);
+    font-weight: 500;
+    letter-spacing: -0.055em;
+    line-height: 0.9;
+    padding-bottom: 0.04em;
+  }
+  .af-n > span {
+    display: block;
+  }
+  .af-t {
+    max-width: 30ch;
+    font-size: clamp(17px, 1.3vw, 20px);
+    line-height: 1.45;
+    color: var(--ash);
+  }
+
+  /* ── founder bio (bone) ── */
+  .fd {
+    padding-block: var(--sec);
   }
   .fd-g {
     display: grid;
     grid-template-columns: repeat(12, minmax(0, 1fr));
     column-gap: var(--col-gap);
-    row-gap: 40px;
-    margin-top: clamp(40px, 5vw, 80px);
+    row-gap: 48px;
+    align-items: start;
+  }
+  .fd-l {
+    grid-column: 1 / span 7;
+  }
+  .fd-bio {
+    margin-top: 18px;
+    font-size: clamp(28px, 2.8vw, 46px);
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    max-width: 24ch;
+  }
+  .fd-p {
+    margin-top: 20px;
+    max-width: 54ch;
+    color: var(--ink-soft);
+  }
+  .fd-p strong {
+    color: var(--ink);
+    font-weight: 600;
   }
   .fd-rec {
-    grid-column: 1 / span 5;
+    grid-column: 9 / span 4;
     margin: 0;
+    padding-top: 40px;
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 28px var(--col-gap);
-    align-content: start;
+    gap: 18px;
   }
   .fd-rec > div {
-    border-top: 2px solid var(--ink);
     padding-top: 14px;
+    border-top: 1px solid var(--rule-ink);
   }
   .fd-rec dt {
     color: var(--ink-soft);
   }
   .fd-rec dd {
-    margin: 8px 0 0;
-    font-size: clamp(20px, 1.6vw, 26px);
+    margin: 4px 0 0;
+    font-size: 19px;
     font-weight: 500;
-    letter-spacing: -0.02em;
-    line-height: 1.2;
-  }
-  .fd-txt {
-    grid-column: 7 / span 6;
-  }
-  .fd-bio {
-    font-size: clamp(19px, 1.45vw, 22px);
-    line-height: 1.5;
-    max-width: 46ch;
-  }
-  .fd-staff {
-    margin-top: 24px;
-    color: var(--ink-soft);
-    max-width: 52ch;
-  }
-  .fd-staff strong {
-    color: var(--ink);
-    font-weight: 600;
-  }
-  .rc {
-    margin-top: clamp(64px, 7vw, 120px);
-    background: var(--print);
-    padding: clamp(24px, 3vw, 48px);
-    box-shadow: 0 30px 60px -40px rgb(20 19 16 / 0.5);
-  }
-  .rc-h {
-    margin-bottom: clamp(28px, 3vw, 44px);
-  }
-  .rc-dl {
-    margin: clamp(36px, 4vw, 56px) 0 0;
-    display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 24px var(--col-gap);
-  }
-  .rc-dl dt {
-    color: var(--ink-soft);
-    margin-bottom: 6px;
-  }
-  .rc-dl dd {
-    margin: 0;
-    font-size: 17px;
-    line-height: 1.45;
-    overflow-wrap: anywhere;
   }
 
-  @media (max-width: 1100px) {
-    .rc-dl {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
+  /* ── where it has led ── */
+  .led {
+    padding-top: var(--sec);
   }
+  .led-head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 24px;
+    margin-bottom: clamp(24px, 3vw, 44px);
+  }
+  .led-g {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(10px, 1.2vw, 18px);
+  }
+
+  /* ── company record ── */
+  .rc {
+    padding-top: var(--sec);
+  }
+  .rc-g {
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(0, 9fr);
+    column-gap: var(--col-gap);
+    row-gap: 16px;
+    padding-top: 22px;
+    border-top: 1px solid var(--rule-film);
+  }
+  .rc-dl {
+    margin: 22px 0 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px var(--col-gap);
+    font-size: 16px;
+  }
+  .rc-dl dt {
+    color: var(--ash);
+    font-size: 15px;
+  }
+  .rc-dl dd {
+    margin: 2px 0 0;
+  }
+
   @media (max-width: 900px) {
-    .hd-t,
-    .hd-lede,
-    :global(.bg-lit),
-    .bg-p,
-    .why-l,
-    .why-r,
-    .led-head .t-h2,
-    .led-p,
-    .fd-rec,
-    .fd-txt {
+    .ah-f {
+      height: auto;
+      aspect-ratio: auto;
+      min-height: 0;
+      max-height: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      min-height: min(78svh, 640px);
+    }
+    .ah-copy {
+      position: relative;
+      left: auto;
+      right: auto;
+      bottom: auto;
+      padding: 0 var(--pad) 18px;
+    }
+    .ah-cap {
+      position: relative;
+      left: auto;
+      right: auto;
+      bottom: auto;
+      padding: 0 var(--pad) 18px;
+    }
+    .af-g {
+      grid-template-columns: 1fr;
+    }
+    .fd-l,
+    .fd-rec {
       grid-column: 1 / -1;
     }
-    :global(.ab-hero.mf--full .mf-cap) {
-      max-width: none;
-    }
-    .ab-hero-k {
-      color: var(--ash);
+    .fd-rec {
+      padding-top: 0;
     }
     .led-g {
       grid-template-columns: 1fr;
     }
+    .rc-g {
+      grid-template-columns: 1fr;
+    }
+    .rc-dl {
+      grid-template-columns: 1fr 1fr;
+    }
   }
-  @media (max-width: 560px) {
-    .fd-rec,
+  @media (max-width: 520px) {
     .rc-dl {
       grid-template-columns: 1fr;
     }

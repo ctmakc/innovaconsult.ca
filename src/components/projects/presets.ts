@@ -102,7 +102,7 @@ const S = {
 
 export const PRESETS: Record<string, Preset> = {
   uafest: {
-    fact: 'Applications, participant cabinets, sponsor and finance registers for a Ukrainian festival in Carleton Place, Ontario. In production since August 2026.',
+    fact: 'Applications, participant cabinets, sponsor and finance registers for a Ukrainian festival in Carleton Place, Ontario. 199 participant cabinets and 13 shared mailboxes in one record.',
     world: { src: '/img/uafest-dance.webp', src800: '/img/uafest-dance-800.webp', w: 1280, h: 818, pos: '30% 50%' },
     credit: 'UAFest festival, Carleton Place',
     full: [
@@ -158,17 +158,14 @@ export const PRESETS: Record<string, Preset> = {
     heroSrcs: [S.ofReport.src, S.ofPhone.src]
   },
   'workflow-os': {
-    fact: 'Online since 1 October 2026 as an invite-only demo with a fictional 30-person services firm and 15 mapped workflows.',
+    fact: 'Invite-only demo online since 1 October 2026, on a fictional 30-person firm with 15 mapped workflows. 226 automated tests.',
     statusLabel: 'Prototype · demo data',
     material: 'navy',
     full: [
       { ...S.wosMap, l: '53.5%', t: '8%', width: '43%', lm: '25%', tm: '7%', wm: '70%', depth: 0.8 },
       { ...S.wosOverview, l: '44%', t: '36%', width: '37%', lm: '5%', tm: '40%', wm: '64%', depth: 1.4 }
     ],
-    half: [
-      { ...S.wosMap, l: '34%', t: '6%', width: '60%', lm: '25%', tm: '7%', wm: '70%', depth: 0.8 },
-      { ...S.wosOverview, l: '6%', t: '20%', width: '52%', lm: '5%', tm: '40%', wm: '64%', depth: 1.4 }
-    ]
+    half: [{ ...S.wosMap, l: '7%', t: '7%', width: '86%', lm: '6%', tm: '8%', wm: '88%' }]
   },
   aicrmius: {
     fact: 'Agents propose, a person approves, every change can be undone.',

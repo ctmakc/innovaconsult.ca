@@ -1,73 +1,88 @@
 ---
-// Closing block: flare-orange frame whose giant fitted "START A CONVERSATION" is itself the
-// link that opens the contact dialog (falls back to /contact without JS). One per page, last.
-import FitText from './FitText.astro';
+// Closing band (one per page, last): the line, one real button that opens the contact dialog
+// (falls back to /contact without JS) and the email. Flare is used once here: the button.
 import { SITE } from '../data/site';
 interface Props {
+  title?: string;
   lede?: string;
-  lines?: string[];
 }
-const { lede = 'Tell us what you are working on. Every message is read by a person, and we reply by email.', lines = ['Start a', 'conversation'] } = Astro.props;
+const { title = 'Start a conversation.', lede = 'Tell us what you are working on. Every message is read by a person, and we reply by email.' } = Astro.props;
 ---
 
-<section class="cta-block shell" aria-labelledby="cta-h">
+<section class="cta shell" aria-labelledby="cta-h">
   <div class="cta-f frame">
-    <div class="cta-top">
-      <p class="t-lede">{lede}</p>
-      <p><a class="cta-mail" href={`mailto:${SITE.email}`}>{SITE.email}</a></p>
+    <h2 id="cta-h" class="cta-h" data-rise>{title}</h2>
+    <div class="cta-r">
+      <p class="cta-p">{lede}</p>
+      <div class="cta-acts">
+        <a class="btn btn--flare cta-btn" href="/contact" data-open-contact>Write to us <span class="ar" aria-hidden="true">→</span></a>
+        <a class="cta-mail" href={`mailto:${SITE.email}`}>{SITE.email}</a>
+      </div>
     </div>
-    <h2 class="sr-only" id="cta-h">Start a conversation</h2>
-    <a class="cta-go" href="/contact" data-open-contact aria-label="Start a conversation: open the contact form">
-      <FitText as="span" lines={lines} rise />
-    </a>
   </div>
 </section>
 
 <style>
-  .cta-block {
-    padding-top: var(--gut);
+  .cta {
+    padding-top: calc(var(--sec) * 0.62);
   }
   .cta-f {
-    background: var(--flare);
-    color: var(--ink);
-    padding: clamp(28px, 3vw, 48px) clamp(14px, 1.6vw, 26px) clamp(12px, 1.4vw, 22px);
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--col-gap);
+    row-gap: 28px;
+    align-items: end;
+    padding: clamp(36px, 4.4vw, 72px) var(--in);
+    background: var(--reel);
+    box-shadow: inset 0 0 0 1px var(--rule-film);
   }
-  .cta-top {
+  .cta-h {
+    grid-column: 1 / span 7;
+    font-size: clamp(44px, 6.4vw, 104px);
+    font-weight: 500;
+    letter-spacing: -0.045em;
+    line-height: 0.92;
+    text-wrap: balance;
+  }
+  .cta-r {
+    grid-column: 8 / span 5;
+    padding-bottom: 0.4em;
+  }
+  .cta-p {
+    font-size: clamp(18px, 1.35vw, 21px);
+    line-height: 1.45;
+    color: var(--ash);
+    max-width: 36ch;
+  }
+  .cta-acts {
     display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 24px;
-    padding: 0 clamp(4px, 1vw, 14px) clamp(48px, 9vw, 160px);
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px 24px;
+    margin-top: 24px;
   }
-  .cta-top .t-lede {
-    max-width: 34ch;
+  .cta-btn {
+    min-height: 54px;
+    padding: 0 26px;
+    font-size: 17px;
   }
   .cta-mail {
-    font-size: clamp(18px, 1.4vw, 22px);
-    font-weight: 600;
+    font-size: 17px;
+    font-weight: 500;
     text-decoration: none;
-    border-bottom: 1.5px solid var(--ink);
-    white-space: nowrap;
+    border-bottom: 1px solid var(--ash);
+    padding-block: 10px 2px;
   }
-  .cta-go {
-    display: block;
-    color: var(--ink);
-    text-decoration: none;
-    border-radius: var(--r);
-  }
-  .cta-go :global(.fit) {
-    transition: transform 0.6s var(--e-out);
-  }
-  .cta-go:hover :global(.ln:last-child .fit) {
-    transform: translateX(0.04em);
-  }
-  .cta-go:focus-visible {
-    outline-color: var(--ink);
-    outline-offset: 6px;
+  .cta-mail:hover {
+    border-color: var(--print);
   }
   @media (max-width: 900px) {
-    .cta-top {
-      flex-direction: column;
+    .cta-h,
+    .cta-r {
+      grid-column: 1 / -1;
+    }
+    .cta-btn {
+      flex: 1 1 auto;
     }
   }
 </style>

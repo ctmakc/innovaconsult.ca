@@ -132,29 +132,5 @@ const ld = [org, website, ...(breadcrumbLd ? [breadcrumbLd] : []), ...jsonLd];
     <script>
       import '../scripts/site';
     </script>
-    <script>
-      // LEGACY (v1 inner pages): rows reveal by drawing their stage track once (DESIGN.md: no fade-up wallpaper).
-      // Reduced motion and print get every track in its final state at once (DESIGN.md).
-      const els = document.querySelectorAll<HTMLElement>('[data-draw]');
-      const showAll = () => els.forEach((el) => el.classList.add('is-in'));
-      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      window.addEventListener('beforeprint', showAll);
-      if (reduce || !('IntersectionObserver' in window)) {
-        showAll();
-      } else {
-        const io = new IntersectionObserver(
-          (entries) => {
-            for (const e of entries) {
-              if (e.isIntersecting) {
-                e.target.classList.add('is-in');
-                io.unobserve(e.target);
-              }
-            }
-          },
-          { rootMargin: '0px 0px -10% 0px' }
-        );
-        els.forEach((el) => io.observe(el));
-      }
-    </script>
   </body>
 </html>

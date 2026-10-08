@@ -1,9 +1,8 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import SectionHead from '../components/SectionHead.astro';
 import WosHero from '../components/wos/WosHero.astro';
 import WosModules from '../components/wos/WosModules.astro';
-import { SHOTS, QA, RISK } from '../components/wos/data';
+import { SHOTS, QA } from '../components/wos/data';
 import { SITE } from '../data/site';
 
 // Product facts are traceable to /data/projects/innova-workflow-os (README.md, docs/SCORING.md,
@@ -61,66 +60,13 @@ const faq = {
 
   <WosHero />
 
-  <!-- ═══ SIX QUESTIONS (film) ═══ -->
-  <section class="qa-sec shell pad-lg" aria-labelledby="qa-h">
-    <div class="inset">
-      <SectionHead
-        id="qa-h"
-        size="h2"
-        title="Six questions every automation plan has to answer."
-        lede="Workflow OS answers each one from the company’s own process data, and each answer links to the module that produces it."
-      />
-      <ol class="qa">
-        {
-          QA.map((x, i) => {
-            const sh = SHOTS[x.crop.shot];
-            const f = 1600 / x.crop.w;
-            const h = x.crop.w / 1.6;
-            const pos = `width:${(f * 100).toFixed(2)}%;left:${((-x.crop.x / x.crop.w) * 100).toFixed(2)}%;top:${((-x.crop.y / h) * 100).toFixed(2)}%`;
-            return (
-              <li class="qa-i">
-                <div class="qa-crop" aria-hidden="true">
-                  <img
-                    src={sh.src}
-                    srcset={`${sh.src800} 800w, ${sh.src} 1600w`}
-                    sizes={`(max-width: 640px) ${Math.round(f * 84)}vw, (max-width: 1100px) ${Math.round(f * 46)}vw, ${Math.round(f * 30)}vw`}
-                    width={sh.w}
-                    height={sh.h}
-                    alt=""
-                    loading="lazy"
-                    decoding="async"
-                    style={pos}
-                  />
-                </div>
-                <p class="qa-n" aria-hidden="true">{String(i + 1).padStart(2, '0')}</p>
-                <h3 class="qa-q">{x.q}</h3>
-                <p class="qa-a">{x.a}</p>
-                <p class="sr-only">Screen: {x.crop.label}</p>
-                <a class="lnk qa-m" href={`#module-${x.m}`}>
-                  Module {x.m} <span class="ar" aria-hidden="true">↓</span>
-                </a>
-              </li>
-            );
-          })
-        }
-      </ol>
-    </div>
-  </section>
-
   <WosModules />
 
-  <!-- ═══ GOVERNANCE + BOUNDARY (film) ═══ -->
-  <section class="gov shell pad-lg" aria-labelledby="gov-h">
+  <!-- ═══ BOUNDARY (film) ═══ -->
+  <section class="gov shell pad-lg" aria-labelledby="end-h">
     <div class="inset">
-      <div class="gov-g">
-        <h2 id="gov-h" class="t-label t-mute gov-k">Risk and governance, in every module</h2>
-        <ul class="risk">
-          {RISK.map((r) => <li>{r}</li>)}
-        </ul>
-      </div>
-
       <div class="end">
-        <h2 class="t-display end-h" data-rise>Where Workflow OS ends.</h2>
+        <h2 id="end-h" class="t-display end-h" data-rise>Where Workflow OS ends.</h2>
         <div class="end-r">
           <p class="end-lede">
             Workflow OS decides what to automate and how. The automations themselves run in the client’s existing platforms or in INNOVA products such as <a class="end-link" href="/projects/aicrmius">AICRMIUS</a>.
@@ -137,134 +83,11 @@ const faq = {
 </BaseLayout>
 
 <style>
-  /* ── six questions ── */
-  .qa-sec {
-    padding-bottom: calc(var(--sec) * 0.72);
-  }
-  .qa {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: clamp(56px, 5vw, 88px) var(--col-gap);
-  }
-  .qa-i {
-    position: relative; /* keeps the sr-only caption inside the phone rail's clip */
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    min-width: 0;
-  }
-  /* a window onto the panel of the real screen that answers the question */
-  .qa-crop {
-    position: relative;
-    display: block;
-    width: 100%;
-    aspect-ratio: 16 / 10;
-    overflow: hidden;
-    border-radius: var(--r);
-    background: var(--reel);
-    box-shadow: var(--shadow-screen);
-  }
-  .qa-crop img {
-    position: absolute;
-    max-width: none;
-    height: auto;
-    transform-origin: 50% 40%;
-    transition: transform 0.9s var(--e-out);
-  }
-  .qa-i:hover .qa-crop img {
-    transform: scale(1.04);
-  }
-  .qa-n {
-    margin-top: 26px;
-    font-size: 15px;
-    font-weight: 500;
-    color: var(--flare);
-    font-variant-numeric: tabular-nums;
-  }
-  .qa-q {
-    margin-top: 10px;
-    font-size: clamp(26px, 2.3vw, 38px);
-    font-weight: 500;
-    letter-spacing: -0.03em;
-    line-height: 1.06;
-    text-wrap: balance;
-    max-width: 16ch;
-  }
-  .qa-a {
-    margin-top: 16px;
-    font-size: 17px;
-    line-height: 1.5;
-    color: var(--ash);
-    max-width: 40ch;
-  }
-  .qa-m {
-    margin-top: 22px;
-    font-size: 16px;
-  }
-  .qa-m:hover .ar {
-    transform: translateY(3px);
-  }
-  /* second row steps down: the grid reads as a sequence */
-  @media (min-width: 1101px) {
-    .qa-i:nth-child(3n + 2) {
-      margin-top: clamp(32px, 3.6vw, 64px);
-    }
-    .qa-i:nth-child(3n + 3) {
-      margin-top: clamp(64px, 7.2vw, 128px);
-    }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .qa-crop img {
-      transition: none;
-    }
-    .qa-i:hover .qa-crop img {
-      transform: none;
-    }
-  }
-
-  /* ── governance ── */
-  .gov-g {
-    display: grid;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    column-gap: var(--col-gap);
-    row-gap: 22px;
-    align-items: start;
-  }
-  .gov-k {
-    grid-column: 1 / span 3;
-    padding-top: 0.5em;
-  }
-  .risk {
-    grid-column: 4 / span 9;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.05em 0;
-    font-size: clamp(32px, 4vw, 66px);
-    font-weight: 500;
-    letter-spacing: -0.04em;
-    line-height: 1.04;
-  }
-  .risk li:not(:last-child)::after {
-    content: '/';
-    margin-inline: 0.28em;
-    color: var(--ash);
-    font-weight: 300;
-  }
-
   .end {
     display: grid;
     grid-template-columns: repeat(12, minmax(0, 1fr));
     column-gap: var(--col-gap);
     row-gap: 32px;
-    margin-top: var(--sec);
-    padding-top: clamp(40px, 4vw, 64px);
-    border-top: 1px solid var(--rule-film);
   }
   .end-h {
     grid-column: 1 / span 6;
@@ -299,40 +122,13 @@ const faq = {
     margin-top: 26px;
   }
 
-  @media (max-width: 1100px) {
-    .qa {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
   @media (max-width: 900px) {
-    .gov-k,
-    .risk,
     .end-h,
     .end-r {
       grid-column: 1 / -1;
     }
     .end-r {
       padding-top: 0;
-    }
-  }
-  /* phones: a swipe rail, the next card peeks in */
-  @media (max-width: 640px) {
-    .qa {
-      display: flex;
-      gap: 16px;
-      overflow-x: auto;
-      scroll-snap-type: x mandatory;
-      scrollbar-width: none;
-      margin-inline: calc(var(--in) * -1 - var(--gut));
-      padding: 4px calc(var(--in) + var(--gut)) 40px;
-      scroll-padding-inline: calc(var(--in) + var(--gut));
-    }
-    .qa::-webkit-scrollbar {
-      display: none;
-    }
-    .qa-i {
-      flex: 0 0 84%;
-      scroll-snap-align: start;
     }
   }
 </style>

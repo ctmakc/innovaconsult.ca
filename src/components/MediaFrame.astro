@@ -49,11 +49,13 @@ interface Props {
   href?: string;
   credit?: string;
   dolly?: boolean;
+  /** Above the fold or near it: load the world and screens at once (no lazy gap while scrolling). */
+  eager?: boolean;
   class?: string;
   ariaLabel?: string;
   [key: string]: unknown;
 }
-const { world, material = 'reel', screens = [], size = 'half', aspect, aspectM, scrim = 'bottom', href, credit, dolly = true, class: cls, ariaLabel, ...rest } = Astro.props;
+const { world, material = 'reel', screens = [], size = 'half', aspect, aspectM, scrim = 'bottom', href, credit, dolly = true, eager = false, class: cls, ariaLabel, ...rest } = Astro.props;
 const Tag = href ? 'a' : 'div';
 const AR = { full: '16 / 8.6', half: '5 / 4.6', stage: '4 / 3' } as const;
 const style = `--ar:${aspect ?? AR[size]};--ar-m:${aspectM ?? '4 / 3.3'}`;
@@ -70,7 +72,9 @@ const pos = (s: FrameScreen) =>
   ]
     .filter(Boolean)
     .join(';');
-const sizes = (s: FrameScreen) => `(max-width: 900px) ${s.wm ?? '88%'}, ${s.width ?? '60%'}`;
+// sizes needs viewport units: a screen's share of the frame × the frame's share of the viewport.
+const vw = (pct: string | undefined, fallback: number, k: number) => `${Math.ceil((parseFloat(pct ?? '') || fallback) * k)}vw`;
+const sizes = (s: FrameScreen) => `(max-width: 900px) ${vw(s.wm, 88, 1)}, ${vw(s.width, 60, size === 'full' ? 1 : 0.5)}`;
 ---
 
 <Tag {...rest} href={href} aria-label={ariaLabel} class:list={['mf frame', `mf--${size}`, `mf--scrim-${scrim}`, `mat-${material}`, cls]} style={style} data-dolly={dolly ? '' : undefined}>
@@ -85,7 +89,7 @@ const sizes = (s: FrameScreen) => `(max-width: 900px) ${s.wm ?? '88%'}, ${s.widt
           alt={world.alt ?? ''}
           width={world.w}
           height={world.h}
-          loading="lazy"
+          loading={eager ? undefined : 'lazy'}
           decoding="async"
           style={world.pos ? `object-position:${world.pos}` : undefined}
         />
@@ -104,7 +108,7 @@ const sizes = (s: FrameScreen) => `(max-width: 900px) ${s.wm ?? '88%'}, ${s.widt
             alt={s.alt}
             width={s.w}
             height={s.h}
-            loading="lazy"
+            loading={eager ? undefined : 'lazy'}
             decoding="async"
           />
         </div>

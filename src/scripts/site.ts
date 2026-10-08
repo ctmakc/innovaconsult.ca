@@ -82,7 +82,7 @@ else {
   document.querySelectorAll<HTMLElement>('.fit-box').forEach((box) =>
     box.querySelectorAll<HTMLElement>('[data-mask]').forEach((ln, i) => {
       const inner = ln.firstElementChild as HTMLElement | null;
-      if (inner) inner.style.transitionDelay = `${(i % 3) * 80}ms`;
+      if (inner) inner.style.transitionDelay = `${(i % 3) * 60}ms`;
     })
   );
   const io = new IntersectionObserver(
@@ -93,7 +93,7 @@ else {
           io.unobserve(e.target);
         }
       }),
-    { rootMargin: '0px 0px -8% 0px' }
+    { rootMargin: '0px 0px 6% 0px' }
   );
   revealEls.forEach((el) => io.observe(el));
 }

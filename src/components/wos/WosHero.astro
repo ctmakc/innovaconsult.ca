@@ -39,25 +39,12 @@ import { SHOTS, TECHNOLOGY } from './data';
             decoding="async"
           />
         </div>
-        <div class="mf-scr wh-s2" data-depth="1.5">
-          <img
-            class="scr-img"
-            src={SHOTS.map.src}
-            srcset={`${SHOTS.map.src800} 800w, ${SHOTS.map.src} 1600w`}
-            sizes="(max-width: 900px) 60vw, 34vw"
-            width={SHOTS.map.w}
-            height={SHOTS.map.h}
-            alt={SHOTS.map.alt}
-            loading="lazy"
-            decoding="async"
-          />
-        </div>
       </div>
     </div>
   </div>
 
   <div class="wh-rec inset">
-    <p class="wh-rec-k t-label t-mute">INV-04 · Prototype<span class="wh-demo">Demo company: Northstar Professional Services, a fictional 30-person firm. All data shown is illustrative.</span></p>
+    <p class="wh-rec-k t-label t-mute"><span class="wh-demo">Demo company: Northstar Professional Services, a fictional 30-person firm. All data shown is illustrative.</span></p>
     <ul class="wh-tech" aria-label="Technology">
       {TECHNOLOGY.map((t) => <li>{t}</li>)}
     </ul>
@@ -225,9 +212,6 @@ import { SHOTS, TECHNOLOGY } from './data';
     }
     .wh-s1 > img {
       animation: wh-up 1.05s var(--e-out) 0.1s both;
-    }
-    .wh-s2 > img {
-      animation: wh-up 1.05s var(--e-out) 0.26s both;
     }
     .wh-top,
     .wh-copy {
