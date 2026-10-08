@@ -1,0 +1,24 @@
+---
+// Status by form: Live = flare dot (the only coloured status) · Built/In development = solid dot
+// · Prototype/R&D = ring · Exploring/Partner opportunity = dashed ring. Text is always written out.
+import { STATUS_LABEL, type ProjectStatus } from '../data/projects';
+interface Props {
+  status: ProjectStatus;
+  /** Override the label, e.g. "Prototype · demo data". */
+  label?: string;
+  class?: string;
+  [key: string]: unknown;
+}
+const { status, label, class: cls, ...rest } = Astro.props;
+const TONE: Record<ProjectStatus, string> = {
+  live: 'live',
+  built: 'build',
+  'in-development': 'build',
+  prototype: 'proto',
+  research: 'proto',
+  exploring: 'explore',
+  'partner-opportunity': 'explore'
+};
+---
+
+<span {...rest} class:list={['tag', cls]} data-tone={TONE[status]}><i aria-hidden="true"></i>{label ?? STATUS_LABEL[status]}</span>

@@ -1,0 +1,73 @@
+---
+// Closing block: flare-orange frame whose giant fitted "START A CONVERSATION" is itself the
+// link that opens the contact dialog (falls back to /contact without JS). One per page, last.
+import FitText from './FitText.astro';
+import { SITE } from '../data/site';
+interface Props {
+  lede?: string;
+  lines?: string[];
+}
+const { lede = 'Tell us what you are working on. Every message is read by a person, and we reply by email.', lines = ['Start a', 'conversation'] } = Astro.props;
+---
+
+<section class="cta-block shell" aria-labelledby="cta-h">
+  <div class="cta-f frame">
+    <div class="cta-top">
+      <p class="t-lede">{lede}</p>
+      <p><a class="cta-mail" href={`mailto:${SITE.email}`}>{SITE.email}</a></p>
+    </div>
+    <h2 class="sr-only" id="cta-h">Start a conversation</h2>
+    <a class="cta-go" href="/contact" data-open-contact aria-label="Start a conversation: open the contact form">
+      <FitText as="span" lines={lines} rise />
+    </a>
+  </div>
+</section>
+
+<style>
+  .cta-block {
+    padding-top: var(--gut);
+  }
+  .cta-f {
+    background: var(--flare);
+    color: var(--ink);
+    padding: clamp(28px, 3vw, 48px) clamp(14px, 1.6vw, 26px) clamp(12px, 1.4vw, 22px);
+  }
+  .cta-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
+    padding: 0 clamp(4px, 1vw, 14px) clamp(48px, 9vw, 160px);
+  }
+  .cta-top .t-lede {
+    max-width: 34ch;
+  }
+  .cta-mail {
+    font-size: clamp(18px, 1.4vw, 22px);
+    font-weight: 600;
+    text-decoration: none;
+    border-bottom: 1.5px solid var(--ink);
+    white-space: nowrap;
+  }
+  .cta-go {
+    display: block;
+    color: var(--ink);
+    text-decoration: none;
+    border-radius: var(--r);
+  }
+  .cta-go :global(.fit) {
+    transition: transform 0.6s var(--e-out);
+  }
+  .cta-go:hover :global(.ln:last-child .fit) {
+    transform: translateX(0.04em);
+  }
+  .cta-go:focus-visible {
+    outline-color: var(--ink);
+    outline-offset: 6px;
+  }
+  @media (max-width: 900px) {
+    .cta-top {
+      flex-direction: column;
+    }
+  }
+</style>

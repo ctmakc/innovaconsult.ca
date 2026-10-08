@@ -1,20 +1,12 @@
 ---
-import { STATUS_LABEL, type ProjectStatus } from '../data/projects';
+// v1 name kept for the inner pages; renders the v2 StatusTag.
+import StatusTag from './StatusTag.astro';
+import type { ProjectStatus } from '../data/projects';
 interface Props {
   status: ProjectStatus;
+  label?: string;
 }
-const { status } = Astro.props;
+const { status, label } = Astro.props;
 ---
 
-<span class="status chip"><span class="mark" data-s={status} aria-hidden="true"></span>{STATUS_LABEL[status]}</span>
-
-<style>
-  /* Status chip type: 12–13px uppercase mono, .06em tracking. */
-  .chip {
-    font-family: var(--font-mono);
-    font-size: 0.78rem;
-    line-height: 1.3;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-  }
-</style>
+<StatusTag status={status} label={label} />

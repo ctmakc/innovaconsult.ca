@@ -1,0 +1,291 @@
+---
+// The one contact form. Contract (unchanged from v1 /contact): POST /api/contact, JSON body
+// { topic, name, organization, email, message, website (honeypot), page, elapsed (ms since shown) }.
+// Several instances may live on a page (dialog + /contact): pass a unique idPrefix.
+// ?topic=<value> in the URL preselects a topic. Never submit it in tests.
+interface Props {
+  idPrefix?: string;
+  tone?: 'bone' | 'film';
+  submitLabel?: string;
+  rows?: number;
+}
+const { idPrefix = 'cf', tone = 'bone', submitLabel = 'Send message', rows = 5 } = Astro.props;
+const TOPICS = [
+  ['product', 'Build a technology product'],
+  ['automation', 'Automate business processes'],
+  ['ai', 'Explore an AI initiative'],
+  ['workflow-os', 'See AI Workflow OS'],
+  ['rd', 'Discuss an R&D project'],
+  ['commercialize', 'Commercialize technology'],
+  ['partnership', 'Explore a partnership'],
+  ['public-sector', 'Discuss a public-sector project'],
+  ['other', 'Other']
+];
+const id = (k: string) => `${idPrefix}-${k}`;
+---
+
+<form class:list={['cform', `cform--${tone}`]} data-contact-form data-prefix={idPrefix} novalidate>
+  <fieldset class="cform-topics">
+    <legend>I want to</legend>
+    <div class="cform-opts">
+      {
+        TOPICS.map(([v, l], i) => (
+          <label class="cform-opt">
+            <input type="radio" name="topic" value={v} checked={i === 0} />
+            <span>{l}</span>
+          </label>
+        ))
+      }
+    </div>
+  </fieldset>
+  <div class="cform-g">
+    <div class="cform-f">
+      <label for={id('name')}>Name</label>
+      <input id={id('name')} name="name" autocomplete="name" required maxlength="120" />
+      <p class="cform-err" id={id('name-err')} hidden></p>
+    </div>
+    <div class="cform-f">
+      <label for={id('org')}>Organization (optional)</label>
+      <input id={id('org')} name="organization" autocomplete="organization" maxlength="160" />
+    </div>
+    <div class="cform-f cform-w">
+      <label for={id('email')}>Email</label>
+      <input id={id('email')} name="email" type="email" autocomplete="email" required maxlength="200" inputmode="email" />
+      <p class="cform-err" id={id('email-err')} hidden></p>
+    </div>
+    <div class="cform-f cform-w">
+      <label for={id('message')}>What are you working on?</label>
+      <textarea id={id('message')} name="message" rows={rows} required maxlength="4000"></textarea>
+      <p class="cform-err" id={id('message-err')} hidden></p>
+    </div>
+    <label class="cform-hp" aria-hidden="true">Website <input name="website" tabindex="-1" autocomplete="off" /></label>
+  </div>
+  <div class="cform-foot">
+    <button class:list={['btn', tone === 'bone' ? 'btn--ink' : 'btn--flare']} type="submit">{submitLabel} <span class="ar" aria-hidden="true">→</span></button>
+    <p class="cform-note">We use your details only to reply to this message. <a href="/privacy">How we handle them</a></p>
+  </div>
+  <p class="cform-status" role="status" aria-live="polite" data-status></p>
+</form>
+
+<script>
+  type Field = 'name' | 'email' | 'message';
+  const FIELDS: Field[] = ['name', 'email', 'message'];
+  const check = (k: Field, v: string): string => {
+    const t = v.trim();
+    if (k === 'name') return t.length < 2 ? 'Add your name.' : '';
+    if (k === 'email') {
+      if (!t) return 'Add an email address so we can reply.';
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(t) ? '' : 'Check the email address, for example name@company.ca.';
+    }
+    return t.length < 2 ? 'Add a few words about what you are working on.' : '';
+  };
+  const topic = new URLSearchParams(location.search).get('topic');
+
+  document.querySelectorAll<HTMLFormElement>('[data-contact-form]').forEach((form) => {
+    const prefix = form.dataset.prefix || 'cf';
+    const status = form.querySelector<HTMLElement>('[data-status]');
+    let started = Date.now();
+    // The dialog resets the clock when it opens (site.ts dispatches this event).
+    form.addEventListener('contact:shown', () => (started = Date.now()));
+
+    if (topic) {
+      const r = form.querySelector<HTMLInputElement>(`input[name="topic"][value="${CSS.escape(topic)}"]`);
+      if (r) r.checked = true;
+    }
+    const setError = (k: Field, msg: string) => {
+      const input = form.querySelector<HTMLInputElement | HTMLTextAreaElement>(`[name="${k}"]`);
+      const err = document.getElementById(`${prefix}-${k}-err`);
+      if (!input || !err) return;
+      err.textContent = msg;
+      err.hidden = !msg;
+      if (msg) {
+        input.setAttribute('aria-invalid', 'true');
+        input.setAttribute('aria-describedby', err.id);
+      } else {
+        input.removeAttribute('aria-invalid');
+        input.removeAttribute('aria-describedby');
+      }
+    };
+    FIELDS.forEach((k) => form.querySelector(`[name="${k}"]`)?.addEventListener('input', () => setError(k, '')));
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!status) return;
+      const data = Object.fromEntries(new FormData(form).entries()) as Record<string, string>;
+      const bad = FIELDS.filter((k) => {
+        const msg = check(k, String(data[k] || ''));
+        setError(k, msg);
+        return Boolean(msg);
+      });
+      if (bad.length) {
+        status.dataset.state = 'error';
+        status.textContent = bad.length === 1 ? 'One field needs attention.' : `${bad.length} fields need attention.`;
+        form.querySelector<HTMLElement>(`[name="${bad[0]}"]`)?.focus();
+        return;
+      }
+      const btn = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+      if (btn) btn.disabled = true;
+      status.dataset.state = 'sending';
+      status.textContent = 'Sending…';
+      try {
+        const res = await fetch('/api/contact', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ ...data, page: location.href, elapsed: Date.now() - started })
+        });
+        if (!res.ok) throw new Error(String(res.status));
+        form.reset();
+        status.dataset.state = 'ok';
+        status.textContent = 'Thank you. Your message is with us, and we will reply by email.';
+      } catch {
+        status.dataset.state = 'error';
+        status.innerHTML = 'The message did not go through. Please email <a href="mailto:info@innovaconsult.ca">info@innovaconsult.ca</a>.';
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    });
+  });
+</script>
+
+<style>
+  .cform {
+    --fc: var(--ink);
+    --fc-soft: var(--ink-soft);
+    --field: color-mix(in srgb, var(--bone) 60%, var(--print));
+    --field-line: rgb(20 19 16 / 0.3);
+    --err: var(--flare-ink);
+    color: var(--fc);
+  }
+  .cform--film {
+    --fc: var(--print);
+    --fc-soft: var(--ash);
+    --field: var(--reel);
+    --field-line: rgb(238 234 226 / 0.28);
+    --err: var(--flare-hi);
+  }
+  fieldset {
+    border: 0;
+    padding: 0;
+    margin: 0;
+  }
+  legend,
+  .cform-f label {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    padding: 0;
+  }
+  .cform-opts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .cform-opt input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .cform-opt span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 42px;
+    padding: 0 14px;
+    border: 1px solid var(--field-line);
+    border-radius: var(--r);
+    font-size: 15px;
+    cursor: pointer;
+    transition:
+      background-color 0.2s var(--e-out),
+      color 0.2s var(--e-out),
+      border-color 0.2s var(--e-out);
+  }
+  .cform-opt span:hover {
+    border-color: var(--fc);
+  }
+  .cform-opt input:checked + span {
+    background: var(--fc);
+    color: var(--cform-on, var(--bone));
+    border-color: var(--fc);
+  }
+  .cform--film .cform-opt input:checked + span {
+    color: var(--ink);
+  }
+  .cform-opt input:focus-visible + span {
+    outline: 2px solid var(--fc);
+    outline-offset: 2px;
+  }
+  .cform-g {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin-top: 24px;
+  }
+  .cform-f {
+    display: grid;
+    gap: 2px;
+  }
+  .cform-w {
+    grid-column: 1 / -1;
+  }
+  .cform-f input,
+  .cform-f textarea {
+    font: 400 17px/1.4 var(--font);
+    color: var(--fc);
+    background: var(--field);
+    border: 1px solid var(--field-line);
+    border-radius: var(--r);
+    padding: 12px 14px;
+    min-height: 48px;
+    width: 100%;
+  }
+  .cform-f textarea {
+    resize: vertical;
+  }
+  .cform-f input:focus,
+  .cform-f textarea:focus {
+    outline: 2px solid var(--fc);
+    outline-offset: 0;
+  }
+  .cform-f [aria-invalid='true'] {
+    border-color: var(--err);
+  }
+  .cform-err {
+    margin-top: 6px;
+    font-size: 15px;
+    color: var(--err);
+  }
+  .cform-hp {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+  .cform-foot {
+    display: flex;
+    align-items: center;
+    gap: 16px 22px;
+    flex-wrap: wrap;
+    margin-top: 24px;
+  }
+  .cform-note {
+    font-size: 15px;
+    color: var(--fc-soft);
+  }
+  .cform-note a {
+    color: var(--fc);
+  }
+  .cform-status {
+    margin-top: 14px;
+    min-height: 1.4em;
+    font-size: 16px;
+  }
+  .cform-status[data-state='error'] {
+    color: var(--err);
+  }
+  @media (max-width: 640px) {
+    .cform-g {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

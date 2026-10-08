@@ -1,0 +1,74 @@
+---
+// Site-wide contact dialog (in BaseLayout). Any element with [data-open-contact] opens it
+// (site.ts); without JS those elements are links to /contact.
+import ContactForm from './ContactForm.astro';
+---
+
+<dialog class="cdlg" id="contact-dialog" aria-labelledby="cdlg-h" data-contact-dialog>
+  <div class="cdlg-in">
+    <div class="cdlg-h">
+      <h2 id="cdlg-h" class="t-h3">Start a conversation</h2>
+      <button class="cdlg-x" type="button" data-close aria-label="Close">×</button>
+    </div>
+    <p class="cdlg-p">Tell us what you are working on. Every message is read by a person, and we reply by email.</p>
+    <div class="cdlg-form"><ContactForm idPrefix="dlg" tone="bone" /></div>
+  </div>
+</dialog>
+
+<style>
+  .cdlg {
+    border: 0;
+    padding: 0;
+    border-radius: var(--r);
+    background: var(--bone);
+    color: var(--ink);
+    width: min(780px, calc(100vw - 24px));
+    max-height: calc(100svh - 24px);
+  }
+  .cdlg::backdrop {
+    background: rgb(13 12 11 / 0.8);
+  }
+  .cdlg[open] {
+    animation: cdlg-in 0.45s var(--e-out);
+  }
+  @keyframes cdlg-in {
+    from {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+  }
+  .cdlg :focus-visible {
+    outline-color: var(--ink);
+  }
+  .cdlg-in {
+    padding: clamp(22px, 3.4vw, 44px);
+  }
+  .cdlg-h {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+  }
+  .cdlg-x {
+    flex: none;
+    min-width: 44px;
+    min-height: 44px;
+    background: none;
+    border: 1px solid var(--rule-ink);
+    border-radius: var(--r);
+    color: var(--ink);
+    font: 400 24px/1 var(--font);
+    cursor: pointer;
+  }
+  .cdlg-x:hover {
+    border-color: var(--ink);
+  }
+  .cdlg-p {
+    margin-top: 12px;
+    color: var(--ink-soft);
+    font-size: 17px;
+  }
+  .cdlg-form {
+    margin-top: 26px;
+  }
+</style>

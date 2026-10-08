@@ -1,0 +1,93 @@
+---
+// A project shown as a «screen in its world» panel: status, two-tone name, one fact, link.
+// Facts come from src/data/projects.ts or the caller — never invent them here.
+import MediaFrame, { type FrameScreen, type FrameWorld } from './MediaFrame.astro';
+import StatusTag from './StatusTag.astro';
+import { projectHref, type Project } from '../data/projects';
+interface Props {
+  project: Project;
+  /** One short, sourced fact (≤ 2 lines at desktop). */
+  fact: string;
+  /** Optional big line above the name (full panels), e.g. "A festival ran on it." */
+  headline?: string;
+  statusLabel?: string;
+  world?: FrameWorld;
+  material?: 'evergreen' | 'loam' | 'navy' | 'reel' | 'bone';
+  screens?: FrameScreen[];
+  size?: 'full' | 'half';
+  aspect?: string;
+  aspectM?: string;
+  credit?: string;
+  headingLevel?: 'h2' | 'h3';
+  class?: string;
+  [key: string]: unknown;
+}
+const { project: p, fact, headline, statusLabel, world, material, screens, size = 'half', aspect, aspectM, credit, headingLevel: H = 'h3', class: cls, ...rest } = Astro.props;
+---
+
+<MediaFrame {...rest} href={projectHref(p)} world={world} material={material} screens={screens} size={size} aspect={aspect} aspectM={aspectM} credit={credit} scrim={size === 'full' ? 'left' : 'bottom'} class:list={['pc', { 'pc--hl': !!headline }, cls]}>
+  <StatusTag status={p.status} label={statusLabel} class="pc-tag" />
+  {headline && <p class="t-h2 pc-hl">{headline}</p>}
+  <H class="pc-n two-tone">{p.short}<span class="d">{p.tagline}</span></H>
+  <p class="pc-f">{fact}</p>
+  {size === 'full' && <span class="pc-go t-label">Open the project <span class="ar" aria-hidden="true">→</span></span>}
+</MediaFrame>
+
+<style>
+  :global(.pc .pc-tag) {
+    margin-bottom: 14px;
+  }
+  .pc-hl {
+    margin-bottom: 18px;
+    max-width: 11ch;
+  }
+  .pc-n {
+    font-size: clamp(32px, 3vw, 52px);
+    font-weight: 500;
+    letter-spacing: -0.035em;
+    line-height: 1;
+  }
+  :global(.pc--hl) .pc-n {
+    font-size: clamp(24px, 1.9vw, 30px);
+    letter-spacing: -0.025em;
+    line-height: 1.1;
+  }
+  :global(.mf--half) .pc-n {
+    font-size: clamp(30px, 2.6vw, 44px);
+  }
+  .pc-f {
+    margin-top: 14px;
+    font-size: 17px;
+    line-height: 1.45;
+    max-width: 44ch;
+    color: var(--print);
+  }
+  .pc-go {
+    display: inline-flex;
+    gap: 8px;
+    margin-top: 16px;
+  }
+  .pc-go .ar {
+    transition: transform 0.3s var(--e-out);
+  }
+  :global(a.pc:hover) .pc-go .ar {
+    transform: translateX(6px);
+  }
+  @media (max-width: 900px) {
+    .pc-n,
+    :global(.pc--hl) .pc-n {
+    font-size: clamp(24px, 1.9vw, 30px);
+    letter-spacing: -0.025em;
+    line-height: 1.1;
+  }
+  :global(.mf--half) .pc-n {
+      font-size: 32px;
+    }
+    .pc-f {
+      font-size: 16px;
+    }
+    .pc-go {
+      display: none;
+    }
+  }
+</style>

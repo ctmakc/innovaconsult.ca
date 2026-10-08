@@ -1,0 +1,59 @@
+---
+// Corporate record as big numerals on bone: corporation number, NCAGE, D-U-N-S,
+// plus the Corporations Canada verify link (owner law: external links carry no href; data-x).
+import { SITE } from '../data/site';
+const verify = `https://ised-isde.canada.ca/cc/lgcy/fdrlCrpDtls.html?corpId=${SITE.corporationNumber.replace('-', '')}`;
+const x = Buffer.from(verify).toString('base64');
+---
+
+<div class="rid">
+  <dl class="rid-g">
+    <div><dt class="t-label">Federal corporation number</dt><dd class="tnum">{SITE.corporationNumber}</dd></div>
+    <div><dt class="t-label"><abbr title="NATO Commercial and Government Entity code">NCAGE</abbr> code, assigned by DND</dt><dd class="tnum">{SITE.ncage}</dd></div>
+    <div><dt class="t-label">D-U-N-S number</dt><dd class="tnum">{SITE.duns}</dd></div>
+  </dl>
+  <span class="lnk rid-v" role="link" tabindex="0" data-x={x}>Verify on Corporations Canada <span aria-hidden="true">↗</span></span>
+</div>
+
+<style>
+  .rid-g {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: var(--col-gap);
+    row-gap: 28px;
+    margin: 0;
+  }
+  .rid-g > div {
+    display: flex;
+    flex-direction: column-reverse;
+    justify-content: flex-end;
+    gap: 10px;
+    border-top: 2px solid currentColor;
+    padding-top: 16px;
+  }
+  dt {
+    color: var(--ink-soft);
+  }
+  :global(.tone-film) dt,
+  :global(.tone-reel) dt {
+    color: var(--ash);
+  }
+  dt abbr {
+    text-decoration: none;
+  }
+  dd {
+    margin: 0;
+    font-size: clamp(36px, 3.8vw, 62px);
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+  .rid-v {
+    margin-top: 24px;
+  }
+  @media (max-width: 900px) {
+    .rid-g {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

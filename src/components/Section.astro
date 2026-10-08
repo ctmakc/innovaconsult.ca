@@ -1,0 +1,29 @@
+---
+// Section primitive. tone: film (dark ground) · reel (raised dark) · bone (light material).
+// pad: lg = full section rhythm · md = 62% · top = top only · none.
+// inset: wrap the slot in .shell (gutter) + .inset (text inset). Set false for full-bleed frames.
+interface Props {
+  tone?: 'film' | 'reel' | 'bone';
+  pad?: 'lg' | 'md' | 'top' | 'none';
+  inset?: boolean;
+  id?: string;
+  labelledby?: string;
+  class?: string;
+  [key: string]: unknown;
+}
+const { tone = 'film', pad = 'lg', inset = true, id, labelledby, class: cls, ...rest } = Astro.props;
+---
+
+<section {...rest} id={id} aria-labelledby={labelledby} class:list={[`tone-${tone}`, pad !== 'none' && `pad-${pad}`, cls]}>
+  {
+    inset ? (
+      <div class="shell">
+        <div class="inset">
+          <slot />
+        </div>
+      </div>
+    ) : (
+      <slot />
+    )
+  }
+</section>

@@ -1,167 +1,87 @@
 ---
-import { NAV } from '../data/site';
+// v2 header: a solid 72px film bar. Brand left, five links centred, Contact (flare) right.
+// Below 1100px the links fold into a full-screen menu with big type.
 const path = Astro.url.pathname.replace(/\.html$/, '').replace(/\/$/, '') || '/';
-const isExact = (href: string) => path === href;
 const isActive = (href: string) => (href === '/' ? path === '/' : path === href || path.startsWith(href + '/'));
-/** 'page' on the exact page, 'true' on the parent of the current page, nothing otherwise. */
-const current = (href: string, section = isActive(href)) => (isExact(href) ? 'page' : section ? 'true' : undefined);
+const current = (href: string) => (path === href ? 'page' : isActive(href) ? 'true' : undefined);
 
-const capChildren = NAV.find((n) => n.children)?.children ?? [];
-const capActive = capChildren.some((c) => isActive(c.href));
-
-const mobile = [
+const NAV = [
   { href: '/projects', label: 'Projects' },
   { href: '/capabilities', label: 'Capabilities' },
-  { href: '/innovation', label: 'Innovation & R&D', sub: true },
-  { href: '/software', label: 'Software & Products', sub: true },
-  { href: '/ai-transformation', label: 'AI Transformation', sub: true },
   { href: '/workflow-os', label: 'Workflow OS' },
   { href: '/partnerships', label: 'Partnerships' },
-  { href: '/about', label: 'About' },
-  { href: '/contact', label: 'Contact' }
+  { href: '/about', label: 'About' }
 ];
+const CAP_SUB = [
+  { href: '/innovation', label: 'Innovation & R&D' },
+  { href: '/software', label: 'Software & products' },
+  { href: '/ai-transformation', label: 'AI transformation' }
+];
+const capOn = CAP_SUB.some((c) => isActive(c.href));
 ---
 
-<div class="hdr-sentinel" aria-hidden="true" data-hdr-sentinel></div>
 <header class="hdr" data-hdr>
-  <div class="wrap hdr-in">
-    <a href="/" class="brand">
-      <img src="/innova-mark.webp" width="34" height="34" alt="" />
-      <span class="brand-word">INNOVA</span>
-      <span class="brand-desc">Applied innovation<br />&amp; technology</span>
-      <span class="sr-only">, home page</span>
-    </a>
+  <a href="/" class="hdr-brand">
+    <img src="/innova-mark.webp" width="28" height="28" alt="" />
+    <span>INNOVA</span>
+    <span class="sr-only">, home page</span>
+  </a>
 
-    <nav class="nav" aria-label="Main">
-      <ul>
-        {
-          NAV.map((item) =>
-            item.children ? (
-              <li class="has-sub" data-sub>
-                <a
-                  href={item.href}
-                  class:list={['nav-a', 'nav-a--parent', { on: capActive }]}
-                  aria-current={current(item.href, capActive)}
-                >
-                  {item.label}
-                </a>
-                <button class="sub-toggle" type="button" aria-expanded="false" aria-controls="sub-cap" data-sub-btn>
-                  <span class="sr-only">Capabilities pages</span>
-                  <span class="caret" aria-hidden="true">
-                    <svg width="10" height="10" viewBox="0 0 10 10">
-                      <path d="M1.5 3.5 5 7l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.5" />
-                    </svg>
-                  </span>
-                </button>
-                <ul class="sub" id="sub-cap">
-                  {item.children.map((c) => (
-                    <li>
-                      <a href={c.href} class:list={{ on: isExact(c.href) }} aria-current={isExact(c.href) ? 'page' : undefined}>
-                        <span class="ulink">{c.label}</span>
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </li>
-            ) : (
-              <li>
-                <a href={item.href} class:list={['nav-a', { on: isActive(item.href) }]} aria-current={current(item.href)}>
-                  {item.label}
-                </a>
-              </li>
-            )
-          )
-        }
-      </ul>
-    </nav>
+  <nav class="hdr-nav" aria-label="Main">
+    {
+      NAV.map((n) => (
+        <a href={n.href} class:list={{ on: isActive(n.href) || (n.href === '/capabilities' && capOn) }} aria-current={current(n.href)}>
+          {n.label}
+        </a>
+      ))
+    }
+  </nav>
 
-    <a href="/contact" class="btn btn-primary hdr-cta" aria-current={isExact('/contact') ? 'page' : undefined}>Start a conversation</a>
-
-    <button class="menu-btn" type="button" aria-expanded="false" aria-controls="m-menu" data-menu-btn>
-      <span class="menu-label">Menu</span>
-      <span class="menu-bars" aria-hidden="true"><i></i><i></i></span>
+  <div class="hdr-r">
+    <a href="/contact" class="btn btn--flare btn--sm hdr-cta" data-open-contact aria-current={path === '/contact' ? 'page' : undefined}>Contact</a>
+    <button class="hdr-menu" type="button" aria-expanded="false" aria-controls="m-menu" data-menu-btn>
+      <span data-menu-label>Menu</span>
     </button>
-  </div>
-
-  <div class="m-menu" id="m-menu" hidden data-menu>
-    <div class="wrap">
-      <ul class="m-list">
-        {
-          mobile.map((m) => (
-            <li class:list={{ 'm-sub': m.sub }}>
-              <a href={m.href} class:list={{ on: isActive(m.href) }} aria-current={current(m.href)}>
-                {m.label}
-              </a>
-            </li>
-          ))
-        }
-      </ul>
-      <p class="m-meta">Ottawa, Ontario, Canada</p>
-    </div>
   </div>
 </header>
 
-<script>
-  const hdr = document.querySelector<HTMLElement>('[data-hdr]');
-
-  // Scrolled hairline: observe a sentinel at the top of the page instead of reading scrollY.
-  const sentinel = document.querySelector<HTMLElement>('[data-hdr-sentinel]');
-  if (hdr && sentinel && 'IntersectionObserver' in window) {
-    new IntersectionObserver(([e]) => hdr.classList.toggle('scrolled', !e.isIntersecting)).observe(sentinel);
-  }
-
-  // ── Capabilities disclosure (desktop) ────────────────────────────────────
-  const sub = document.querySelector<HTMLElement>('[data-sub]');
-  const subBtn = document.querySelector<HTMLButtonElement>('[data-sub-btn]');
-  if (sub && subBtn) {
-    const st = { hover: false, toggled: false, suppressed: false };
-    const render = () => {
-      const open = !st.suppressed && (st.hover || st.toggled);
-      sub.classList.toggle('open', open);
-      subBtn.setAttribute('aria-expanded', String(open));
-    };
-    sub.addEventListener('mouseenter', () => {
-      st.hover = true;
-      render();
-    });
-    sub.addEventListener('mouseleave', () => {
-      st.hover = false;
-      st.suppressed = false;
-      render();
-    });
-    sub.addEventListener('focusout', (e) => {
-      if (!sub.contains(e.relatedTarget as Node | null)) {
-        st.toggled = false;
-        st.suppressed = false;
-        render();
+<div class="m-menu" id="m-menu" hidden data-menu>
+  <nav aria-label="Main mobile">
+    <ul>
+      {
+        NAV.map((n) => (
+          <li>
+            <a href={n.href} aria-current={current(n.href)}>{n.label}</a>
+            {n.href === '/capabilities' && (
+              <ul class="m-sub">
+                {CAP_SUB.map((c) => (
+                  <li>
+                    <a href={c.href} aria-current={current(c.href)}>{c.label}</a>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </li>
+        ))
       }
-    });
-    subBtn.addEventListener('click', () => {
-      const open = sub.classList.contains('open');
-      st.toggled = !open;
-      st.suppressed = open;
-      render();
-    });
-    document.addEventListener('keydown', (e) => {
-      if (e.key !== 'Escape' || !sub.classList.contains('open')) return;
-      const inside = sub.contains(document.activeElement);
-      st.toggled = false;
-      st.suppressed = true;
-      render();
-      if (inside) subBtn.focus();
-    });
-  }
+      <li><a href="/contact" aria-current={current('/contact')}>Contact</a></li>
+    </ul>
+  </nav>
+  <p class="m-meta">INNOVA CONSULT LTD. · Ottawa, Ontario, Canada</p>
+</div>
 
-  // ── Mobile menu ──────────────────────────────────────────────────────────
+<script>
   const btn = document.querySelector<HTMLButtonElement>('[data-menu-btn]');
+  const label = document.querySelector<HTMLElement>('[data-menu-label]');
   const menu = document.querySelector<HTMLElement>('[data-menu]');
   const outside = () => [document.querySelector('main'), document.querySelector('footer')].filter(Boolean) as HTMLElement[];
-  const isOpen = () => btn?.getAttribute('aria-expanded') === 'true';
   const links = () => Array.from(menu?.querySelectorAll<HTMLAnchorElement>('a') ?? []);
+  const isOpen = () => btn?.getAttribute('aria-expanded') === 'true';
 
   const close = (returnFocus: boolean) => {
     if (!btn || !menu) return;
     btn.setAttribute('aria-expanded', 'false');
+    if (label) label.textContent = 'Menu';
     menu.hidden = true;
     document.documentElement.classList.remove('menu-open');
     outside().forEach((el) => (el.inert = false));
@@ -170,17 +90,16 @@ const mobile = [
   const open = () => {
     if (!btn || !menu) return;
     btn.setAttribute('aria-expanded', 'true');
+    if (label) label.textContent = 'Close';
     menu.hidden = false;
     document.documentElement.classList.add('menu-open');
     outside().forEach((el) => (el.inert = true));
     links()[0]?.focus();
   };
-
   btn?.addEventListener('click', () => (isOpen() ? close(true) : open()));
   menu?.addEventListener('click', (e) => {
     if ((e.target as Element).closest('a')) close(false);
   });
-
   document.addEventListener('keydown', (e) => {
     if (!btn || !isOpen()) return;
     if (e.key === 'Escape') {
@@ -189,7 +108,6 @@ const mobile = [
       return;
     }
     if (e.key !== 'Tab') return;
-    // Focus trap: the Menu button and the menu links form one loop.
     const all = links();
     const last = all[all.length - 1];
     const active = document.activeElement;
@@ -204,266 +122,146 @@ const mobile = [
       btn.focus();
     }
   });
-
-  const desktop = window.matchMedia('(min-width: 1021px)');
-  desktop.addEventListener('change', (e) => {
+  window.matchMedia('(min-width: 1101px)').addEventListener('change', (e) => {
     if (e.matches && isOpen()) close(false);
   });
 </script>
 
 <style>
-  .hdr-sentinel {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 1px;
-    height: 8px;
-    pointer-events: none;
-  }
   .hdr {
     position: sticky;
     top: 0;
     z-index: 50;
-    background: var(--ground);
-    border-bottom: 1px solid transparent;
-    transition: border-color var(--t-micro) var(--ease-out);
-  }
-  .hdr.scrolled {
-    border-bottom-color: var(--rule);
-  }
-  .hdr-in {
-    display: flex;
+    height: var(--hdr);
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
     align-items: center;
-    gap: 28px;
-    height: 76px;
+    padding-inline: var(--gut);
+    background: var(--film);
   }
-  .brand {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    text-decoration: none;
-    margin-right: auto;
-    min-height: 44px;
-  }
-  .brand-word {
-    font-family: var(--font-display);
-    font-weight: 600;
-    font-stretch: 125%;
-    letter-spacing: 0.16em;
-    font-size: 1.12rem;
-  }
-  .brand-desc {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    letter-spacing: 0.02em;
-    color: var(--lichen);
-    padding-left: 12px;
-    border-left: 1px solid var(--rule-strong);
-    line-height: 1.35;
-  }
-  .nav ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    gap: 4px;
-  }
-  .nav-a {
+  .hdr-brand {
+    justify-self: start;
     display: inline-flex;
-    align-items: center;
-    min-height: 44px;
-    padding: 10px 12px;
-    font-size: 0.95rem;
-    font-weight: 500;
-    text-decoration: none;
-    color: var(--lichen);
-    transition: color var(--t-micro) var(--ease-out);
-  }
-  .nav-a:hover,
-  .nav-a.on {
-    color: var(--frost);
-  }
-  .nav-a.on {
-    box-shadow: inset 0 -2px 0 var(--signal);
-  }
-  .has-sub {
-    position: relative;
-    display: flex;
-    align-items: center;
-  }
-  .nav-a--parent {
-    padding-right: 4px;
-  }
-  .sub-toggle {
-    display: inline-grid;
-    place-items: center;
-    width: 32px;
-    height: 44px;
-    padding: 0;
-    background: none;
-    border: 0;
-    color: var(--lichen);
-    cursor: pointer;
-    transition: color var(--t-micro) var(--ease-out);
-  }
-  .sub-toggle:hover,
-  .has-sub.open .sub-toggle {
-    color: var(--frost);
-  }
-  .caret svg {
-    transition: transform var(--t-micro) var(--ease-out);
-  }
-  .has-sub.open .caret svg {
-    transform: rotate(180deg);
-  }
-  .sub {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    min-width: 248px;
-    display: block !important;
-    padding: 8px 0 !important;
-    background: var(--plate);
-    border: 1px solid var(--rule-strong);
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(-4px);
-    transition:
-      opacity var(--t-micro) var(--ease-out),
-      transform var(--t-micro) var(--ease-out),
-      visibility 0s linear var(--t-micro);
-  }
-  .has-sub.open .sub,
-  :global(html:not(.js)) .has-sub:hover .sub,
-  :global(html:not(.js)) .has-sub:focus-within .sub {
-    opacity: 1;
-    visibility: visible;
-    transform: none;
-    transition-delay: 0s;
-  }
-  .sub a {
-    display: flex;
-    align-items: center;
-    min-height: 44px;
-    padding: 8px 18px;
-    text-decoration: none;
-    color: var(--lichen);
-    font-size: 0.95rem;
-    transition: color var(--t-micro) var(--ease-out);
-  }
-  .sub a:hover,
-  .sub a:focus-visible,
-  .sub a.on {
-    color: var(--frost);
-  }
-  .sub a:hover .ulink,
-  .sub a:focus-visible .ulink {
-    background-size: 100% 1px;
-  }
-  .sub a.on {
-    box-shadow: inset 2px 0 0 var(--signal);
-  }
-  /* Rings sit inside the panel and the menu rows instead of spilling over their edges. */
-  .sub a:focus-visible,
-  .m-list a:focus-visible {
-    outline-offset: -2px;
-  }
-  .hdr-cta {
-    min-height: 44px;
-    padding: 0 18px;
-    font-size: 0.92rem;
-  }
-  .menu-btn {
-    display: none;
     align-items: center;
     gap: 10px;
     min-height: 44px;
-    padding: 0 4px 0 12px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 20px;
+    letter-spacing: 0.02em;
+  }
+  .hdr-brand img {
+    width: 28px;
+    height: 28px;
+  }
+  .hdr-nav {
+    display: flex;
+    gap: clamp(8px, 1.2vw, 20px);
+  }
+  .hdr-nav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 8px;
+    font-size: 16px;
+    text-decoration: none;
+    color: var(--ash);
+    transition: color var(--t-micro) var(--e-out);
+    position: relative;
+  }
+  .hdr-nav a:hover,
+  .hdr-nav a.on {
+    color: var(--print);
+  }
+  .hdr-nav a.on::after {
+    content: '';
+    position: absolute;
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+    height: 1.5px;
+    background: var(--print);
+  }
+  .hdr-r {
+    justify-self: end;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .hdr-menu {
+    display: none;
+    align-items: center;
+    min-height: 42px;
+    min-width: 72px;
+    justify-content: center;
+    padding: 0 14px;
     background: none;
-    border: 0;
-    color: var(--frost);
-    font: 600 0.95rem var(--font-text);
+    border: 1px solid var(--rule-film);
+    border-radius: var(--r);
+    color: var(--print);
+    font: 500 15px var(--font);
     cursor: pointer;
   }
-  .menu-bars {
-    display: grid;
-    gap: 6px;
-    width: 22px;
+  .hdr-menu:hover {
+    border-color: var(--print);
   }
-  .menu-bars i {
-    display: block;
-    height: 1.5px;
-    background: currentColor;
-    transition: transform var(--t-micro) var(--ease-out);
-  }
-  .menu-btn[aria-expanded='true'] .menu-bars i:first-child {
-    transform: translateY(3.75px) rotate(45deg);
-  }
-  .menu-btn[aria-expanded='true'] .menu-bars i:last-child {
-    transform: translateY(-3.75px) rotate(-45deg);
-  }
+
   .m-menu {
     position: fixed;
-    inset: 76px 0 0 0;
-    background: var(--ground);
-    border-top: 1px solid var(--rule);
+    inset: var(--hdr) 0 0 0;
+    z-index: 49;
+    background: var(--film);
     overflow-y: auto;
     overscroll-behavior: contain;
-    padding-block: 28px 48px;
+    padding: 16px var(--gut) 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
   }
-  .m-list {
+  .m-menu ul {
     list-style: none;
     margin: 0;
     padding: 0;
   }
-  .m-list a {
+  .m-menu > nav > ul > li > a {
     display: block;
-    padding: 10px 0;
-    font-family: var(--font-display);
-    font-stretch: 112%;
-    font-weight: 480;
-    font-size: clamp(1.7rem, 7vw, 2.4rem);
-    letter-spacing: -0.014em;
-    word-spacing: 0.08em;
+    padding: 8px 0;
+    font-size: clamp(34px, 9vw, 52px);
+    font-weight: 500;
+    letter-spacing: -0.035em;
+    line-height: 1.05;
     text-decoration: none;
-    border-bottom: 1px solid var(--rule);
   }
-  .m-list .m-sub a {
-    font-size: 1.15rem;
-    font-family: var(--font-text);
-    color: var(--lichen);
-    padding: 12px 0 12px 20px;
+  .m-sub {
+    padding: 0 0 10px 2px !important;
   }
-  .m-list a[aria-current] {
-    color: var(--frost);
-    box-shadow: inset 2px 0 0 var(--signal);
-    padding-left: 14px;
+  .m-sub a {
+    display: block;
+    padding: 8px 0;
+    font-size: 19px;
+    color: var(--ash);
+    text-decoration: none;
   }
-  .m-list .m-sub a[aria-current] {
-    padding-left: 20px;
+  .m-menu a[aria-current] {
+    color: var(--flare);
   }
   .m-meta {
-    font-family: var(--font-mono);
-    font-size: 0.8125rem;
-    color: var(--lichen);
-    margin-top: 28px;
+    margin-top: 32px;
+    font-size: 15px;
+    color: var(--ash);
   }
-
-  @media (max-width: 1180px) {
-    .brand-desc {
+  @media (max-width: 1100px) {
+    .hdr {
+      grid-template-columns: 1fr auto;
+    }
+    .hdr-nav {
       display: none;
     }
-  }
-  @media (max-width: 1020px) {
-    .nav,
-    .hdr-cta {
-      display: none;
-    }
-    .menu-btn {
+    .hdr-menu {
       display: inline-flex;
     }
   }
-  @media (min-width: 1021px) {
+  @media (min-width: 1101px) {
     .m-menu {
       display: none !important;
     }

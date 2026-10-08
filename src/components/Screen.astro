@@ -1,0 +1,46 @@
+---
+// A single real product screenshot as a plate (inner pages, galleries).
+// Takes a ProofImage from src/data/projects.ts directly: <Screen img={p.images[0]} />.
+// The caption (from data) sits under the plate in sentence-case label type.
+import type { ProofImage } from '../data/projects';
+interface Props {
+  img: ProofImage;
+  kind?: 'desktop' | 'phone' | 'tablet';
+  caption?: string | false;
+  sizes?: string;
+  eager?: boolean;
+  class?: string;
+  [key: string]: unknown;
+}
+const { img, kind = 'desktop', caption, sizes = '(max-width: 900px) 100vw, 60vw', eager = false, class: cls, ...rest } = Astro.props;
+const cap = caption === false ? undefined : (caption ?? img.caption);
+---
+
+<figure {...rest} class:list={['screen', `screen--${kind}`, cls]}>
+  <img
+    class="scr-img"
+    src={img.src}
+    srcset={`${img.src800} ${Math.round(img.w / 2)}w, ${img.src} ${img.w}w`}
+    sizes={sizes}
+    alt={img.alt}
+    width={img.w}
+    height={img.h}
+    loading={eager ? 'eager' : 'lazy'}
+    decoding="async"
+  />
+  {cap && <figcaption class="t-label t-mute">{cap}</figcaption>}
+</figure>
+
+<style>
+  .screen {
+    margin: 0;
+  }
+  .screen--phone {
+    max-width: 360px;
+  }
+  figcaption {
+    margin-top: 14px;
+    max-width: 60ch;
+    font-weight: 400;
+  }
+</style>

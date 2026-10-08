@@ -2,6 +2,8 @@
 import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import CtaBlock from '../components/CtaBlock.astro';
+import ContactDialog from '../components/ContactDialog.astro';
 import { SITE } from '../data/site';
 
 interface Props {
@@ -15,9 +17,11 @@ interface Props {
   footerCta?: boolean;
   /** Trail from the home page to this page; emitted as BreadcrumbList JSON-LD. */
   breadcrumbs?: { name: string; path: string }[];
+  /** Attribution lines for third-party (CC) photos on this page; printed in the footer. */
+  credits?: string[];
 }
 
-const { title, description = SITE.defaultDescription, path, ogImage = '/og/innova-og.png', noindex = false, jsonLd = [], footerCta = true, breadcrumbs } = Astro.props;
+const { title, description = SITE.defaultDescription, path, ogImage = '/og/innova-og.png', noindex = false, jsonLd = [], footerCta = true, breadcrumbs, credits = [] } = Astro.props;
 const cleanPath = path ?? (Astro.url.pathname.replace(/\.html$/, '').replace(/\/$/, '') || '/');
 const canonical = new URL(cleanPath === '/' ? '/' : cleanPath, SITE.url).href;
 const ogUrl = new URL(ogImage, SITE.url).href;
@@ -87,7 +91,7 @@ const ld = [org, website, ...(breadcrumbLd ? [breadcrumbLd] : []), ...jsonLd];
     <meta name="description" content={description} />
     {!noindex && <link rel="canonical" href={canonical} />}
     {noindex && <meta name="robots" content="noindex" />}
-    <meta name="theme-color" content="#08161a" />
+    <meta name="theme-color" content="#0d0c0b" />
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="INNOVA" />
@@ -106,8 +110,8 @@ const ld = [org, website, ...(breadcrumbLd ? [breadcrumbLd] : []), ...jsonLd];
 
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <link rel="preload" href="/fonts/hubot-sans-normal-latin.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href="/fonts/instrument-sans-normal-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/host-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <slot name="head" />
     <link rel="sitemap" href="/sitemap-index.xml" />
 
     <script is:inline>
@@ -120,11 +124,16 @@ const ld = [org, website, ...(breadcrumbLd ? [breadcrumbLd] : []), ...jsonLd];
     <Header />
     <main id="main">
       <slot />
+      {footerCta && <CtaBlock />}
     </main>
-    <Footer showCta={footerCta} />
+    <Footer credits={credits} />
+    <ContactDialog />
 
     <script>
-      // Rows reveal by drawing their stage track once (DESIGN.md: no fade-up wallpaper).
+      import '../scripts/site';
+    </script>
+    <script>
+      // LEGACY (v1 inner pages): rows reveal by drawing their stage track once (DESIGN.md: no fade-up wallpaper).
       // Reduced motion and print get every track in its final state at once (DESIGN.md).
       const els = document.querySelectorAll<HTMLElement>('[data-draw]');
       const showAll = () => els.forEach((el) => el.classList.add('is-in'));

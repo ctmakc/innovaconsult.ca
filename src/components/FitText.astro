@@ -1,0 +1,32 @@
+---
+// Giant caps lines, each fitted to the width of its box (site.ts → fitAll()).
+// `lines` render ≥641px; `mobileLines` (optional) replace them ≤640px and share one size.
+// The accessible text is `text` (or the lines joined), read once by screen readers.
+interface Props {
+  lines: string[];
+  mobileLines?: string[];
+  text?: string;
+  as?: 'h1' | 'h2' | 'p' | 'span' | 'div';
+  id?: string;
+  class?: string;
+  /** Lines rise out of their masks on scroll (motion.ts). The hero uses CSS keyframes instead. */
+  rise?: boolean;
+  [key: string]: unknown;
+}
+const { lines, mobileLines, text, as: Tag = 'h2', id, class: cls, rise = false, ...rest } = Astro.props;
+const label = text ?? lines.join(' ');
+---
+
+<Tag {...rest} id={id} class:list={['t-giant fit-box', { 'has-m': !!mobileLines }, cls]}>
+  <span class="sr-only">{label}</span>
+  <span class="fit-d" aria-hidden="true">
+    {lines.map((l) => <span class="ln" data-mask={rise ? '' : undefined}><span class="fit" data-fit>{l}</span></span>)}
+  </span>
+  {
+    mobileLines && (
+      <span class="fit-m" aria-hidden="true">
+        {mobileLines.map((l) => <span class="ln" data-mask={rise ? '' : undefined}><span class="fit" data-fit data-fit-group="m">{l}</span></span>)}
+      </span>
+    )
+  }
+</Tag>

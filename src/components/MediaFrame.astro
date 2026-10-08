@@ -1,0 +1,249 @@
+---
+// SIGNATURE — «screen in its world». A 6px-radius frame: a world (real photo or a product
+// material) at the back, real product screens floating in front, caption bottom-left.
+// With motion on, world and screens travel at different scroll depths (motion.ts, [data-dolly]).
+//
+// Screen placement uses percentages of the frame: l | r (left/right), t (top), w (width).
+// Mobile (≤900px) overrides: lm | rm | tm | wm. depth: 1 = default travel, 1.6 = nearer (phones).
+export interface FrameScreen {
+  src: string;
+  /** Optional half-size variant for srcset. */
+  src800?: string;
+  w: number;
+  h: number;
+  alt: string;
+  kind?: 'desktop' | 'phone' | 'tablet';
+  l?: string;
+  r?: string;
+  t?: string;
+  width?: string;
+  lm?: string;
+  rm?: string;
+  tm?: string;
+  wm?: string;
+  depth?: number;
+  /** Hide this screen on phones (≤900px). */
+  desktopOnly?: boolean;
+}
+export interface FrameWorld {
+  src: string;
+  src800?: string;
+  w: number;
+  h: number;
+  /** Empty alt = decorative world. */
+  alt?: string;
+  /** object-position, e.g. "50% 30%". */
+  pos?: string;
+}
+interface Props {
+  world?: FrameWorld;
+  material?: 'evergreen' | 'loam' | 'navy' | 'reel' | 'bone';
+  screens?: FrameScreen[];
+  /** full: 16/8.6 · half: 5/4.6 · stage: 4/3 · custom via aspect. Phones: picture area aspectM (default 4/3.3), caption below it. */
+  size?: 'full' | 'half' | 'stage';
+  aspect?: string;
+  aspectM?: string;
+  /** Scrim under the caption: bottom (default) · left (full-width panels) · none. */
+  scrim?: 'bottom' | 'left' | 'none';
+  href?: string;
+  credit?: string;
+  dolly?: boolean;
+  class?: string;
+  ariaLabel?: string;
+  [key: string]: unknown;
+}
+const { world, material = 'reel', screens = [], size = 'half', aspect, aspectM, scrim = 'bottom', href, credit, dolly = true, class: cls, ariaLabel, ...rest } = Astro.props;
+const Tag = href ? 'a' : 'div';
+const AR = { full: '16 / 8.6', half: '5 / 4.6', stage: '4 / 3' } as const;
+const style = `--ar:${aspect ?? AR[size]};--ar-m:${aspectM ?? '4 / 3.3'}`;
+const pos = (s: FrameScreen) =>
+  [
+    s.l && `--l:${s.l}`,
+    s.r && `--r:${s.r}`,
+    s.t && `--t:${s.t}`,
+    s.width && `--w:${s.width}`,
+    s.lm && `--lm:${s.lm}`,
+    s.rm && `--rm:${s.rm}`,
+    s.tm && `--tm:${s.tm}`,
+    s.wm && `--wm:${s.wm}`
+  ]
+    .filter(Boolean)
+    .join(';');
+const sizes = (s: FrameScreen) => `(max-width: 900px) ${s.wm ?? '88%'}, ${s.width ?? '60%'}`;
+---
+
+<Tag {...rest} href={href} aria-label={ariaLabel} class:list={['mf frame', `mf--${size}`, `mf--scrim-${scrim}`, `mat-${material}`, cls]} style={style} data-dolly={dolly ? '' : undefined}>
+  <div class="mf-stage">
+  <div class="mf-world" aria-hidden={world?.alt ? undefined : 'true'}>
+    {
+      world && (
+        <img
+          src={world.src}
+          srcset={world.src800 ? `${world.src800} 800w, ${world.src} ${world.w}w` : undefined}
+          sizes={world.src800 ? (size === 'full' ? '100vw' : '(max-width: 900px) 100vw, 50vw') : undefined}
+          alt={world.alt ?? ''}
+          width={world.w}
+          height={world.h}
+          loading="lazy"
+          decoding="async"
+          style={world.pos ? `object-position:${world.pos}` : undefined}
+        />
+      )
+    }
+  </div>
+  {
+    screens.map((s) => (
+      <div class:list={['mf-scr', `mf-scr--${s.kind ?? 'desktop'}`, { 'mf-dsk': s.desktopOnly }]} style={pos(s)} data-depth={s.depth ?? 1}>
+        <div class="mf-lift">
+          <img
+            class="scr-img"
+            src={s.src}
+            srcset={s.src800 ? `${s.src800} ${Math.round(s.w / 2)}w, ${s.src} ${s.w}w` : undefined}
+            sizes={s.src800 ? sizes(s) : undefined}
+            alt={s.alt}
+            width={s.w}
+            height={s.h}
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+      </div>
+    ))
+  }
+  </div>
+  {Astro.slots.has('default') && <div class="mf-cap"><slot /></div>}
+  {credit && <span class="mf-credit">{credit}</span>}
+</Tag>
+
+<style>
+  .mf {
+    display: block;
+    aspect-ratio: var(--ar);
+    color: var(--print);
+    text-decoration: none;
+    background: var(--reel);
+  }
+  .mat-evergreen {
+    background: radial-gradient(120% 100% at 30% 15%, color-mix(in srgb, var(--m-evergreen) 70%, var(--print) 10%) 0%, var(--m-evergreen) 55%, color-mix(in srgb, var(--m-evergreen) 70%, var(--film)) 100%);
+  }
+  .mat-loam {
+    background: radial-gradient(120% 100% at 30% 15%, color-mix(in srgb, var(--m-loam) 80%, var(--print) 8%) 0%, var(--m-loam) 55%, var(--film) 100%);
+  }
+  .mat-navy {
+    background: radial-gradient(120% 100% at 30% 15%, color-mix(in srgb, var(--m-navy) 75%, var(--print) 10%) 0%, var(--m-navy) 55%, color-mix(in srgb, var(--m-navy) 60%, var(--film)) 100%);
+  }
+  .mat-reel {
+    background: radial-gradient(120% 90% at 30% 20%, var(--reel-2) 0%, var(--reel) 55%, var(--film) 100%);
+  }
+  .mat-bone {
+    background: var(--bone-2);
+  }
+  .mf-stage {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    isolation: isolate;
+  }
+  .mf-world {
+    position: absolute;
+    inset: -2px;
+    z-index: -2;
+    overflow: hidden;
+  }
+  .mf-world img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    will-change: transform;
+  }
+  .mf-stage::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+  }
+  .mf--scrim-bottom .mf-stage::after {
+    background: linear-gradient(180deg, rgb(13 12 11 / 0.12) 0%, rgb(13 12 11 / 0) 30%, rgb(13 12 11 / 0.4) 62%, rgb(13 12 11 / 0.92) 100%);
+  }
+  .mf--scrim-left .mf-stage::after {
+    background:
+      linear-gradient(90deg, rgb(13 12 11 / 0.9) 0%, rgb(13 12 11 / 0.6) 32%, rgb(13 12 11 / 0.06) 62%, rgb(13 12 11 / 0.2) 100%),
+      linear-gradient(0deg, rgb(13 12 11 / 0.5), rgb(13 12 11 / 0) 40%);
+  }
+  .mf-scr {
+    position: absolute;
+    z-index: 1;
+    left: var(--l, auto);
+    right: var(--r, auto);
+    top: var(--t, 10%);
+    width: var(--w, 60%);
+    will-change: transform;
+  }
+  .mf-lift {
+    transition: transform 0.55s var(--e-out);
+  }
+  a.mf:hover .mf-lift {
+    transform: translateY(-8px) scale(1.012);
+  }
+  .mf-cap {
+    position: absolute;
+    z-index: 2;
+    left: clamp(20px, 2.6vw, 44px);
+    right: clamp(20px, 2.6vw, 44px);
+    bottom: clamp(20px, 2.6vw, 40px);
+  }
+  .mf--full .mf-cap {
+    right: auto;
+    max-width: 40%;
+  }
+  .mf-credit {
+    position: absolute;
+    right: 14px;
+    bottom: 12px;
+    z-index: 2;
+    font-size: 13px;
+    color: rgb(238 234 226 / 0.78);
+  }
+  /* Phones: the picture keeps its own aspect; the caption drops below it, never over a screen. */
+  @media (max-width: 900px) {
+    .mf {
+      aspect-ratio: auto;
+      display: flex;
+      flex-direction: column;
+    }
+    .mf-stage {
+      position: relative;
+      inset: auto;
+      aspect-ratio: var(--ar-m);
+      overflow: hidden;
+    }
+    .mf-scr {
+      left: var(--lm, var(--l, auto));
+      right: var(--rm, var(--r, auto));
+      top: var(--tm, var(--t, 7%));
+      width: var(--wm, var(--w, 84%));
+    }
+    .mf-dsk {
+      display: none;
+    }
+    .mf-stage::after,
+    .mf--scrim-bottom .mf-stage::after,
+    .mf--scrim-left .mf-stage::after {
+      background: linear-gradient(180deg, rgb(13 12 11 / 0) 55%, rgb(13 12 11 / 0.55) 100%);
+    }
+    .mf-cap,
+    .mf--full .mf-cap {
+      position: relative;
+      left: auto;
+      right: auto;
+      bottom: auto;
+      max-width: none;
+      padding: 22px 20px 26px;
+    }
+    .mf-credit {
+      top: 12px;
+      bottom: auto;
+    }
+  }
+</style>

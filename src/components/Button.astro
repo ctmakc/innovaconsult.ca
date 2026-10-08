@@ -1,0 +1,32 @@
+---
+// One button/link look for the whole site.
+// variant: flare (the one accent, max 1–2 per viewport) · ghost (on photos/film) · ink (on bone) · print (light on film)
+// openContact: opens the contact dialog when JS runs; otherwise follows href (default /contact).
+interface Props {
+  href?: string;
+  variant?: 'flare' | 'ghost' | 'ink' | 'print';
+  size?: 'md' | 'sm';
+  type?: 'button' | 'submit';
+  arrow?: boolean;
+  openContact?: boolean;
+  class?: string;
+  [key: string]: unknown;
+}
+const { href, variant = 'flare', size = 'md', type = 'button', arrow = true, openContact = false, class: cls, ...rest } = Astro.props;
+const classes = ['btn', `btn--${variant}`, { 'btn--sm': size === 'sm' }, cls];
+const link = href ?? (openContact ? '/contact' : undefined);
+---
+
+{
+  link ? (
+    <a href={link} class:list={classes} data-open-contact={openContact ? '' : undefined} {...rest}>
+      <slot />
+      {arrow && <span class="ar" aria-hidden="true">→</span>}
+    </a>
+  ) : (
+    <button type={type} class:list={classes} {...rest}>
+      <slot />
+      {arrow && <span class="ar" aria-hidden="true">→</span>}
+    </button>
+  )
+}

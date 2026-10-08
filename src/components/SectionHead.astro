@@ -1,0 +1,75 @@
+---
+// Section heading. layout "split": big title left (7 cols), lede + link right (4 cols), bottoms aligned.
+// layout "stack": label, title, lede under each other. Title size: display (default) or h2.
+interface Props {
+  title: string;
+  id?: string;
+  label?: string;
+  lede?: string;
+  link?: { href: string; label: string };
+  layout?: 'split' | 'stack';
+  size?: 'display' | 'h2';
+  as?: 'h1' | 'h2';
+  class?: string;
+  [key: string]: unknown;
+}
+const { title, id, label, lede, link, layout = 'split', size = 'display', as: Tag = 'h2', class: cls, ...rest } = Astro.props;
+const hasSide = !!(lede || link || Astro.slots.has('default'));
+---
+
+<div {...rest} class:list={['sh', `sh--${layout}`, cls]}>
+  <div class="sh-t">
+    {label && <p class="t-label t-mute sh-l">{label}</p>}
+    <Tag id={id} class:list={[size === 'display' ? 't-display' : 't-h2']} data-rise>{title}</Tag>
+  </div>
+  {
+    hasSide && (
+      <div class="sh-s">
+        {lede && <p class="t-lede t-mute">{lede}</p>}
+        <slot />
+        {link && (
+          <a class="lnk sh-k" href={link.href}>
+            {link.label} <span class="ar" aria-hidden="true">→</span>
+          </a>
+        )}
+      </div>
+    )
+  }
+</div>
+
+<style>
+  .sh {
+    margin-bottom: clamp(36px, 4.4vw, 72px);
+  }
+  .sh--split {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--col-gap);
+    row-gap: 22px;
+    align-items: end;
+  }
+  .sh--split .sh-t {
+    grid-column: 1 / span 7;
+  }
+  .sh--split .sh-s {
+    grid-column: 9 / span 4;
+  }
+  .sh--stack .sh-s {
+    margin-top: 24px;
+  }
+  .sh-l {
+    margin-bottom: 20px;
+  }
+  .sh-s .t-lede {
+    font-size: clamp(18px, 1.35vw, 21px);
+  }
+  .sh-k {
+    margin-top: 18px;
+  }
+  @media (max-width: 900px) {
+    .sh--split .sh-t,
+    .sh--split .sh-s {
+      grid-column: 1 / -1;
+    }
+  }
+</style>
