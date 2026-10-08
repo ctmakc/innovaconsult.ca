@@ -1,7 +1,14 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import PageHead from '../components/PageHead.astro';
-import StatusChip from '../components/StatusChip.astro';
+import CapHead from '../components/cap/CapHead.astro';
+import MediaFrame from '../components/MediaFrame.astro';
+import StatusTag from '../components/StatusTag.astro';
+import Button from '../components/Button.astro';
+import SectionHead from '../components/SectionHead.astro';
+import Brief from '../components/cap/Brief.astro';
+import Thumbs from '../components/cap/Thumbs.astro';
+import CapNext from '../components/cap/CapNext.astro';
+import { SHOT } from '../components/cap/media';
 import { visibleProjects } from '../data/projects';
 
 const kinds = [
@@ -14,6 +21,7 @@ const kinds = [
   ['Prototypes', 'A working version in weeks, for users, investors or a funding application.'],
   ['Modernization', 'Moving legacy systems to maintainable, secure, documented software.']
 ];
+
 const flow = [
   ['Define', 'What the software must change'],
   ['Prototype', 'A version people can click'],
@@ -22,9 +30,9 @@ const flow = [
   ['Integrate', 'Joined to the systems you run'],
   ['Operate', 'Monitored, fixed and improved']
 ];
-const order = ['uafest', 'foundwall', 'aicrmius', 'babakokum'];
-const proof = order.map((s) => visibleProjects.find((p) => p.slug === s)).filter((p) => p !== undefined);
 
+const order = ['uafest', 'foundwall', 'babakokum', 'aicrmius'];
+const proof = order.map((s) => visibleProjects.find((p) => p.slug === s)).filter((p) => p !== undefined);
 ---
 
 <BaseLayout
@@ -36,38 +44,49 @@ const proof = order.map((s) => visibleProjects.find((p) => p.slug === s)).filter
     { name: 'Capabilities', path: '/capabilities' },
     { name: 'Software & Products', path: '/software' }
   ]}
-  footerCta={false}
 >
-  <PageHead
+  <CapHead
     crumb="Software & Products"
     title="Custom software, designed around outcomes."
     lede="We define what the software must change, prove it with a prototype, then build, integrate and keep it running."
+  >
+    <MediaFrame
+      slot="media"
+      size="full"
+      scrim="left"
+      material="loam"
+      aspectM="4 / 3.9"
+      screens={[
+        { ...SHOT.uafestApps, l: '36%', t: '7%', width: '43%', lm: '4%', tm: '6%', wm: '74%' },
+        { ...SHOT.foundwallHome, l: '57%', t: '39%', width: '40%', lm: '34%', tm: '40%', wm: '62%', depth: 1.25 },
+        { ...SHOT.foundwallPhone, kind: 'phone', l: '84%', t: '7%', width: '10.5%', lm: '74%', tm: '8%', wm: '22%', depth: 1.7 }
+      ]}
+    >
+      <div class="sw-cap">
+        <p class="sw-live"><StatusTag status="live" label="In use today" /></p>
+        <p class="t-h3 two-tone">UAFest and FoundWall<span class="d">Festival operations platform · Lost &amp; found network</span></p>
+        <p class="sw-f">The 13 September 2026 festival ran on UAFest. FoundWall’s web platform is live, with iOS and Android apps in public beta.</p>
+      </div>
+    </MediaFrame>
+  </CapHead>
+
+  <Brief
+    text="INNOVA designs and builds custom software in Ottawa: operations platforms, internal tools, SaaS, AI-enabled products and iOS and Android apps, in TypeScript, Python and Postgres. Every build starts with a working prototype. Live examples: the UAFest festival operations platform and FoundWall, a Canada-first lost-and-found network."
   />
 
-  <section class="brief" aria-labelledby="brief-h">
-    <div class="wrap grid12">
-      <p class="brief-l" id="brief-h">In brief</p>
-      <p class="brief-t">
-        INNOVA designs and builds custom software in Ottawa: operations platforms, internal tools, SaaS, AI-enabled products and iOS and Android
-        apps, in TypeScript, Python and Postgres. Every build starts with a working prototype. Live examples: the UAFest festival operations
-        platform and FoundWall, a Canada-first lost-and-found network.
-      </p>
-    </div>
-  </section>
-
-  <section class="section" aria-labelledby="flow-h">
-    <div class="wrap">
-      <h2 class="sr-only" id="flow-h">How a build runs</h2>
-      <ol class="ln" data-draw>
-        <span class="ln-base" aria-hidden="true"></span>
-        <span class="ln-rail" aria-hidden="true"></span>
+  <!-- How a build runs: six verbs, one row -->
+  <section class="flow shell" aria-labelledby="flow-h">
+    <div class="inset">
+      <h2 id="flow-h" class="t-label t-mute flow-k">How a build runs</h2>
+      <ol class="flow-g">
         {
           flow.map(([t, d], i) => (
-            <li class="ln-st" style={`--i:${i}`}>
-              <span class="ln-ring" aria-hidden="true" />
-              <span class="ln-n">{i + 1}</span>
-              <span class="ln-h">{t}</span>
-              <span class="ln-d">{d}</span>
+            <li data-mask>
+              <span class="flow-w">
+                <span class="flow-n tnum">{i + 1}</span>
+                <span class="flow-t">{t}</span>
+                <span class="flow-d">{d}</span>
+              </span>
             </li>
           ))
         }
@@ -75,307 +94,196 @@ const proof = order.map((s) => visibleProjects.find((p) => p.slug === s)).filter
     </div>
   </section>
 
-  <section class="section">
-    <div class="wrap">
-      <div class="grid12 sec-head">
-        <div class="sh-l"><h2 class="d-l">What we build.</h2></div>
-        <p class="body sh-r">TypeScript, Python, Postgres and native mobile, with security, permissions and audit designed in.</p>
-      </div>
-      <div class="kinds">
-        {
-          kinds.map(([t, d]) => (
-            <div>
-              <h3 class="d-m">{t}</h3>
-              <p class="body">{d}</p>
-            </div>
-          ))
-        }
-      </div>
-      <p class="kinds-note">AI models run under your own licence and tenant. We configure what you already own before adding a new vendor.</p>
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="wrap grid12">
-      <div class="pt-l">
-        <h2 class="d-l">Prototype first.</h2>
-        <p class="lede pt-p">
-          INNOVA can turn a research concept or an operational problem into a working prototype before anyone commits to a full build.
-        </p>
-        <p class="body">
-          For funded projects this means the first milestone is something a reviewer can click, and every later milestone is measured against it.
-        </p>
-        <a href="/contact?topic=product" class="btn btn-primary pt-cta">Start with a prototype <span class="arr" aria-hidden="true">→</span></a>
-      </div>
-      <div class="pt-r">
-        <h3 class="pt-h">Our work</h3>
-        <ul class="pt-list">
+  <!-- What we build: eight kinds, on bone -->
+  <section class="kinds tone-bone" aria-labelledby="kinds-h">
+    <div class="shell">
+      <div class="inset">
+        <SectionHead id="kinds-h" title="What we build." lede="TypeScript, Python, Postgres and native mobile, with security, permissions and audit designed in." size="h2" />
+        <ul class="kinds-g">
           {
-            proof.map((p) => (
+            kinds.map(([t, d]) => (
               <li>
-                <a href={p.internal ?? `/projects/${p.slug}`} class="ulink">
-                  {p.name}
-                </a>
-                <StatusChip status={p.status} />
+                <h3 class="t-h4">{t}</h3>
+                <p>{d}</p>
               </li>
             ))
           }
         </ul>
-        <a class="arrow-link pt-all" href="/projects"><span>All projects</span><span aria-hidden="true">→</span></a>
+        <p class="kinds-note">AI models run under your own licence and tenant. We configure what you already own before adding a new vendor.</p>
       </div>
     </div>
   </section>
+
+  <!-- Prototype first + the work that proves it -->
+  <section class="pt shell" aria-labelledby="pt-h">
+    <div class="inset pt-g">
+      <div class="pt-l">
+        <h2 id="pt-h" class="t-display pt-h" data-rise>Prototype first.</h2>
+        <p class="t-lede pt-lede">INNOVA can turn a research concept or an operational problem into a working prototype before anyone commits to a full build.</p>
+        <p class="pt-p t-mute">For funded projects this means the first milestone is something a reviewer can click, and every later milestone is measured against it.</p>
+        <Button href="/contact?topic=product" variant="flare" class="pt-cta">Start with a prototype</Button>
+      </div>
+      <div class="pt-r">
+        <Thumbs projects={proof} label="Our work" cols={2} />
+        <a class="lnk pt-all" href="/projects">All projects <span class="ar" aria-hidden="true">→</span></a>
+      </div>
+    </div>
+  </section>
+
+  <CapNext current="software" />
 </BaseLayout>
 
 <style>
-  .brief {
-    padding-block: clamp(36px, 4vw, 60px);
-    border-bottom: 1px solid var(--rule);
+  /* head frame caption */
+  .sw-live {
+    margin-bottom: 14px;
   }
-  .brief-l {
-    grid-column: 1 / span 3;
-    margin: 0;
-    padding-top: 5px;
-    font-family: var(--font-mono);
-    font-size: 0.8125rem;
-    color: var(--lichen);
+  .sw-cap .t-h3 {
+    font-size: clamp(30px, 3vw, 52px);
   }
-  .brief-t {
-    grid-column: 4 / span 7;
-    margin: 0;
-    max-width: 64ch;
-    color: var(--frost);
-    font-size: clamp(1.02rem, 0.96rem + 0.25vw, 1.15rem);
-    line-height: 1.6;
+  .sw-cap .two-tone .d {
+    font-size: clamp(17px, 1.3vw, 21px);
+    letter-spacing: 0;
+    line-height: 1.35;
+    margin-top: 8px;
+  }
+  .sw-f {
+    margin-top: 14px;
+    font-size: 16px;
+    line-height: 1.45;
+    color: var(--ash);
+    max-width: 44ch;
   }
 
-  /* The line: 2px signal rail through 10px rings, last station filled. Vertical at ≤860 (covers phones and small tablets). */
-  .ln {
-    --n: 6;
+  /* how a build runs */
+  .flow {
+    padding-bottom: var(--sec);
+  }
+  .flow-k {
+    margin-bottom: clamp(20px, 2vw, 32px);
+  }
+  .flow-g {
     list-style: none;
     margin: 0;
     padding: 0;
-    position: relative;
     display: grid;
-    grid-template-columns: repeat(var(--n), minmax(0, 1fr));
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 36px var(--col-gap);
   }
-  .ln-base,
-  .ln-rail {
-    position: absolute;
-    top: 4px;
-    left: 5px;
-    right: calc(100% / var(--n) - 5px);
-    height: 2px;
+  .flow-g li {
+    overflow: hidden;
   }
-  .ln-base {
-    background: var(--rule-strong);
+  .flow-w {
+    display: grid;
+    gap: 8px;
   }
-  .ln-rail {
-    background: var(--signal);
-    transform-origin: left center;
+  .flow-n {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--ash);
   }
-  .ln-st {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    padding: 30px clamp(12px, 1.6vw, 24px) 0 0;
+  .flow-t {
+    font-size: clamp(30px, 2.9vw, 50px);
+    font-weight: 500;
+    letter-spacing: -0.04em;
+    line-height: 1;
   }
-  .ln-ring {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    border: 2px solid var(--signal);
-    background: var(--ground);
-  }
-  .ln-st:last-child .ln-ring {
-    background: var(--signal);
-  }
-  .ln-n {
-    margin-bottom: 10px;
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    color: var(--lichen);
-  }
-  .ln-h {
-    font-family: var(--font-display);
-    font-stretch: 112%;
-    font-weight: 470;
-    font-size: clamp(1.2rem, 0.9rem + 1.1vw, 2rem);
-    letter-spacing: -0.02em;
-    line-height: 1.05;
-  }
-  .ln-d {
-    margin-top: 10px;
-    color: var(--lichen);
-    font-size: 0.9375rem;
-    line-height: 1.45;
-  }
-  @media (prefers-reduced-motion: no-preference) {
-    .ln-rail {
-      transition: transform var(--t-draw) var(--ease-in-out);
-    }
-    .ln-ring {
-      transition:
-        border-color 300ms var(--ease-out),
-        background-color 300ms var(--ease-out);
-      transition-delay: calc(var(--i) * 180ms + 180ms);
-    }
-    :global(.js) .ln:not(.is-in) .ln-rail {
-      transform: scaleX(0);
-    }
-    :global(.js) .ln:not(.is-in) .ln-ring {
-      border-color: var(--rule-strong);
-      background: var(--ground);
-    }
-  }
-  @media (max-width: 860px) {
-    .ln {
-      grid-template-columns: 1fr;
-    }
-    /* Vertical: one segment per gap, ring centre to ring centre, so the line never floats free. */
-    .ln-base,
-    .ln-rail {
-      display: none;
-    }
-    .ln-st {
-      display: grid;
-      grid-template-columns: 28px minmax(0, 1fr);
-      column-gap: 0;
-      padding: 0 0 24px 22px;
-    }
-    .ln-st:last-child {
-      padding-bottom: 0;
-    }
-    .ln-st:not(:last-child)::before,
-    .ln-st:not(:last-child)::after {
-      content: '';
-      position: absolute;
-      left: 8px;
-      top: 12px;
-      bottom: -12px;
-      width: 2px;
-    }
-    .ln-st:not(:last-child)::before {
-      background: var(--rule-strong);
-    }
-    .ln-st:not(:last-child)::after {
-      background: var(--signal);
-      transform-origin: center top;
-    }
-    .ln-ring {
-      left: 4px;
-      top: 7px;
-      z-index: 1;
-    }
-    .ln-n {
-      grid-column: 1;
-      grid-row: 1;
-      margin: 0;
-      padding-top: 5px;
-    }
-    .ln-h {
-      grid-column: 2;
-      font-size: 22px;
-      font-weight: 470;
-    }
-    .ln-d {
-      grid-column: 2;
-      margin-top: 4px;
-    }
-  }
-  @media (max-width: 860px) and (prefers-reduced-motion: no-preference) {
-    .ln-st::after {
-      transition: transform 420ms var(--ease-in-out);
-      transition-delay: calc(var(--i) * 180ms);
-    }
-    :global(.js) .ln:not(.is-in) .ln-st::after {
-      transform: scaleY(0);
-    }
+  .flow-d {
+    font-size: 16px;
+    line-height: 1.4;
+    color: var(--ash);
+    max-width: 18ch;
   }
 
+  /* kinds */
   .kinds {
+    padding-block: var(--sec);
+  }
+  .kinds-g {
+    list-style: none;
+    margin: 0;
+    padding: 0;
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 0 clamp(20px, 2.4vw, 40px);
+    gap: clamp(36px, 4vw, 64px) var(--col-gap);
   }
-  .kinds > div {
-    padding: 24px 0 30px;
-    border-top: 1px solid var(--rule);
+  .kinds-g h3 {
+    margin-bottom: 12px;
   }
-  .kinds h3 {
-    margin-bottom: 10px;
-  }
-  .kinds {
-    border-bottom: 1px solid var(--rule);
+  .kinds-g p {
+    font-size: 17px;
+    line-height: 1.5;
+    color: var(--ink-soft);
+    max-width: 30ch;
   }
   .kinds-note {
-    margin: 26px 0 0;
-    max-width: 70ch;
-    color: var(--frost);
-    font-size: clamp(1.02rem, 0.96rem + 0.25vw, 1.15rem);
+    margin-top: clamp(48px, 5vw, 80px);
+    max-width: 52ch;
+    font-size: clamp(19px, 1.5vw, 23px);
+    line-height: 1.42;
+    color: var(--ink);
+  }
+
+  /* prototype first */
+  .pt {
+    padding-top: var(--sec);
+  }
+  .pt-g {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--col-gap);
+    row-gap: 56px;
+    align-items: start;
   }
   .pt-l {
-    grid-column: 1 / span 6;
-  }
-  .pt-p {
-    margin: 22px 0 18px;
-  }
-  .pt-cta {
-    margin-top: 30px;
-  }
-  .pt-r {
-    grid-column: 8 / span 5;
+    grid-column: 1 / span 5;
+    position: sticky;
+    top: calc(var(--hdr) + 40px);
   }
   .pt-h {
-    margin: 0 0 14px;
-    font-family: var(--font-mono);
-    font-size: 0.8125rem;
-    font-weight: 400;
-    color: var(--lichen);
+    font-size: clamp(52px, 6.4vw, 108px);
   }
-  .pt-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    border-bottom: 1px solid var(--rule);
+  .pt-lede {
+    margin-top: 28px;
   }
-  .pt-list li {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 16px;
-    padding: 16px 0;
-    border-top: 1px solid var(--rule);
-    font-size: 1.05rem;
+  .pt-p {
+    margin-top: 18px;
+    max-width: 44ch;
+  }
+  .pt-l :global(.pt-cta) {
+    margin-top: 32px;
+  }
+  .pt-r {
+    grid-column: 7 / span 6;
+  }
+  .pt-r :global(.th-n) {
+    font-size: 21px;
   }
   .pt-all {
-    margin-top: 22px;
+    margin-top: 28px;
   }
-  @media (max-width: 980px) {
-    .brief-l,
-    .brief-t {
-      grid-column: 1 / -1;
+
+  @media (max-width: 1100px) {
+    .flow-g {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
-    .brief-l {
-      margin-bottom: 12px;
-      padding-top: 0;
-    }
-    .kinds {
+    .kinds-g {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
+  }
+  @media (max-width: 900px) {
     .pt-l,
     .pt-r {
       grid-column: 1 / -1;
-    }
-    .pt-r {
-      margin-top: 48px;
+      position: static;
     }
   }
-  @media (max-width: 640px) {
-    .kinds {
+  @media (max-width: 560px) {
+    .flow-g {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 28px var(--col-gap);
+    }
+    .kinds-g {
       grid-template-columns: 1fr;
     }
   }

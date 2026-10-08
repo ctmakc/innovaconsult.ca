@@ -1,9 +1,15 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import PageHead from '../components/PageHead.astro';
-import StageTrack from '../components/StageTrack.astro';
-import StatusChip from '../components/StatusChip.astro';
-import { visibleProjects, DOMAINS, STATUS_STAGE } from '../data/projects';
+import CapHead from '../components/cap/CapHead.astro';
+import MediaFrame from '../components/MediaFrame.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import StatusTag from '../components/StatusTag.astro';
+import Button from '../components/Button.astro';
+import SectionHead from '../components/SectionHead.astro';
+import Brief from '../components/cap/Brief.astro';
+import CapNext from '../components/cap/CapNext.astro';
+import { SHOT, RIDEAU_CREDIT } from '../components/cap/media';
+import { visibleProjects, projectHref, type Project } from '../data/projects';
 import { STAGES, type Span } from '../data/stages';
 
 // Brand spelling and Canadian spelling for text that comes from shared project data.
@@ -30,9 +36,10 @@ const tracks: { name: string; span: Span; line: string; items: string[] }[] = [
   }
 ];
 const spanLabel = (s: Span) => (s[0] === s[1] ? STAGES[s[0]].label : `${STAGES[s[0]].label} → ${STAGES[s[1]].label}`);
-const domainLabel = (d: string) => DOMAINS.find((x) => x.key === d)?.label ?? d;
 
 const bench = visibleProjects.filter((p) => ['prototype', 'research', 'exploring'].includes(p.status));
+const P = Object.fromEntries(bench.map((p) => [p.slug, p])) as Record<string, Project>;
+const textOnly = bench.filter((p) => !['workflow-os', 'openfield'].includes(p.slug));
 
 const funded = [
   'A written technical question and the uncertainty behind it.',
@@ -42,7 +49,6 @@ const funded = [
 ];
 
 const publicSector = ['Digital services', 'Workflow automation', 'Knowledge systems', 'AI-assisted operations', 'Data platforms', 'Public-facing digital tools', 'R&D pilots', 'Technology modernization', 'Dual-use technology'];
-
 ---
 
 <BaseLayout
@@ -54,343 +60,450 @@ const publicSector = ['Digital services', 'Workflow automation', 'Knowledge syst
     { name: 'Capabilities', path: '/capabilities' },
     { name: 'Innovation & R&D', path: '/innovation' }
   ]}
-  footerCta={false}
+  credits={[RIDEAU_CREDIT]}
 >
-  <PageHead
+  <CapHead
     crumb="Innovation & R&D"
     title="Applied R&D where technology creates new economic value."
     lede="Applied R&D at INNOVA is small, fast and evidence-first: a clear question, a working prototype and an honest answer about what to do next."
+  >
+    <MediaFrame
+      slot="media"
+      size="full"
+      scrim="left"
+      href={P.openfield ? projectHref(P.openfield) : '/projects/openfield'}
+      world={{ src: '/img/field-robot.webp', src800: '/img/field-robot-800.webp', w: 1376, h: 768, pos: '50% 62%' }}
+      aspectM="4 / 3.7"
+      screens={[
+        { ...SHOT.openfieldToday, l: '41%', t: '8%', width: '44%', lm: '5%', tm: '7%', wm: '72%' },
+        { ...SHOT.openfieldPhone, kind: 'phone', l: '81.5%', t: '20%', width: '14%', lm: '69%', tm: '22%', wm: '26%', depth: 1.6 }
+      ]}
+    >
+      <p class="in-k t-label">On the bench now</p>
+      <StatusTag status="prototype" label="Prototype · demo data" class="in-tag" />
+      <p class="in-n two-tone">OpenField<span class="d">Ag-robot fleet logbook</span></p>
+      <p class="in-f">Field validation is planned for the 2027 season, with Ontario dealers and growers running robots from more than one manufacturer.</p>
+      <span class="in-go t-label">Open the project <span class="ar" aria-hidden="true">→</span></span>
+    </MediaFrame>
+  </CapHead>
+
+  <Brief
+    text="INNOVA runs small, evidence-first applied R&D from Ottawa: a written hypothesis, a working prototype, experiments with real data and a technical and business feasibility answer. Work that passes moves to an MVP, pilots with industry partners and the Canadian market. On the bench now: OpenField, a prototype logbook for agricultural robot fleets, heading to field validation in 2027."
   />
 
-  <section class="brief" aria-labelledby="brief-h">
-    <div class="wrap grid12">
-      <p class="brief-l" id="brief-h">In brief</p>
-      <p class="brief-t">
-        INNOVA runs small, evidence-first applied R&amp;D from Ottawa: a written hypothesis, a working prototype, experiments with real data and a
-        technical and business feasibility answer. Work that passes moves to an MVP, pilots with industry partners and the Canadian market. On the
-        bench now: OpenField, a prototype logbook for agricultural robot fleets, heading to field validation in 2027.
-      </p>
+  <!-- Three tracks -->
+  <section class="tracks shell" aria-label="Three tracks">
+    <ol class="tr-g">
+      {
+        tracks.map((t, i) => (
+          <li class="tr frame">
+            <p class="t-label t-mute tr-span">
+              <span class="tnum">{String(i + 1).padStart(2, '0')}</span>
+              <span>{spanLabel(t.span)}</span>
+            </p>
+            <h2 class="tr-n" data-rise>{t.name}</h2>
+            <p class="tr-line">{t.line}</p>
+            <ul class="tr-items">
+              {t.items.map((x) => (
+                <li>{x}</li>
+              ))}
+            </ul>
+          </li>
+        ))
+      }
+    </ol>
+  </section>
+
+  <!-- Funded project, on bone -->
+  <section class="fd tone-bone" id="funded" aria-labelledby="fd-h">
+    <div class="shell">
+      <div class="inset">
+        <SectionHead id="fd-h" title="What a funded project with INNOVA looks like" lede="Four parts, written before the work starts and reported against when it ends." size="h2">
+          <Button href="/contact?topic=rd" variant="ink" class="fd-cta">Discuss a project</Button>
+        </SectionHead>
+        <ol class="fd-g">
+          {
+            funded.map((f, i) => (
+              <li>
+                <span class="fd-n tnum">{i + 1}</span>
+                <span class="fd-t">{f}</span>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
     </div>
   </section>
 
-  {
-    tracks.map((t) => (
-      <section class="section">
-        <div class="wrap grid12">
-          <div class="tr-l">
-            <p class="tr-meta">Track · {spanLabel(t.span)}</p>
-            <h2 class="d-l">{t.name}</h2>
-            <p class="lede tr-line">{t.line}</p>
-            <StageTrack span={t.span} caption={false} />
-          </div>
-          <ul class="tr-items">
-            {t.items.map((x) => (
-              <li>{x}</li>
-            ))}
-          </ul>
-        </div>
-      </section>
-    ))
-  }
-
-  <section class="section" id="funded">
-    <div class="wrap">
-      <div class="grid12 sec-head">
-        <div class="sh-l"><h2 class="d-l">What a funded project with INNOVA looks like</h2></div>
-        <div class="sh-r">
-          <p class="body fd-p">Four parts, written before the work starts and reported against when it ends.</p>
-          <a href="/contact?topic=rd" class="btn btn-primary">Discuss a project <span class="arr" aria-hidden="true">→</span></a>
-        </div>
-      </div>
-      <ol class="ln" data-draw>
-        <span class="ln-base" aria-hidden="true"></span>
-        <span class="ln-rail" aria-hidden="true"></span>
+  <!-- On the bench -->
+  <section class="bench shell" id="bench" aria-labelledby="bench-h">
+    <div class="inset">
+      <SectionHead id="bench-h" title="On the bench now." lede="Current research, prototypes and early explorations, each with its real status." link={{ href: '/projects', label: 'All projects' }} />
+    </div>
+    <div class="bench-g">
+      {
+        P['workflow-os'] && (
+          <ProjectCard
+            project={P['workflow-os']}
+            statusLabel="Prototype · demo data"
+            material="navy"
+            fact="Online since 1 October 2026 as an invite-only demo with a fictional 30-person services firm and 15 mapped workflows."
+            screens={[{ ...SHOT.wosDesigner, l: '8%', t: '7%', width: '64%', lm: '6%', tm: '9%', wm: '84%' }]}
+          />
+        )
+      }
+      {
+        P.openfield && (
+          <ProjectCard
+            project={P.openfield}
+            statusLabel="Prototype · demo data"
+            material="loam"
+            fact="Lab prototype tested on demo and simulated data. Field validation is planned for the 2027 growing season."
+            screens={[{ ...SHOT.openfieldReport, l: '28%', t: '7%', width: '64%', lm: '10%', tm: '9%', wm: '84%' }]}
+          />
+        )
+      }
+      <ul class="bench-t">
         {
-          funded.map((f, i) => (
-            <li class="ln-st" style={`--i:${i}`}>
-              <span class="ln-ring" aria-hidden="true" />
-              <span class="ln-n">{i + 1}</span>
-              <span class="ln-h">{f}</span>
+          textOnly.map((p) => (
+            <li>
+              <a class="bt frame" href={projectHref(p)}>
+                <StatusTag status={p.status} />
+                <span class="bt-n two-tone">
+                  {fix(p.short)}
+                  <span class="d">{fix(p.tagline ?? '')}</span>
+                </span>
+                <span class="bt-s">{fix(p.summary)}</span>
+                <span class="bt-go t-label">
+                  Open <span class="ar" aria-hidden="true">→</span>
+                </span>
+              </a>
             </li>
           ))
         }
-      </ol>
+      </ul>
     </div>
   </section>
 
-  <section class="section" id="bench">
-    <div class="wrap">
-      <div class="grid12 sec-head">
-        <div class="sh-l"><h2 class="d-l">On the bench now.</h2></div>
-        <p class="body sh-r">Current research, prototypes and early explorations, each with its status and its place on the stage line.</p>
+  <!-- Public sector: Rideau Canal at night -->
+  <section class="ps shell" id="public-sector" aria-labelledby="ps-h">
+    <div class="ps-f frame" data-dolly-bg>
+      <div class="ps-world" aria-hidden="true">
+        <img src="/img/rideau-night.webp" srcset="/img/rideau-night-1200.webp 1200w, /img/rideau-night.webp 2400w" sizes="100vw" alt="" width="2400" height="1600" loading="lazy" decoding="async" />
       </div>
-      <div class="rows">
-        {
-          bench.map((p) => (
-            <a class="row" href={p.internal ?? `/projects/${p.slug}`}>
-              <div>
-                <p class="bn-meta">
-                  {p.code} · {domainLabel(p.domain)}
-                </p>
-                <h3 class="d-m row-title">{fix(p.name)}</h3>
-              </div>
-              <p class="body">{fix(p.summary)}</p>
-              <div class="bn-st">
-                <StatusChip status={p.status} />
-                <StageTrack at={STATUS_STAGE[p.status]} status={p.status} caption={false} />
-              </div>
-            </a>
-          ))
-        }
+      <div class="ps-top">
+        <h2 id="ps-h" class="t-display ps-h" data-rise>Public sector &amp; strategic innovation.</h2>
+      </div>
+      <div class="ps-b">
+        <div class="ps-l">
+          <p class="ps-p">
+            Technology for complex operational environments. INNOVA is building its place in Canada’s public-sector and innovation ecosystem through innovation program applications, responses to public requests for information and
+            proposals for joint R&amp;D.
+          </p>
+          <a href="/contact?topic=public-sector" class="lnk ps-k">Write to us about public-sector work <span class="ar" aria-hidden="true">→</span></a>
+        </div>
+        <ul class="ps-list" aria-label="Areas of public-sector work">
+          {publicSector.map((x) => <li>{x}</li>)}
+        </ul>
       </div>
     </div>
   </section>
 
-  <section class="section" id="public-sector">
-    <div class="wrap grid12">
-      <div class="ps-l">
-        <h2 class="d-l">Public sector &amp; strategic innovation.</h2>
-        <p class="body ps-p">
-          Technology for complex operational environments. INNOVA is building its place in Canada’s public-sector and innovation ecosystem through
-          innovation program applications, responses to public requests for information and proposals for joint R&amp;D.
-        </p>
-        <a href="/contact?topic=public-sector" class="arrow-link">
-          <span>Write to us about public-sector work</span>
-          <span aria-hidden="true">→</span>
-        </a>
-      </div>
-      <ul class="ps-list">{publicSector.map((x) => <li>{x}</li>)}</ul>
-    </div>
-  </section>
+  <CapNext current="rd" />
 </BaseLayout>
 
 <style>
-  .brief {
-    padding-block: clamp(36px, 4vw, 60px);
-    border-bottom: 1px solid var(--rule);
+  /* head frame caption */
+  .in-k {
+    margin-bottom: 18px;
+    color: var(--ash);
   }
-  .brief-l {
-    grid-column: 1 / span 3;
-    margin: 0;
-    padding-top: 5px;
-    font-family: var(--font-mono);
-    font-size: 0.8125rem;
-    color: var(--lichen);
+  :global(.in-tag) {
+    margin-bottom: 14px;
   }
-  .brief-t {
-    grid-column: 4 / span 7;
-    margin: 0;
-    max-width: 64ch;
-    color: var(--frost);
-    font-size: clamp(1.02rem, 0.96rem + 0.25vw, 1.15rem);
-    line-height: 1.6;
+  .in-n {
+    font-size: clamp(36px, 3.6vw, 64px);
+    font-weight: 500;
+    letter-spacing: -0.04em;
+    line-height: 0.98;
+  }
+  .in-n .d {
+    font-size: clamp(18px, 1.4vw, 22px);
+    letter-spacing: 0;
+    line-height: 1.3;
+    margin-top: 8px;
+  }
+  .in-f {
+    margin-top: 16px;
+    font-size: 16px;
+    line-height: 1.45;
+    color: var(--ash);
+    max-width: 40ch;
+  }
+  .in-go {
+    display: inline-flex;
+    gap: 10px;
+    margin-top: 18px;
+  }
+  .in-go .ar {
+    color: var(--flare);
+    transition: transform 0.35s var(--e-out);
+  }
+  :global(a.mf:hover) .in-go .ar {
+    transform: translateX(6px);
   }
 
-  .tr-l {
-    grid-column: 1 / span 6;
+  /* three tracks */
+  .tracks {
+    padding-bottom: var(--sec);
   }
-  .tr-meta,
-  .bn-meta {
-    margin: 0 0 18px;
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    letter-spacing: 0.02em;
-    color: var(--lichen);
+  .tr-g {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(8px, 0.9vw, 14px);
   }
-  .bn-meta {
-    margin-bottom: 10px;
+  .tr {
+    display: flex;
+    flex-direction: column;
+    background: var(--reel);
+    padding: clamp(24px, 2.6vw, 44px);
+  }
+  .tr:nth-child(2) {
+    background: var(--reel-2);
+  }
+  .tr-span {
+    display: flex;
+    gap: 16px;
+  }
+  .tr-n {
+    margin-top: clamp(28px, 4vw, 72px);
+    font-size: clamp(34px, 3.4vw, 58px);
+    font-weight: 500;
+    letter-spacing: -0.04em;
+    line-height: 0.98;
+    text-wrap: balance;
   }
   .tr-line {
-    margin: 22px 0 28px;
+    margin-top: 16px;
+    font-size: clamp(18px, 1.35vw, 21px);
+    line-height: 1.42;
+    max-width: 30ch;
   }
-  .tr-items,
-  .ps-list {
-    grid-column: 8 / span 5;
+  .tr-items {
     list-style: none;
-    margin: 0;
-    padding: 0;
-    border-bottom: 1px solid var(--rule);
-    align-self: center;
+    margin: auto 0 0;
+    padding: clamp(40px, 4vw, 72px) 0 0;
+    display: grid;
+    gap: 10px;
   }
-  .tr-items li,
-  .ps-list li {
-    padding: 14px 0;
-    border-top: 1px solid var(--rule);
-    font-size: 1.05rem;
+  .tr-items li {
+    font-size: 17px;
+    line-height: 1.35;
+    color: var(--ash);
   }
 
-  /* The line: 2px signal rail through 10px rings, last station filled. Vertical at ≤700. */
-  .fd-p {
-    margin-bottom: 22px;
+  /* funded */
+  .fd {
+    padding-block: var(--sec);
   }
-  .ln {
-    --n: 4;
+  .fd :global(.fd-cta) {
+    margin-top: 24px;
+  }
+  .fd-g {
     list-style: none;
     margin: 0;
     padding: 0;
-    position: relative;
     display: grid;
-    grid-template-columns: repeat(var(--n), minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 40px var(--col-gap);
   }
-  .ln-base,
-  .ln-rail {
-    position: absolute;
-    top: 4px;
-    left: 5px;
-    right: calc(100% / var(--n) - 5px);
-    height: 2px;
+  .fd-g li {
+    display: grid;
+    align-content: start;
+    gap: 18px;
   }
-  .ln-base {
-    background: var(--rule-strong);
+  .fd-n {
+    font-size: clamp(64px, 6.4vw, 112px);
+    font-weight: 500;
+    letter-spacing: -0.05em;
+    line-height: 0.82;
   }
-  .ln-rail {
-    background: var(--signal);
-    transform-origin: left center;
-  }
-  .ln-st {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    padding: 30px clamp(16px, 2.4vw, 40px) 0 0;
-  }
-  .ln-ring {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    border: 2px solid var(--signal);
-    background: var(--ground);
-  }
-  .ln-st:last-child .ln-ring {
-    background: var(--signal);
-  }
-  .ln-n {
-    margin-bottom: 12px;
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    color: var(--lichen);
-  }
-  .ln-h {
-    font-family: var(--font-display);
-    font-stretch: 108%;
-    font-weight: 470;
-    font-size: clamp(1.15rem, 1rem + 0.5vw, 1.45rem);
-    letter-spacing: -0.015em;
-    line-height: 1.2;
+  .fd-t {
+    font-size: clamp(19px, 1.5vw, 23px);
+    line-height: 1.35;
+    letter-spacing: -0.01em;
     max-width: 22ch;
   }
-  @media (prefers-reduced-motion: no-preference) {
-    .ln-rail {
-      transition: transform var(--t-draw) var(--ease-in-out);
-    }
-    .ln-ring {
-      transition:
-        border-color 300ms var(--ease-out),
-        background-color 300ms var(--ease-out);
-      transition-delay: calc(var(--i) * 260ms + 200ms);
-    }
-    :global(.js) .ln:not(.is-in) .ln-rail {
-      transform: scaleX(0);
-    }
-    :global(.js) .ln:not(.is-in) .ln-ring {
-      border-color: var(--rule-strong);
-      background: var(--ground);
-    }
+
+  /* bench */
+  .bench {
+    padding-top: var(--sec);
   }
-  @media (max-width: 700px) {
-    .ln {
-      grid-template-columns: 1fr;
-    }
-    .ln-base,
-    .ln-rail {
-      display: none;
-    }
-    .ln-st {
-      display: grid;
-      grid-template-columns: 28px minmax(0, 1fr);
-      padding: 0 0 26px 22px;
-    }
-    .ln-st:last-child {
-      padding-bottom: 0;
-    }
-    .ln-st:not(:last-child)::before,
-    .ln-st:not(:last-child)::after {
-      content: '';
-      position: absolute;
-      left: 8px;
-      top: 12px;
-      bottom: -12px;
-      width: 2px;
-    }
-    .ln-st:not(:last-child)::before {
-      background: var(--rule-strong);
-    }
-    .ln-st:not(:last-child)::after {
-      background: var(--signal);
-      transform-origin: center top;
-    }
-    .ln-ring {
-      left: 4px;
-      top: 7px;
-      z-index: 1;
-    }
-    .ln-n {
-      grid-column: 1;
-      grid-row: 1;
-      margin: 0;
-      padding-top: 5px;
-    }
-    .ln-h {
-      grid-column: 2;
-      max-width: none;
-      font-size: 1.15rem;
-      font-stretch: 104%;
-      letter-spacing: -0.005em;
-      line-height: 1.3;
-    }
+  .bench-g {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(10px, 1.2vw, 18px);
   }
-  @media (max-width: 700px) and (prefers-reduced-motion: no-preference) {
-    .ln-st::after {
-      transition: transform 420ms var(--ease-in-out);
-      transition-delay: calc(var(--i) * 200ms);
-    }
-    :global(.js) .ln:not(.is-in) .ln-st::after {
-      transform: scaleY(0);
-    }
+  .bench-t {
+    grid-column: 1 / -1;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(10px, 1.2vw, 18px);
+  }
+  .bt {
+    display: grid;
+    gap: 16px;
+    height: 100%;
+    align-content: start;
+    background: var(--reel);
+    padding: clamp(24px, 2.6vw, 44px);
+    text-decoration: none;
+  }
+  .bt-n {
+    margin-top: 10px;
+    font-size: clamp(30px, 2.8vw, 46px);
+    font-weight: 500;
+    letter-spacing: -0.035em;
+    line-height: 1;
+  }
+  .bt-n .d {
+    font-size: 18px;
+    letter-spacing: 0;
+    margin-top: 8px;
+  }
+  .bt-s {
+    font-size: 17px;
+    line-height: 1.5;
+    color: var(--ash);
+    max-width: 52ch;
+  }
+  .bt-go {
+    display: inline-flex;
+    gap: 10px;
+  }
+  .bt-go .ar {
+    transition: transform 0.35s var(--e-out);
+  }
+  .bt:hover {
+    background: var(--reel-2);
+  }
+  .bt:hover .bt-go .ar {
+    transform: translateX(6px);
   }
 
-  .bn-st {
+  /* public sector band */
+  .ps {
+    padding-top: var(--sec);
+  }
+  .ps-f {
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    justify-content: space-between;
+    gap: clamp(64px, 12vw, 220px);
+    min-height: min(980px, 112vh);
+    padding: clamp(40px, 6vw, 96px) clamp(16px, 2vw, 28px) clamp(16px, 2vw, 28px);
   }
-
+  .ps-world {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    overflow: hidden;
+  }
+  .ps-world img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    will-change: transform;
+  }
+  .ps-f::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(180deg, rgb(13 12 11 / 0.82) 0%, rgb(13 12 11 / 0.3) 36%, rgb(13 12 11 / 0.2) 60%, rgb(13 12 11 / 0.6) 100%);
+  }
+  .ps-top {
+    padding-inline: clamp(4px, 2vw, 36px);
+  }
+  .ps-h {
+    max-width: 13ch;
+  }
+  .ps-b {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--col-gap);
+    row-gap: 40px;
+    padding: clamp(24px, 3vw, 48px) clamp(20px, 2.4vw, 40px);
+    background: var(--film);
+    border-radius: var(--r);
+  }
   .ps-l {
-    grid-column: 1 / span 6;
+    grid-column: 1 / span 5;
   }
   .ps-p {
-    margin: 22px 0 30px;
+    font-size: clamp(18px, 1.35vw, 21px);
+    line-height: 1.45;
+    max-width: 44ch;
   }
-  @media (max-width: 980px) {
-    .brief-l,
-    .brief-t {
-      grid-column: 1 / -1;
+  .ps-k {
+    margin-top: 24px;
+  }
+  .ps-list {
+    grid-column: 7 / span 6;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 0;
+  }
+  .ps-list li {
+    font-size: clamp(22px, 2vw, 32px);
+    font-weight: 500;
+    letter-spacing: -0.025em;
+    line-height: 1.25;
+  }
+  .ps-list li:not(:last-child)::after {
+    content: '/';
+    margin: 0 0.45em;
+    font-weight: 400;
+    color: var(--ash);
+  }
+
+  @media (max-width: 1100px) {
+    .fd-g {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
-    .brief-l {
-      margin-bottom: 12px;
-      padding-top: 0;
+  }
+  @media (max-width: 900px) {
+    .tr-g,
+    .bench-g,
+    .bench-t {
+      grid-template-columns: 1fr;
     }
-    .tr-l,
-    .tr-items,
+    .tr {
+      min-height: 0;
+    }
     .ps-l,
     .ps-list {
       grid-column: 1 / -1;
     }
-    .tr-items,
-    .ps-list {
-      margin-top: 36px;
+    .ps-f {
+      min-height: 0;
+    }
+  }
+  @media (max-width: 520px) {
+    .fd-g {
+      grid-template-columns: 1fr;
+    }
+    .ps-b {
+      padding-inline: 18px;
     }
   }
 </style>

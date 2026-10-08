@@ -1,0 +1,45 @@
+---
+// A big statement that lights up word by word as it crosses the screen (motion.ts [data-light]).
+// Words wrapped in *asterisks* are set in the heavier weight. Without motion the text is simply print.
+interface Props {
+  text: string;
+  as?: 'p' | 'h2' | 'h3' | 'div';
+  id?: string;
+  class?: string;
+  [key: string]: unknown;
+}
+const { text, as: Tag = 'p', id, class: cls, ...rest } = Astro.props;
+const words = text.split(' ').map((tok) => {
+  const m = tok.match(/^\*(.+?)\*(.*)$/);
+  return m ? { t: m[1], tail: m[2], k: true } : { t: tok, tail: '', k: false };
+});
+---
+
+<Tag {...rest} id={id} class:list={['litx', cls]} data-light>
+  {words.map((w) => (w.k ? <><b class="lw">{w.t}</b>{w.tail && <span class="lw">{w.tail}</span>}{' '}</> : <><span class="lw">{w.t}</span>{' '}</>))}
+</Tag>
+
+<style>
+  .litx {
+    font-weight: 500;
+    letter-spacing: -0.035em;
+    line-height: 1.08;
+    text-wrap: pretty;
+  }
+  .litx b {
+    font-weight: 650;
+  }
+  .light-ready .lw {
+    color: rgb(238 234 226 / 0.44); /* ≥3:1 for large text before it lights up */
+    transition: color 0.4s var(--e-out);
+  }
+  .light-ready .lw.lit {
+    color: var(--print);
+  }
+  :global(.tone-bone) .light-ready .lw {
+    color: rgb(20 19 16 / 0.42);
+  }
+  :global(.tone-bone) .light-ready .lw.lit {
+    color: var(--ink);
+  }
+</style>

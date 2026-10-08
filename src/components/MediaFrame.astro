@@ -3,6 +3,7 @@
 // material) at the back, real product screens floating in front, caption bottom-left.
 // With motion on, world and screens travel at different scroll depths (motion.ts, [data-dolly]).
 //
+// Offsets go to --sl/--sr/--st/--sw (and --slm…): a bare --r would shadow the global radius token.
 // Screen placement uses percentages of the frame: l | r (left/right), t (top), w (width).
 // Mobile (≤900px) overrides: lm | rm | tm | wm. depth: 1 = default travel, 1.6 = nearer (phones).
 export interface FrameScreen {
@@ -58,14 +59,14 @@ const AR = { full: '16 / 8.6', half: '5 / 4.6', stage: '4 / 3' } as const;
 const style = `--ar:${aspect ?? AR[size]};--ar-m:${aspectM ?? '4 / 3.3'}`;
 const pos = (s: FrameScreen) =>
   [
-    s.l && `--l:${s.l}`,
-    s.r && `--r:${s.r}`,
-    s.t && `--t:${s.t}`,
-    s.width && `--w:${s.width}`,
-    s.lm && `--lm:${s.lm}`,
-    s.rm && `--rm:${s.rm}`,
-    s.tm && `--tm:${s.tm}`,
-    s.wm && `--wm:${s.wm}`
+    s.l && `--sl:${s.l}`,
+    s.r && `--sr:${s.r}`,
+    s.t && `--st:${s.t}`,
+    s.width && `--sw:${s.width}`,
+    s.lm && `--slm:${s.lm}`,
+    s.rm && `--srm:${s.rm}`,
+    s.tm && `--stm:${s.tm}`,
+    s.wm && `--swm:${s.wm}`
   ]
     .filter(Boolean)
     .join(';');
@@ -174,10 +175,10 @@ const sizes = (s: FrameScreen) => `(max-width: 900px) ${s.wm ?? '88%'}, ${s.widt
   .mf-scr {
     position: absolute;
     z-index: 1;
-    left: var(--l, auto);
-    right: var(--r, auto);
-    top: var(--t, 10%);
-    width: var(--w, 60%);
+    left: var(--sl, auto);
+    right: var(--sr, auto);
+    top: var(--st, 10%);
+    width: var(--sw, 60%);
     will-change: transform;
   }
   .mf-lift {
@@ -204,6 +205,7 @@ const sizes = (s: FrameScreen) => `(max-width: 900px) ${s.wm ?? '88%'}, ${s.widt
     z-index: 2;
     font-size: 13px;
     color: rgb(238 234 226 / 0.78);
+    text-shadow: 0 1px 2px rgb(13 12 11 / 0.85), 0 0 12px rgb(13 12 11 / 0.6);
   }
   /* Phones: the picture keeps its own aspect; the caption drops below it, never over a screen. */
   @media (max-width: 900px) {
@@ -219,10 +221,10 @@ const sizes = (s: FrameScreen) => `(max-width: 900px) ${s.wm ?? '88%'}, ${s.widt
       overflow: hidden;
     }
     .mf-scr {
-      left: var(--lm, var(--l, auto));
-      right: var(--rm, var(--r, auto));
-      top: var(--tm, var(--t, 7%));
-      width: var(--wm, var(--w, 84%));
+      left: var(--slm, var(--sl, auto));
+      right: var(--srm, var(--sr, auto));
+      top: var(--stm, var(--st, 7%));
+      width: var(--swm, var(--sw, 84%));
     }
     .mf-dsk {
       display: none;
@@ -242,8 +244,15 @@ const sizes = (s: FrameScreen) => `(max-width: 900px) ${s.wm ?? '88%'}, ${s.widt
       padding: 22px 20px 26px;
     }
     .mf-credit {
-      top: 12px;
+      top: 10px;
+      right: 10px;
       bottom: auto;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      background: rgb(13 12 11 / 0.62);
+      color: rgb(238 234 226 / 0.92);
+      text-shadow: none;
     }
   }
 </style>

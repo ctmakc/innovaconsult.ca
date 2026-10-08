@@ -1,0 +1,204 @@
+---
+// One capability as a picture: its world (photo or product material), at most one real screen,
+// and a caption (span label, name, line). Used by CapPanels (the /capabilities head) and CapNext.
+// Reuses the .mf-world / .mf-scr hooks so motion.ts gives it the depth dolly.
+import { CAP_ART, type CapKey } from './media';
+interface Props {
+  k: CapKey;
+  href: string;
+  name: string;
+  line?: string;
+  span?: string;
+  /** Text for the call to action at the bottom (panels only). */
+  go?: string;
+  headingLevel?: 'h2' | 'h3' | 'p';
+  class?: string;
+  [key: string]: unknown;
+}
+const { k, href, name, line, span, go, headingLevel: H = 'h3', class: cls, ...rest } = Astro.props;
+const art = CAP_ART[k];
+const s = art.screen;
+---
+
+<a {...rest} href={href} class:list={['ca frame', `ca--${k}`, art.material && `ca-mat-${art.material}`, s && `ca-has-${s.kind}`, cls]} data-dolly>
+  <span class="ca-stage" aria-hidden="true">
+    {
+      art.world && (
+        <span class="mf-world ca-world">
+          <img
+            src={art.world.src}
+            srcset={art.world.src800 ? `${art.world.src800} ${art.world.w800 ?? 800}w, ${art.world.src} ${art.world.w}w` : undefined}
+            sizes="(max-width: 900px) 80vw, 40vw"
+            alt=""
+            width={art.world.w}
+            height={art.world.h}
+            loading="lazy"
+            decoding="async"
+            style={art.world.pos ? `object-position:${art.world.pos}` : undefined}
+          />
+        </span>
+      )
+    }
+    {
+      s && (
+        <span class:list={['mf-scr ca-scr', `ca-scr--${s.kind}`]} data-depth={s.kind === 'phone' ? 0.8 : 1}>
+          <img
+            class="scr-img"
+            src={s.src800}
+            srcset={`${s.src800} ${Math.round(s.w / 2)}w, ${s.src} ${s.w}w`}
+            sizes={s.kind === 'phone' ? '180px' : '(max-width: 900px) 120vw, 46vw'}
+            alt=""
+            width={s.w}
+            height={s.h}
+            loading="lazy"
+            decoding="async"
+          />
+        </span>
+      )
+    }
+  </span>
+  {span && <span class="ca-span t-label">{span}</span>}
+  <span class="ca-cap">
+    <H class="ca-n">{name}</H>
+    {line && <span class="ca-l"><span>{line}</span></span>}
+    {go && <span class="ca-go t-label">{go} <span class="ar" aria-hidden="true">→</span></span>}
+  </span>
+</a>
+
+<style>
+  .ca {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    min-height: 100%;
+    color: var(--print);
+    text-decoration: none;
+    background: var(--reel);
+  }
+  .ca-mat-bone {
+    background: var(--bone-2);
+  }
+  .ca-mat-evergreen {
+    background: radial-gradient(120% 100% at 30% 15%, color-mix(in srgb, var(--m-evergreen) 70%, var(--print) 10%) 0%, var(--m-evergreen) 55%, color-mix(in srgb, var(--m-evergreen) 70%, var(--film)) 100%);
+  }
+  .ca-stage {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    isolation: isolate;
+    overflow: hidden;
+  }
+  .ca-stage::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    background: linear-gradient(180deg, rgb(13 12 11 / 0.35) 0%, rgb(13 12 11 / 0) 22%, rgb(13 12 11 / 0) 44%, rgb(13 12 11 / 0.7) 72%, rgb(13 12 11 / 0.94) 100%);
+    pointer-events: none;
+  }
+  /* bone material: ink caption on a bone fade (the dark screen sinks into the material) */
+  .ca-mat-bone {
+    color: var(--ink);
+  }
+  .ca-mat-bone .ca-stage::after {
+    background: linear-gradient(180deg, transparent 0%, transparent 42%, color-mix(in srgb, var(--bone-2) 88%, transparent) 66%, var(--bone-2) 84%);
+  }
+  .ca-mat-bone .ca-l {
+    color: var(--ink-soft);
+  }
+  .ca-mat-bone .ca-go .ar {
+    color: var(--ink);
+  }
+  .ca-mat-bone:focus-visible {
+    outline-color: var(--ink);
+  }
+  .ca-world {
+    position: absolute;
+    inset: -2px;
+    overflow: hidden;
+  }
+  .ca-world img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    will-change: transform;
+    transition: filter 0.6s var(--e-out);
+  }
+  .ca-scr {
+    position: absolute;
+    z-index: 1;
+    will-change: transform;
+  }
+  .ca-scr img {
+    transition: transform 0.6s var(--e-out);
+  }
+  /* desktop screen bleeds off the right edge, like a still cropped by the frame */
+  .ca-scr--desktop {
+    left: 9%;
+    top: 12%;
+    width: 168%;
+  }
+  .ca-scr--phone {
+    left: 50%;
+    top: 9%;
+    width: min(46%, 190px);
+    margin-left: calc(min(46%, 190px) / -2);
+  }
+  .ca:hover .ca-scr img,
+  .ca:focus-visible .ca-scr img {
+    transform: translateY(-10px);
+  }
+  .ca:hover .ca-world img {
+    filter: brightness(1.08);
+  }
+  .ca-span {
+    position: absolute;
+    top: clamp(16px, 1.6vw, 24px);
+    left: clamp(18px, 1.8vw, 28px);
+    right: clamp(18px, 1.8vw, 28px);
+    z-index: 2;
+    color: var(--print);
+    text-shadow: 0 1px 12px rgb(13 12 11 / 0.8);
+  }
+  .ca-mat-bone .ca-span {
+    color: var(--ink);
+    text-shadow: none;
+  }
+  .ca-cap {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    gap: 8px;
+    padding: clamp(18px, 1.8vw, 28px);
+  }
+  .ca-n {
+    font-size: clamp(24px, 2vw, 32px);
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    line-height: 1.04;
+    text-wrap: balance;
+  }
+  .ca-l {
+    font-size: 16px;
+    line-height: 1.45;
+    color: var(--ash);
+    max-width: 34ch;
+  }
+  .ca-go {
+    display: inline-flex;
+    gap: 10px;
+    margin-top: 6px;
+  }
+  .ca-go .ar {
+    color: var(--flare);
+    transition: transform 0.35s var(--e-out);
+  }
+  .ca:hover .ca-go .ar {
+    transform: translateX(6px);
+  }
+  .ca:hover .ca-n {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 6px;
+  }
+</style>

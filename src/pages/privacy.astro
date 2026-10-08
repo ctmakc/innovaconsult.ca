@@ -3,7 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHead from '../components/PageHead.astro';
 import { SITE } from '../data/site';
 
-// Every line below describes what the code does: src/pages/contact.astro (form), functions/api/contact.js (delivery),
+// Every line below describes what the code does: src/components/ContactForm.astro (form), functions/api/contact.js (delivery),
 // src/layouts/BaseLayout.astro (no analytics, no third-party scripts), public/fonts (self-hosted fonts).
 const items: { h: string; body: string[] }[] = [
   {
@@ -38,6 +38,18 @@ const items: { h: string; body: string[] }[] = [
   }
 ];
 
+// The rows of the one email the form produces, in the order functions/api/contact.js writes them.
+const mail: [string, string][] = [
+  ['Topic', 'The topic you choose'],
+  ['Name', 'Your name'],
+  ['Organization', 'If you give one'],
+  ['Email', 'Your address, also the reply-to'],
+  ['Message', 'What you wrote'],
+  ['Page', 'The page you sent it from'],
+  ['Country', 'Added by the hosting network'],
+  ['Received', 'Date and time']
+];
+
 const jsonLd = [
   {
     '@context': 'https://schema.org',
@@ -65,82 +77,162 @@ const jsonLd = [
 >
   <PageHead crumb="Privacy" title="Privacy." lede="What this website collects when you write to us, and what happens to it." />
 
-  <section class="section">
-    <div class="wrap grid12">
-      <dl class="pv">
+  <section class="pv shell" aria-label="Privacy notice">
+    <div class="inset pv-g">
+      <div class="pv-l">
         {
-          items.map((it) => (
-            <div class="pv-row">
-              <dt class="pv-h">{it.h}</dt>
-              <dd>
+          items.map((it, i) => (
+            <section class="pv-it" aria-labelledby={`pv-${i}`}>
+              <h2 id={`pv-${i}`} class="t-h4 pv-h">{it.h}</h2>
+              <div class="pv-b">
                 {it.body.map((b) =>
                   b.includes(SITE.email) ? (
-                    <p>{b.split(SITE.email)[0]}<a class="ulink pv-a" href={`mailto:${SITE.email}`}>{SITE.email}</a>{b.split(SITE.email)[1]}</p>
+                    <p>{b.split(SITE.email)[0]}<a class="pv-a" href={`mailto:${SITE.email}`}>{SITE.email}</a>{b.split(SITE.email)[1]}</p>
                   ) : (
                     <p>{b}</p>
                   )
                 )}
-              </dd>
-            </div>
+              </div>
+            </section>
           ))
         }
-      </dl>
-      <p class="mono pv-date">Updated October 2026</p>
+        <p class="t-label t-mute pv-date">Updated October 2026</p>
+      </div>
+
+      <!-- The email itself: the one place your details go -->
+      <aside class="pv-r" aria-labelledby="mail-h">
+        <div class="mail frame">
+          <div class="mail-top">
+            <p id="mail-h" class="t-label">The one email the form sends</p>
+            <p class="mail-to">To INNOVA, through Resend</p>
+          </div>
+          <dl class="mail-dl">
+            {
+              mail.map(([k, v]) => (
+                <div>
+                  <dt>{k}</dt>
+                  <dd>{v}</dd>
+                </div>
+              ))
+            }
+          </dl>
+          <p class="mail-foot">The time the page was open is checked for spam on arrival and left out of this email.</p>
+        </div>
+      </aside>
     </div>
   </section>
 </BaseLayout>
 
 <style>
   .pv {
-    grid-column: 1 / span 10;
-    margin: 0;
-    border-bottom: 1px solid var(--rule);
+    padding-bottom: var(--sec);
   }
-  .pv-row {
+  .pv-g {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--col-gap);
+    row-gap: 56px;
+    align-items: start;
+  }
+  .pv-l {
+    grid-column: 1 / span 7;
+    display: grid;
+    gap: clamp(40px, 4.4vw, 64px);
+  }
+  .pv-it {
     display: grid;
     grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-    column-gap: clamp(16px, 2vw, 32px);
-    padding-block: clamp(20px, 2.2vw, 30px);
-    border-top: 1px solid var(--rule);
+    column-gap: var(--col-gap);
+    row-gap: 12px;
   }
   .pv-h {
-    font-family: var(--font-display);
-    font-stretch: 108%;
-    font-weight: 520;
-    font-size: clamp(1.15rem, 1rem + 0.5vw, 1.45rem);
-    line-height: 1.15;
-    letter-spacing: -0.016em;
     text-wrap: balance;
   }
-  .pv dd {
-    margin: 0;
+  .pv-b p {
+    color: var(--ash);
+    max-width: 52ch;
   }
-  .pv dd p {
-    margin: 0;
-    color: var(--lichen);
-    max-width: 62ch;
-  }
-  .pv dd p + p {
+  .pv-b p + p {
     margin-top: 12px;
   }
   .pv-a {
-    color: var(--frost);
-    background-size: 100% 1px;
+    color: var(--print);
+    text-decoration: underline;
+    text-underline-offset: 4px;
   }
   .pv-date {
-    grid-column: 1 / -1;
-    margin: 22px 0 0;
-    color: var(--lichen);
+    margin-top: 8px;
   }
-  @media (max-width: 980px) {
-    .pv {
-      grid-column: 1 / -1;
+  .pv-r {
+    grid-column: 9 / span 4;
+    position: sticky;
+    top: calc(var(--hdr) + 32px);
+  }
+  .mail {
+    background: var(--bone);
+    color: var(--ink);
+    box-shadow: var(--shadow-screen);
+  }
+  .mail-top {
+    padding: 22px 24px 18px;
+    background: var(--bone-2);
+  }
+  .mail-to {
+    margin-top: 4px;
+    font-size: 16px;
+    color: var(--ink-soft);
+  }
+  .mail-dl {
+    margin: 0;
+    padding: 10px 24px 4px;
+  }
+  .mail-dl > div {
+    display: grid;
+    grid-template-columns: 112px minmax(0, 1fr);
+    gap: 12px;
+    padding: 10px 0;
+  }
+  .mail-dl > div + div {
+    border-top: 1px solid var(--rule-ink);
+  }
+  .mail-dl dt {
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .mail-dl dd {
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.4;
+    color: var(--ink-soft);
+  }
+  .mail-foot {
+    margin: 6px 24px 0;
+    padding: 16px 0 22px;
+    border-top: 2px solid var(--ink);
+    font-size: 15px;
+    line-height: 1.45;
+    color: var(--ink);
+  }
+
+  @media (max-width: 1100px) {
+    .pv-it {
+      grid-template-columns: 1fr;
+    }
+    .pv-l {
+      grid-column: 1 / span 7;
+    }
+    .pv-r {
+      grid-column: 8 / span 5;
     }
   }
-  @media (max-width: 760px) {
-    .pv-row {
-      grid-template-columns: 1fr;
-      row-gap: 10px;
+  @media (max-width: 900px) {
+    .pv-l,
+    .pv-r {
+      grid-column: 1 / -1;
+    }
+    .pv-r {
+      position: static;
+      order: -1;
     }
   }
 </style>

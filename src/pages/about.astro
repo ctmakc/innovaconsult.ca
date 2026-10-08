@@ -1,33 +1,34 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import PageHead from '../components/PageHead.astro';
+import MediaFrame from '../components/MediaFrame.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import RecordIds from '../components/RecordIds.astro';
+import LitText from '../components/company/LitText.astro';
+import { visibleProjects, type Project } from '../data/projects';
 import { SITE } from '../data/site';
 
-// NCAGE and D-U-N-S live in SITE (shared data); rows render only when the values are present.
-const REC = SITE as typeof SITE & { ncage?: string; duns?: string };
+const P = Object.fromEntries(visibleProjects.map((p) => [p.slug, p])) as Record<string, Project>;
 
 const why = ['How companies operate', 'Economics', 'Processes', 'Regulation', 'Users', 'Implementation', 'Commercialization'];
 
-// The incorporation year sits on its own station; the products on the later stations date from 2026.
+// The incorporation year sits on its own step; the products on the later steps date from 2026.
 const evolution: { label: string; year?: string }[] = [
   { label: 'Business operations', year: SITE.experienceSince },
   { label: 'Digital systems' },
   { label: SITE.legalName, year: `${SITE.incorporated} · incorporated` },
   { label: 'Software' },
   { label: 'Applied AI' },
-  { label: 'Applied innovation', year: 'now' }
+  { label: 'Applied innovation', year: 'Now' }
 ];
 
 const founderRecord = [
-  'Founder & director',
-  `Business practice since ${SITE.experienceSince}`,
-  `Incorporated ${SITE.legalName} ${SITE.incorporated}`,
-  'MA, Economic Theory (honours)'
+  ['Role', 'Founder & director'],
+  ['Business practice', `Since ${SITE.experienceSince}`],
+  ['Incorporated', `${SITE.legalName}, ${SITE.incorporated}`],
+  ['Education', 'MA, Economic Theory (honours)']
 ];
 
-// Owner law (external-links-hidden): outside links render without <a href>; the address sits base64-encoded in a data attribute.
-const registryUrl = `https://ised-isde.canada.ca/cc/lgcy/fdrlCrpDtls.html?corpId=${SITE.corporationNumber.replace('-', '')}`;
-const registryB64 = btoa(registryUrl);
+const credits = ['Photo via Wikimedia Commons: Parliament Hill at dawn by joiseyshowaa, CC BY-SA 2.0 (colour graded)'];
 
 const jsonLd = [
   {
@@ -48,46 +49,70 @@ const jsonLd = [
   description="INNOVA CONSULT LTD. is an Ottawa applied AI and software company, incorporated federally in 2023. Its founder has worked in business and technology since 2012."
   path="/about"
   jsonLd={jsonLd}
+  credits={credits}
   breadcrumbs={[
     { name: 'Home', path: '/' },
     { name: 'About', path: '/about' }
   ]}
 >
-  <PageHead
-    crumb="About"
-    title="An Ottawa applied-innovation and technology company."
-    lede="INNOVA identifies high-value problems, develops technology around them and brings the right people, software and partners together to put it into use."
-  />
-
-  <section class="brief" aria-labelledby="brief-h">
-    <div class="wrap grid12">
-      <h2 id="brief-h" class="mono brief-h">In brief</h2>
-      <p class="brief-p">
+  <!-- ═══ HEAD: the statement, then the city at dawn with a real screen and the brief ═══ -->
+  <section class="hd shell" aria-labelledby="hd-h">
+    <div class="inset hd-g">
+      <p class="t-label hd-crumb"><a href="/">INNOVA</a><span aria-hidden="true">/</span><span>About</span></p>
+      <h1 id="hd-h" class="hd-t">An Ottawa applied-innovation and technology company.</h1>
+      <p class="t-lede hd-lede">INNOVA identifies high-value problems, develops technology around them and brings the right people, software and partners together to put it into use.</p>
+    </div>
+    <MediaFrame
+      size="full"
+      aspect="16 / 7.4"
+      aspectM="4 / 3.2"
+      scrim="left"
+      class="ab-hero"
+      world={{ src: '/img/ottawa-dawn-1440.webp', w: 1440, h: 1079, pos: '50% 36%', alt: 'The Ottawa River at dawn, with Parliament Hill above the treeline' }}
+      screens={[
+        {
+          src: '/proof/workflow-os-overview-1440-1600.webp',
+          src800: '/proof/workflow-os-overview-1440-800.webp',
+          w: 1600,
+          h: 1000,
+          alt: 'Workflow OS overview of a fictional demo company: mapped processes and their automation scores.',
+          l: '48%',
+          t: '13%',
+          width: '47%',
+          lm: '16%',
+          tm: '10%',
+          wm: '78%'
+        }
+      ]}
+      credit="Ottawa River, Parliament Hill"
+    >
+      <p class="t-label ab-hero-k">In brief</p>
+      <p class="ab-hero-p">
         INNOVA ({SITE.legalName}) is an applied-innovation and technology company in Ottawa, Ontario, incorporated federally in {SITE.incorporated}. It researches, prototypes, builds and deploys applied AI and software, and shows each project with its real status.
       </p>
-    </div>
+    </MediaFrame>
   </section>
 
-  <section class="section">
-    <div class="wrap grid12">
-      <div class="ab-l">
-        <h2 class="d-l">Our background.</h2>
-      </div>
-      <div class="ab-r">
-        <p class="lede">
-          INNOVA’s founder brings more than 14 years of international business and technology experience, from {SITE.experienceSince} onward, working with companies across many jurisdictions, industries and operating environments.
-        </p>
-        <p class="body ab-p">
+  <!-- ═══ BACKGROUND: one statement that lights up, then the path as big type ═══ -->
+  <section class="bg shell pad-lg" aria-labelledby="bg-h">
+    <div class="inset">
+      <div class="bg-g">
+        <h2 id="bg-h" class="t-label t-mute bg-k">Our background</h2>
+        <LitText
+          class="bg-lit"
+          text={`INNOVA’s founder brings *more* *than* *14* *years* of international business and technology experience, from ${SITE.experienceSince} onward, working with companies across many jurisdictions, industries and operating environments.`}
+        />
+        <p class="bg-p">
           That work moved step by step from business operations to digital systems, to software products, to applied AI. {SITE.legalName} was incorporated federally in {SITE.incorporated} and is based in Ottawa, where it now focuses on applied innovation: building its own products and preparing joint projects with Canadian organizations.
         </p>
       </div>
-      <ol class="evo" data-draw aria-label="How the work evolved" style={`--n:${evolution.length}`}>
+      <ol class="path" aria-label="How the work evolved">
         {
           evolution.map((s, i, a) => (
-            <li class:list={['evo-st', { now: i === a.length - 1 }]} style={`--i:${i}`}>
-              <span class="evo-dot" aria-hidden="true" />
-              <span class="evo-l">{s.label}</span>
-              {s.year && <span class="evo-y">{s.year}</span>}
+            <li class:list={{ now: i === a.length - 1, corp: s.label === SITE.legalName }}>
+              {s.year && <span class="path-y t-label">{s.year}</span>}
+              <span class="path-l">{s.label}</span>
+              {i < a.length - 1 && <span class="path-ar" aria-hidden="true">→</span>}
             </li>
           ))
         }
@@ -95,370 +120,446 @@ const jsonLd = [
     </div>
   </section>
 
-  <section class="section">
-    <div class="wrap grid12">
-      <div class="ab-l">
-        <h2 class="d-l">Why this background matters.</h2>
+  <!-- ═══ WHY IT MATTERS: the claim, the seven disciplines, the proof ═══ -->
+  <section class="why shell" aria-labelledby="why-h">
+    <div class="inset why-g">
+      <div class="why-l">
+        <h2 id="why-h" class="t-label t-mute">Why this background matters</h2>
+        <p class="why-q" data-rise>Technology projects succeed when the builders understand the business around the code.</p>
       </div>
-      <div class="ab-r">
-        <p class="lede">Technology projects succeed when the builders understand the business around the code.</p>
-        <p class="why">{why.map((w, i) => <><span>{w}{i < why.length - 1 ? ' ·' : ''}</span>{' '}</>)}</p>
-        <p class="body">That multidisciplinary view lets INNOVA study a problem, build the solution and see it adopted.</p>
-        <p class="body ab-next">
-          The <a class="ulink ab-a" href="/projects">projects</a> show where this has led so far, each at its real stage, and the
-          <a class="ulink ab-a" href="/capabilities">capabilities</a> page sets out the work INNOVA takes on.
-        </p>
-      </div>
-    </div>
-  </section>
-
-  <section class="section" id="founder" aria-labelledby="founder-h">
-    <div class="wrap grid12">
-      <div class="ab-l">
-        <div class="fd-pin">
-          <h2 id="founder-h" class="d-l">Founder.</h2>
-          <ul class="fd-rec" aria-label="Founder record">
-            {founderRecord.map((r) => <li>{r}</li>)}
-          </ul>
-        </div>
-      </div>
-      <div class="ab-r">
-        <p class="fd-name">Maksym Stepanenko</p>
-        <p class="body fd-bio">
-          Since {SITE.experienceSince} Maksym has helped thousands of small and mid-sized businesses in more than 50 countries grow and protect themselves through strategy, legal structure, tax and marketing. In recent years he has brought applied AI into those businesses and into INNOVA’s own products. He incorporated {SITE.legalName} in Ottawa in {SITE.incorporated}. Master’s degree in Economic Theory, with honours.
-        </p>
-        <p class="fd-staff">
-          INNOVA is founder-led. For funded and client projects, engineering, security review and domain specialists are brought in as named subcontractors or partner firms, listed in the proposal before work starts.
-        </p>
+      <div class="why-r">
+        <ul class="why-list" aria-label="What the founder's background covers">
+          {why.map((w) => <li>{w}</li>)}
+        </ul>
+        <p class="why-p">That multidisciplinary view lets INNOVA study a problem, build the solution and see it adopted.</p>
       </div>
     </div>
   </section>
 
-  <section class="section" id="record">
-    <div class="wrap grid12">
-      <div class="ab-l">
-        <h2 class="d-l">Company record.</h2>
-      </div>
-      <div class="ab-r">
-        <dl class="rec">
-          <div><dt class="mono">Legal name</dt><dd>{SITE.legalName}</dd></div>
-          <div><dt class="mono">Operating name</dt><dd>INNOVA</dd></div>
-          <div>
-            <dt class="mono">Federal corporation</dt>
-            <dd>
-              {SITE.corporationNumber} (Canada Business Corporations Act, {SITE.incorporated})
-              <span class="xlink rec-verify" role="link" tabindex="0" data-x={registryB64}>Verify on Corporations Canada <span aria-hidden="true">↗</span></span>
-            </dd>
+  <!-- ═══ WHERE IT HAS LED: real products, each at its real stage ═══ -->
+  <section class="led shell pad-lg" aria-labelledby="led-h">
+    <div class="inset led-head">
+      <h2 id="led-h" class="t-h2" data-rise>Where this has led so far</h2>
+      <p class="led-p t-mute">
+        The <a class="lnk" href="/projects">projects <span class="ar" aria-hidden="true">→</span></a> show each one at its real stage, and the
+        <a class="lnk" href="/capabilities">capabilities <span class="ar" aria-hidden="true">→</span></a> page sets out the work INNOVA takes on.
+      </p>
+    </div>
+    <div class="led-g">
+      <ProjectCard
+        project={P.uafest}
+        fact="Applications, participant cabinets, sponsor and finance registers for a Ukrainian festival in Carleton Place, Ontario. In production since August 2026."
+        world={{ src: '/img/uafest-dance.webp', src800: '/img/uafest-dance-800.webp', w: 1280, h: 818, pos: '30% 50%' }}
+        screens={[
+          {
+            src: '/proof/uafest-applications-1440-1600.webp',
+            src800: '/proof/uafest-applications-1440-800.webp',
+            w: 1600,
+            h: 1000,
+            alt: 'UAFest 2027 sign-up page on uafest.ca: one form with participation types for guests, volunteers, vendors, performers, sponsors and the organizing team.',
+            l: '8%',
+            t: '8%',
+            width: '70%',
+            lm: '7%',
+            tm: '9%',
+            wm: '80%'
+          }
+        ]}
+        credit="UAFest festival, Carleton Place"
+      />
+      <ProjectCard
+        project={P.babakokum}
+        fact="On the App Store since 24 September 2026, and playable on the web. Runs fully offline."
+        world={{ src: '/img/babakokum-porch.webp', w: 760, h: 720, pos: '50% 30%' }}
+        screens={[
+          {
+            src: '/proof/babakokum-rules-tablet-1600.webp',
+            src800: '/proof/babakokum-rules-tablet-800.webp',
+            w: 1600,
+            h: 1331,
+            alt: 'BABA & KOKUM rules card: six scoring patterns for placing printed tiles on a scarf grid and the five ink colours.',
+            kind: 'tablet',
+            l: '24%',
+            t: '6%',
+            width: '52%',
+            lm: '14%',
+            tm: '7%',
+            wm: '72%'
+          }
+        ]}
+      />
+    </div>
+  </section>
+
+  <!-- ═══ FOUNDER + RECORD: on bone ═══ -->
+  <section class="fd tone-bone" id="founder" aria-labelledby="founder-h">
+    <div class="shell">
+      <div class="inset">
+        <p class="t-label t-mute fd-k">Founder</p>
+        <h2 id="founder-h" class="t-display fd-name" data-rise>Maksym Stepanenko</h2>
+        <div class="fd-g">
+          <dl class="fd-rec" aria-label="Founder record">
+            {
+              founderRecord.map(([k, v]) => (
+                <div>
+                  <dt class="t-label">{k}</dt>
+                  <dd>{v}</dd>
+                </div>
+              ))
+            }
+          </dl>
+          <div class="fd-txt">
+            <p class="fd-bio">
+              Since {SITE.experienceSince} Maksym has helped thousands of small and mid-sized businesses in more than 50 countries grow and protect themselves through strategy, legal structure, tax and marketing. In recent years he has brought applied AI into those businesses and into INNOVA’s own products. He incorporated {SITE.legalName} in Ottawa in {SITE.incorporated}. Master’s degree in Economic Theory, with honours.
+            </p>
+            <p class="fd-staff">
+              INNOVA is founder-led. For funded and client projects, <strong>engineering, security review and domain specialists</strong> are brought in as named subcontractors or partner firms, listed in the proposal before work starts.
+            </p>
           </div>
-          {
-            REC.ncage && (
-              <div>
-                <dt class="mono">
-                  <abbr title="NATO Commercial and Government Entity code">NCAGE</abbr>
-                </dt>
-                <dd class="rec-code">{REC.ncage}</dd>
-              </div>
-            )
-          }
-          {
-            REC.duns && (
-              <div>
-                <dt class="mono">D-U-N-S</dt>
-                <dd class="rec-code">{REC.duns}</dd>
-              </div>
-            )
-          }
-          <div><dt class="mono">Location</dt><dd>{SITE.city}, {SITE.region}, {SITE.country}</dd></div>
-          <div><dt class="mono">Contact</dt><dd><a class="ulink" href={`mailto:${SITE.email}`}>{SITE.email}</a></dd></div>
-        </dl>
+        </div>
+
+        <div class="rc frame" id="record" aria-labelledby="rc-h">
+          <h2 id="rc-h" class="t-h3 rc-h">Company record</h2>
+          <RecordIds />
+          <dl class="rc-dl">
+            <div><dt class="t-label">Legal name</dt><dd>{SITE.legalName}</dd></div>
+            <div><dt class="t-label">Operating name</dt><dd>INNOVA</dd></div>
+            <div><dt class="t-label">Incorporated</dt><dd>Canada Business Corporations Act, {SITE.incorporated}</dd></div>
+            <div><dt class="t-label">Location</dt><dd>{SITE.city}, {SITE.region}, {SITE.country}</dd></div>
+            <div><dt class="t-label">Contact</dt><dd><a class="lnk" href={`mailto:${SITE.email}`}>{SITE.email}</a></dd></div>
+          </dl>
+        </div>
       </div>
     </div>
   </section>
 </BaseLayout>
 
-<script>
-  // External links without href (owner law): decode on click or Enter, open in a new tab.
-  document.querySelectorAll<HTMLElement>('.xlink[data-x]').forEach((el) => {
-    const go = () => {
-      const url = atob(el.dataset.x || '');
-      if (/^https:\/\//.test(url)) window.open(url, '_blank', 'noopener');
-    };
-    el.addEventListener('click', go);
-    el.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        go();
-      }
-    });
-  });
-</script>
-
 <style>
-  .ab-l {
-    grid-column: 1 / span 5;
+  /* ── head ── */
+  .hd {
+    padding-top: clamp(32px, 4.4vw, 72px);
   }
-  .ab-r {
-    grid-column: 7 / span 6;
+  .hd-g {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--col-gap);
+    row-gap: 24px;
+    align-items: end;
+    margin-bottom: clamp(32px, 3.6vw, 56px);
   }
-  .ab-p {
-    margin: 22px 0 0;
-  }
-
-  /* In brief: one quotable paragraph for readers and answer engines */
-  .brief {
-    padding-block: clamp(28px, 3vw, 44px);
-    border-bottom: 1px solid var(--rule);
-    background: var(--plate);
-  }
-  .brief .grid12 {
-    align-items: baseline;
-    row-gap: 10px;
-  }
-  .brief-h {
-    grid-column: 1 / span 5;
-    margin: 0;
-    color: var(--lichen);
-    font-weight: 400;
-  }
-  .brief-p {
-    grid-column: 7 / span 6;
-    margin: 0;
-    max-width: 64ch;
-    color: var(--frost);
-    text-wrap: pretty;
-  }
-
-  /* Evolution: one line, five stations, the last one is now */
-  .evo {
+  .hd-crumb {
     grid-column: 1 / -1;
-    list-style: none;
-    margin: clamp(48px, 5vw, 80px) 0 0;
-    padding: 0;
-    position: relative;
-    display: grid;
-    grid-template-columns: repeat(var(--n), minmax(0, 1fr));
+    display: flex;
+    gap: 10px;
+    color: var(--ash);
   }
-  /* The line is drawn as one segment per gap, station to station, so it runs in sequence and never wraps. */
-  .evo-st:not(:last-child)::after {
-    content: '';
-    position: absolute;
-    top: 4px;
-    left: 10px;
-    right: 0;
-    height: 2px;
-    background: var(--signal);
-    transform-origin: left center;
-    transition: transform 520ms var(--ease-in-out);
-    transition-delay: calc(var(--i) * 260ms + 120ms);
+  .hd-crumb a {
+    color: var(--print);
+    text-decoration: none;
   }
-  :global(.js) .evo:not(.is-in) .evo-st::after {
-    transform: scaleX(0);
+  .hd-crumb a:hover {
+    text-decoration: underline;
+    text-underline-offset: 4px;
   }
-  .evo-st {
-    position: relative;
-    padding-right: 16px;
-    display: grid;
-    align-content: start;
+  .hd-t {
+    grid-column: 1 / span 8;
+    font-size: clamp(44px, 5.6vw, 92px);
+    font-weight: 500;
+    letter-spacing: -0.045em;
+    line-height: 0.95;
+    text-wrap: balance;
+    animation: hd-rise 0.9s var(--e-out) 0.05s both;
   }
-  .evo-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    border: 2px solid var(--signal);
-    background: var(--ground);
-    position: relative;
-    z-index: 1;
-    margin-bottom: 16px;
-    transition: background-color 300ms var(--ease-out);
-    transition-delay: calc(var(--i) * 260ms + 200ms);
+  .hd-lede {
+    grid-column: 9 / span 4;
+    animation: hd-in 0.7s var(--e-out) 0.3s both;
   }
-  .evo-st.now .evo-dot {
-    background: var(--signal);
+  @keyframes hd-rise {
+    from {
+      opacity: 0;
+      transform: translateY(32px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
   }
-  :global(.js) .evo:not(.is-in) .evo-st.now .evo-dot {
-    background: var(--ground);
-  }
-  .evo-l {
-    font-family: var(--font-mono);
-    font-size: 12px;
-    line-height: 1.4;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--lichen);
-  }
-  .evo-st.now .evo-l {
-    color: var(--frost);
-  }
-  .evo-y {
-    margin-top: 6px;
-    font-family: var(--font-mono);
-    font-size: 12px;
-    line-height: 1.4;
-    color: var(--lichen);
-  }
-  .evo-st.now .evo-y {
-    color: var(--frost);
+  @keyframes hd-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
   }
 
-  .why {
-    margin: 22px 0 24px;
-    font-family: var(--font-mono);
-    font-size: 13px;
-    line-height: 1.7;
-    color: var(--lichen);
-    text-wrap: balance;
-    max-width: 56ch;
+  /* ── head media: the city at dawn, a real screen, the brief as caption ── */
+  .ab-hero-k {
+    color: var(--ash);
+    margin-bottom: 12px;
   }
-  .why span {
+  .ab-hero-p {
+    font-size: clamp(18px, 1.4vw, 22px);
+    line-height: 1.45;
+    max-width: 34ch;
+    text-shadow: 0 1px 18px rgb(13 12 11 / 0.6);
+  }
+  :global(.ab-hero.mf--full .mf-cap) {
+    max-width: 36%;
+  }
+
+  /* ── background ── */
+  .bg-g {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--col-gap);
+    row-gap: 32px;
+    align-items: end;
+  }
+  .bg-k {
+    grid-column: 1 / -1;
+  }
+  :global(.bg-lit) {
+    grid-column: 1 / span 8;
+    font-size: clamp(30px, 3.6vw, 60px);
+    max-width: 24ch;
+  }
+  .bg-p {
+    grid-column: 9 / span 4;
+    color: var(--ash);
+    max-width: 44ch;
+  }
+  .path {
+    list-style: none;
+    margin: clamp(56px, 6vw, 104px) 0 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    row-gap: 22px;
+  }
+  .path li {
+    position: relative;
+    display: inline-flex;
+    align-items: baseline;
+    padding-top: 26px;
+  }
+  .path-y {
+    position: absolute;
+    top: 0;
+    left: 0;
+    color: var(--ash);
+    font-variant-numeric: tabular-nums;
     white-space: nowrap;
   }
-  .ab-next {
-    margin-top: 18px;
+  .path-l {
+    font-size: clamp(30px, 3.4vw, 56px);
+    font-weight: 500;
+    letter-spacing: -0.035em;
+    line-height: 1;
+    color: var(--ash);
+    white-space: nowrap;
   }
-  .ab-a {
-    color: var(--frost);
-    background-size: 100% 1px;
+  .path-ar {
+    margin: 0 0.35em;
+    font-size: clamp(26px, 2.8vw, 46px);
+    color: var(--ash);
+    font-weight: 300;
   }
-  .ab-a:hover {
-    color: var(--signal);
+  .path li.corp .path-l,
+  .path li.now .path-l {
+    color: var(--print);
+  }
+  .path li.now .path-y {
+    color: var(--flare);
   }
 
-  /* Founder: the left column carries a pinned record, the right column the bio */
-  .fd-pin {
-    position: sticky;
-    top: 120px;
+  /* ── why ── */
+  .why-g {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--col-gap);
+    row-gap: 48px;
+    padding-block: clamp(48px, 6vw, 96px);
+    border-block: 1px solid var(--rule-film);
   }
-  .fd-rec {
+  .why-l {
+    grid-column: 1 / span 7;
+  }
+  .why-q {
+    margin-top: 28px;
+    font-size: clamp(36px, 4.4vw, 72px);
+    font-weight: 500;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    max-width: 16ch;
+    text-wrap: balance;
+  }
+  .why-r {
+    grid-column: 9 / span 4;
+    align-self: end;
+  }
+  .why-list {
     list-style: none;
-    margin: clamp(28px, 3vw, 40px) 0 0;
+    margin: 0;
     padding: 0;
-    max-width: 380px;
-    border-bottom: 1px solid var(--rule);
-    font-family: var(--font-mono);
-    font-size: 12.5px;
-    line-height: 1.45;
-    color: var(--frost);
+    display: grid;
+    gap: 6px;
   }
-  .fd-rec li {
-    padding: 11px 0;
-    border-top: 1px solid var(--rule);
+  .why-list li {
+    font-size: clamp(22px, 1.9vw, 30px);
+    font-weight: 500;
+    letter-spacing: -0.022em;
+    line-height: 1.2;
   }
-  .fd-rec li:first-child {
-    border-top-color: var(--rule-strong);
+  .why-p {
+    margin-top: 28px;
+    color: var(--ash);
+    max-width: 36ch;
+  }
+
+  /* ── where it has led ── */
+  .led-head {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--col-gap);
+    row-gap: 22px;
+    align-items: end;
+    margin-bottom: clamp(36px, 4vw, 64px);
+  }
+  .led-head .t-h2 {
+    grid-column: 1 / span 7;
+    max-width: 12ch;
+  }
+  .led-p {
+    grid-column: 9 / span 4;
+    font-size: clamp(18px, 1.35vw, 21px);
+    line-height: 1.5;
+  }
+  .led-p .lnk {
+    color: var(--print);
+    display: inline-flex;
+    gap: 6px;
+  }
+  .led-g {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--gut);
+  }
+
+  /* ── founder + record ── */
+  .fd {
+    padding-block: var(--sec);
   }
   .fd-name {
+    margin-top: 18px;
+    font-size: clamp(52px, 9vw, 152px);
+    max-width: none;
+  }
+  .fd-g {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--col-gap);
+    row-gap: 40px;
+    margin-top: clamp(40px, 5vw, 80px);
+  }
+  .fd-rec {
+    grid-column: 1 / span 5;
     margin: 0;
-    font-family: var(--font-display);
-    font-stretch: 112%;
-    font-weight: 480;
-    font-size: clamp(1.6rem, 1.2rem + 1.2vw, 2.4rem);
-    line-height: 1.02;
-    letter-spacing: -0.024em;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 28px var(--col-gap);
+    align-content: start;
+  }
+  .fd-rec > div {
+    border-top: 2px solid var(--ink);
+    padding-top: 14px;
+  }
+  .fd-rec dt {
+    color: var(--ink-soft);
+  }
+  .fd-rec dd {
+    margin: 8px 0 0;
+    font-size: clamp(20px, 1.6vw, 26px);
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+  .fd-txt {
+    grid-column: 7 / span 6;
   }
   .fd-bio {
-    margin: 22px 0 0;
+    font-size: clamp(19px, 1.45vw, 22px);
+    line-height: 1.5;
+    max-width: 46ch;
   }
   .fd-staff {
-    margin: 26px 0 0;
-    padding-top: 18px;
-    border-top: 1px solid var(--rule);
-    max-width: 62ch;
-    color: var(--frost);
+    margin-top: 24px;
+    color: var(--ink-soft);
+    max-width: 52ch;
   }
-
-  /* Company record */
-  .rec {
-    margin: 0;
-    border-bottom: 1px solid var(--rule);
+  .fd-staff strong {
+    color: var(--ink);
+    font-weight: 600;
   }
-  .rec > div {
+  .rc {
+    margin-top: clamp(64px, 7vw, 120px);
+    background: var(--print);
+    padding: clamp(24px, 3vw, 48px);
+    box-shadow: 0 30px 60px -40px rgb(20 19 16 / 0.5);
+  }
+  .rc-h {
+    margin-bottom: clamp(28px, 3vw, 44px);
+  }
+  .rc-dl {
+    margin: clamp(36px, 4vw, 56px) 0 0;
     display: grid;
-    grid-template-columns: 200px 1fr;
-    gap: 16px;
-    padding: 14px 0;
-    border-top: 1px solid var(--rule);
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 24px var(--col-gap);
   }
-  .rec dt {
-    color: var(--lichen);
-    padding-top: 3px;
+  .rc-dl dt {
+    color: var(--ink-soft);
+    margin-bottom: 6px;
   }
-  .rec dt abbr {
-    text-decoration: underline dotted;
-    text-underline-offset: 3px;
-    cursor: help;
-  }
-  .rec dd {
+  .rc-dl dd {
     margin: 0;
-  }
-  .rec-code {
-    font-family: var(--font-mono);
-    letter-spacing: 0.04em;
-    white-space: nowrap;
-  }
-  .rec-verify {
-    display: table;
-    margin-top: 6px;
-    color: var(--lichen);
-    cursor: pointer;
-    text-decoration: underline;
-    text-decoration-color: var(--rule-strong);
-    text-underline-offset: 4px;
-    transition:
-      color var(--t-micro) var(--ease-out),
-      text-decoration-color var(--t-micro) var(--ease-out);
-  }
-  .rec-verify:hover {
-    color: var(--frost);
-    text-decoration-color: currentColor;
+    font-size: 17px;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
   }
 
-  @media (max-width: 980px) {
-    .ab-l,
-    .ab-r,
-    .brief-h,
-    .brief-p {
+  @media (max-width: 1100px) {
+    .rc-dl {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 900px) {
+    .hd-t,
+    .hd-lede,
+    :global(.bg-lit),
+    .bg-p,
+    .why-l,
+    .why-r,
+    .led-head .t-h2,
+    .led-p,
+    .fd-rec,
+    .fd-txt {
       grid-column: 1 / -1;
     }
-    .ab-r {
-      margin-top: 24px;
+    :global(.ab-hero.mf--full .mf-cap) {
+      max-width: none;
     }
-    .fd-pin {
-      position: static;
+    .ab-hero-k {
+      color: var(--ash);
     }
-    .rec > div {
+    .led-g {
       grid-template-columns: 1fr;
-      gap: 4px;
     }
   }
-
-  @media (max-width: 700px) {
-    .evo {
+  @media (max-width: 560px) {
+    .fd-rec,
+    .rc-dl {
       grid-template-columns: 1fr;
-      row-gap: 26px;
-    }
-    .evo-st:not(:last-child)::after {
-      top: 14px;
-      bottom: -30px;
-      left: 4px;
-      right: auto;
-      width: 2px;
-      height: auto;
-      transform-origin: center top;
-    }
-    :global(.js) .evo:not(.is-in) .evo-st::after {
-      transform: scaleY(0);
-    }
-    .evo-st {
-      padding: 0 0 0 30px;
-    }
-    .evo-dot {
-      position: absolute;
-      left: 0;
-      top: 4px;
-      margin: 0;
-    }
-    .evo-y {
-      margin-top: 2px;
     }
   }
 </style>

@@ -1,0 +1,84 @@
+---
+// Closing row on a capability page: the other capabilities as pictures, before the layout's CTA block.
+import CapArt from './CapArt.astro';
+import { CAPABILITIES } from '../../data/capabilities';
+import type { CapKey } from './media';
+interface Props {
+  current: CapKey;
+}
+const { current } = Astro.props;
+const others = CAPABILITIES.filter((c) => c.key !== current);
+---
+
+<section class="cnx shell" aria-labelledby="cnx-h">
+  <div class="inset cnx-head">
+    <h2 id="cnx-h" class="t-h3" data-rise>Other capabilities</h2>
+    <a class="lnk t-label" href="/capabilities">All four on one page <span class="ar" aria-hidden="true">→</span></a>
+  </div>
+  <ul class="cnx-g">
+    {
+      others.map((c) => (
+        <li>
+          <CapArt k={c.key as CapKey} href={c.href} name={c.name} line={c.line} class="cnx-a" />
+        </li>
+      ))
+    }
+  </ul>
+</section>
+
+<style>
+  .cnx {
+    padding-block: var(--sec) 0;
+  }
+  .cnx-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 24px;
+    flex-wrap: wrap;
+    margin-bottom: clamp(24px, 2.6vw, 40px);
+  }
+  .cnx-g {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(8px, 0.9vw, 14px);
+  }
+  .cnx-g li {
+    aspect-ratio: 4 / 4.4;
+  }
+  .cnx-g :global(.cnx-a) {
+    height: 100%;
+  }
+  /* smaller phone here so the caption below never sits on the screen */
+  .cnx-g :global(.cnx-a .ca-scr--phone) {
+    top: 5%;
+    width: min(27%, 120px);
+    margin-left: calc(min(27%, 120px) / -2);
+  }
+  @media (max-width: 900px) {
+    .cnx-g {
+      display: flex;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+      margin-inline: calc(var(--gut) * -1);
+      padding-inline: var(--gut);
+      scroll-padding-inline: var(--gut);
+    }
+    .cnx-g::-webkit-scrollbar {
+      display: none;
+    }
+    .cnx-g :global(.cnx-a .ca-scr--phone) {
+      width: 24%;
+      margin-left: -12%;
+    }
+    .cnx-g li {
+      flex: 0 0 min(80vw, 380px);
+      aspect-ratio: 4 / 4.6;
+      scroll-snap-align: start;
+    }
+  }
+</style>

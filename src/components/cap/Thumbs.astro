@@ -1,0 +1,135 @@
+---
+// Proof row: real screenshot thumbnails of the projects that show a capability, each with its status.
+// Projects without a screenshot follow as text links ("Also …").
+import StatusTag from '../StatusTag.astro';
+import { projectHref, type Project } from '../../data/projects';
+import { THUMB } from './media';
+interface Props {
+  projects: Project[];
+  label: string;
+  max?: number;
+  /** Grid columns for the thumbnails (desktop). */
+  cols?: number;
+  class?: string;
+}
+const { projects, label, max = 3, cols, class: cls } = Astro.props;
+const shots = projects.filter((p) => THUMB[p.slug]).slice(0, max);
+const n = cols ?? Math.max(1, shots.length);
+const rest = projects.filter((p) => !shots.includes(p));
+---
+
+<div class:list={['th', cls]}>
+  <p class="t-label t-mute th-k">{label}</p>
+  {
+    shots.length > 0 && (
+      <ul class="th-g" style={`--cols:${n}`}>
+        {shots.map((p) => (
+          <li>
+            <a class="th-a" href={projectHref(p)}>
+              <span class="th-img frame">
+                <img src={THUMB[p.slug].src} alt="" width={THUMB[p.slug].w} height={THUMB[p.slug].h} loading="lazy" decoding="async" />
+              </span>
+              <span class="th-n">{p.short}</span>
+              <StatusTag status={p.status} class="th-s" />
+            </a>
+          </li>
+        ))}
+      </ul>
+    )
+  }
+  {
+    rest.length > 0 && (
+      <ul class="th-also">
+        {rest.map((p) => (
+          <li>
+            <a href={projectHref(p)}>
+              <span class="th-n">{p.short}</span>
+              <StatusTag status={p.status} class="th-s" />
+            </a>
+          </li>
+        ))}
+      </ul>
+    )
+  }
+</div>
+
+<style>
+  .th-k {
+    margin-bottom: 14px;
+  }
+  .th-g {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(var(--cols, 3), minmax(0, 1fr));
+    gap: clamp(10px, 1vw, 16px);
+  }
+  .th-a {
+    display: grid;
+    gap: 6px;
+    text-decoration: none;
+  }
+  .th-img {
+    display: block;
+    aspect-ratio: 16 / 10;
+    margin-bottom: 6px;
+    background: var(--reel);
+    box-shadow: 0 0 0 1px var(--rule-film);
+  }
+  :global(.tone-bone) .th-img {
+    background: var(--bone-2);
+    box-shadow: 0 0 0 1px var(--rule-ink);
+  }
+  .th-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 0 0;
+    transition: transform 0.6s var(--e-out);
+  }
+  .th-a:hover img {
+    transform: scale(1.05);
+  }
+  .th-n {
+    font-size: 18px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+  .th-a:hover .th-n,
+  .th-also a:hover .th-n {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+  .th-a :global(.th-s) {
+    color: var(--ash);
+  }
+  :global(.tone-bone) .th-a :global(.th-s),
+  :global(.tone-bone) .th-also :global(.th-s) {
+    color: var(--ink-soft);
+  }
+  .th-also {
+    list-style: none;
+    margin: 18px 0 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 28px;
+  }
+  .th-also a {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 12px;
+    text-decoration: none;
+    min-height: 44px;
+    align-items: center;
+  }
+  .th-also :global(.th-s) {
+    color: var(--ash);
+  }
+  @media (max-width: 520px) {
+    .th-g {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>

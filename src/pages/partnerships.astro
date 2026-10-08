@@ -1,9 +1,15 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import PageHead from '../components/PageHead.astro';
-import StageTrack from '../components/StageTrack.astro';
+import LitText from '../components/company/LitText.astro';
+import Button from '../components/Button.astro';
+import SectionHead from '../components/SectionHead.astro';
+import ProjectCard from '../components/ProjectCard.astro';
 import { PARTNERSHIP_MODELS } from '../data/partnerships';
+import { STAGES } from '../data/stages';
+import { visibleProjects, type Project } from '../data/projects';
 import { SITE } from '../data/site';
+
+const P = Object.fromEntries(visibleProjects.map((p) => [p.slug, p])) as Record<string, Project>;
 
 const audiences = ['Founders', 'Research groups', 'Technical teams', 'Technology companies from other markets building in Canada', 'Canadian companies', 'Public organizations'];
 
@@ -14,6 +20,20 @@ const steps = [
   'IP, confidentiality and publication terms are agreed in writing before any work starts.',
   'First bounded stage, for example a prototype or a feasibility answer, then a joint decision on the next one.'
 ];
+
+const slug = (s: string) =>
+  s
+    .toLowerCase()
+    .replace(/&/g, 'and')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+const models = PARTNERSHIP_MODELS.map((m) => ({
+  ...m,
+  id: `pm-${slug(m.name)}`,
+  covers: m.span[0] === m.span[1] ? STAGES[m.span[0]].label : `${STAGES[m.span[0]].label} → ${STAGES[m.span[1]].label}`
+}));
+
+const credits = ['Photo via Wikimedia Commons: Rideau Canal at night by Dylandamic0, CC BY-SA 3.0'];
 
 const jsonLd = [
   {
@@ -34,254 +54,531 @@ const jsonLd = [
   description="Eight ways to partner with INNOVA: co-development, applied R&D, commercialization, integration, pilots, program-funded R&D, industry consortia and Canadian adaptation."
   path="/partnerships"
   jsonLd={jsonLd}
+  credits={credits}
   breadcrumbs={[
     { name: 'Home', path: '/' },
     { name: 'Partnerships', path: '/partnerships' }
   ]}
 >
-  <PageHead
-    crumb="Partnerships"
-    title="Bring the expertise, the technology or the problem. We build the rest together."
-    lede="Have technology, expertise, a problem or an opportunity? Each partnership model below says what each side brings and which part of the line it covers."
-  >
-    <div slot="aside" class="pa-aside">
-      <a class="btn btn-primary" href="/contact?topic=partnership">Start a partnership conversation <span class="arr" aria-hidden="true">→</span></a>
-    </div>
-  </PageHead>
-
-  <section class="brief" aria-labelledby="brief-h">
-    <div class="wrap grid12">
-      <h2 id="brief-h" class="mono brief-h">In brief</h2>
-      <p class="brief-p">
-        INNOVA joins Canadian innovation projects as the software and AI partner: co-development, applied R&amp;D, pilots and program-funded R&amp;D projects. Partners bring domain expertise, data, users or technology. INNOVA brings product design, engineering and AI.
-      </p>
+  <!-- ═══ HERO BAND: Rideau Canal at night, the offer, who we partner with ═══ -->
+  <section class="band shell" aria-labelledby="pa-h">
+    <div class="band-f frame" data-dolly-bg>
+      <div class="band-world" aria-hidden="true">
+        <img src="/img/rideau-night.webp" srcset="/img/rideau-night-1200.webp 1200w, /img/rideau-night.webp 2400w" sizes="100vw" alt="" width="2400" height="1600" fetchpriority="high" decoding="async" />
+      </div>
+      <div class="band-top">
+        <p class="t-label band-crumb"><a href="/">INNOVA</a><span aria-hidden="true">/</span><span>Partnerships</span></p>
+        <h1 id="pa-h" class="band-t">Bring the expertise, the technology or the problem. We build the rest together.</h1>
+        <div class="band-row">
+          <p class="t-lede band-lede">Have technology, expertise, a problem or an opportunity? Each partnership model below says what each side brings and which part of the work it covers.</p>
+          <Button href="/contact?topic=partnership">Start a partnership conversation</Button>
+        </div>
+      </div>
+      <div class="band-b">
+        <div class="au-l">
+          <h2 class="t-label t-mute">Who we partner with</h2>
+          <ul class="au">{audiences.map((a) => <li>{a}</li>)}</ul>
+        </div>
+        <div class="au-r">
+          <p>
+            INNOVA is based in Ottawa and is open to partners in Canada and abroad. We are glad to join consortium applications to Canadian innovation programs as the software and AI partner.
+          </p>
+          <p class="t-mute">Eligibility rules differ by program. We check them for INNOVA before we commit to an application.</p>
+        </div>
+      </div>
+      <span class="band-credit">Rideau Canal, Ottawa</span>
     </div>
   </section>
 
-  <section class="section" id="models">
-    <div class="wrap">
-      <div class="grid12 sec-head">
-        <div class="sh-l"><h2 class="d-l">Eight ways to work together.</h2></div>
-        <p class="body sh-r">A project often combines two of them, for example applied R&amp;D followed by a pilot.</p>
+  <!-- ═══ IN BRIEF: one statement that lights up ═══ -->
+  <section class="brief shell pad-lg" aria-labelledby="brief-h">
+    <div class="inset">
+      <h2 id="brief-h" class="t-label t-mute brief-k">In brief</h2>
+      <LitText
+        class="brief-lit"
+        text="INNOVA joins Canadian innovation projects as the *software* *and* *AI* *partner:* co-development, applied R&D, pilots and program-funded R&D projects. Partners bring domain expertise, data, users or technology. INNOVA brings product design, engineering and AI."
+      />
+    </div>
+  </section>
+
+  <!-- ═══ EIGHT MODELS: sticky index + model sheets, on bone ═══ -->
+  <section class="pm tone-bone" id="models" aria-labelledby="models-h">
+    <div class="shell">
+      <div class="inset">
+        <SectionHead id="models-h" title="Eight ways to work together" lede="A project often combines two of them, for example applied R&D followed by a pilot." size="h2" />
+        <div class="pm-g">
+          <nav class="pm-idx" aria-label="Partnership models">
+            <ol>
+              {
+                models.map((m, i) => (
+                  <li>
+                    <a href={`#${m.id}`} class:list={{ on: i === 0 }} data-pm-link={i}>
+                      <span class="ar" aria-hidden="true">→</span>
+                      <span>{m.name}</span>
+                    </a>
+                  </li>
+                ))
+              }
+            </ol>
+          </nav>
+          <div class="pm-list">
+            {
+              models.map((m, i) => (
+                <article class="pm-card frame" id={m.id} data-pm={i} aria-labelledby={`${m.id}-h`}>
+                  <p class="t-label pm-cov">Covers {m.covers}</p>
+                  <h3 id={`${m.id}-h`} class="t-h3 pm-n">{m.name}</h3>
+                  <p class="pm-line">{m.line}</p>
+                  <dl class="pm-dl">
+                    <div>
+                      <dt class="t-label">You bring</dt>
+                      <dd>{m.youBring}</dd>
+                    </div>
+                    <div>
+                      <dt class="t-label">INNOVA brings</dt>
+                      <dd>{m.weBring}</dd>
+                    </div>
+                  </dl>
+                  {m.example && (
+                    <a class="lnk pm-ex" href={m.example.href}>
+                      {m.example.label} <span class="ar" aria-hidden="true">→</span>
+                    </a>
+                  )}
+                </article>
+              ))
+            }
+          </div>
+        </div>
       </div>
-      <div class="rows">
+    </div>
+  </section>
+
+  <!-- ═══ A MODEL IN PRACTICE: OpenField ═══ -->
+  <section class="ex shell pad-lg" aria-labelledby="ex-h">
+    <div class="inset">
+      <SectionHead id="ex-h" title="A model in practice" lede="Applied R&D first: a prototype on demo data. Field validation is now being scoped for 2027." size="h2" />
+    </div>
+    <ProjectCard
+      project={P.openfield}
+      size="full"
+      statusLabel="Prototype · demo data"
+      headline="A robot-fleet logbook, built to be tested."
+      fact="Field validation is planned for the 2027 season, with Ontario dealers and growers running robots from more than one manufacturer."
+      world={{ src: '/img/field-robot.webp', src800: '/img/field-robot-800.webp', w: 1376, h: 768, pos: '50% 60%' }}
+      screens={[
         {
-          PARTNERSHIP_MODELS.map((m) => (
-            <div class="row pm">
-              <div>
-                <h3 class="d-m">{m.name}</h3>
-                <p class="body pm-line">{m.line}</p>
-                {m.example && (
-                  <p class="pm-exw">
-                    <a class="pm-ex" href={m.example.href}>{m.example.label}<span class="pm-arr" aria-hidden="true">→</span></a>
-                  </p>
-                )}
-              </div>
-              <dl class="pm-dl">
-                <div>
-                  <dt class="mono">You bring</dt>
-                  <dd>{m.youBring}</dd>
-                </div>
-                <div>
-                  <dt class="mono">INNOVA brings</dt>
-                  <dd>{m.weBring}</dd>
-                </div>
-              </dl>
-              <StageTrack span={m.span} />
-            </div>
-          ))
+          src: '/proof/openfield-season-report-1440-1600.webp',
+          src800: '/proof/openfield-season-report-1440-800.webp',
+          w: 1600,
+          h: 1000,
+          alt: 'OpenField season report preview: block-by-week pass grid and report figures, each tagged with its data source (demo data).',
+          l: '40%',
+          t: '10%',
+          width: '46%',
+          lm: '6%',
+          tm: '9%',
+          wm: '74%'
+        },
+        {
+          src: '/proof/openfield-entry-390-800.webp',
+          src800: '/proof/openfield-entry-390-400.webp',
+          w: 800,
+          h: 1621,
+          alt: 'OpenField technician entry screen on a phone (demo farm, simulated data).',
+          kind: 'phone',
+          l: '82%',
+          t: '20%',
+          width: '13%',
+          lm: '67%',
+          tm: '14%',
+          wm: '27%',
+          depth: 1.6
         }
-      </div>
-    </div>
+      ]}
+      aspectM="4 / 3.4"
+      headingLevel="h3"
+    />
   </section>
 
-  <section class="section" id="start" aria-labelledby="start-h">
-    <div class="wrap grid12">
-      <div class="st-l">
-        <h2 id="start-h" class="d-l">How a partnership starts.</h2>
-        <p class="body st-p">Four steps, from the first message to the first shared result.</p>
-      </div>
+  <!-- ═══ HOW A PARTNERSHIP STARTS: a real sequence ═══ -->
+  <section class="st shell" aria-labelledby="start-h">
+    <div class="inset">
+      <SectionHead id="start-h" title="How a partnership starts" lede="Four steps, from the first message to the first shared result." size="h2" />
       <ol class="steps">
         {
           steps.map((s, i) => (
             <li>
-              <span class="mono st-n" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+              <span class="st-n tnum" aria-hidden="true">{i + 1}</span>
               <p>{s}</p>
             </li>
           ))
         }
       </ol>
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="wrap grid12">
-      <div class="au-l">
-        <h2 class="d-l">Who we partner with.</h2>
-        <p class="body au-p">
-          INNOVA is based in Ottawa and is open to partners in Canada and abroad. We are glad to join consortium applications to Canadian innovation programs as the software and AI partner.
-        </p>
-        <p class="body au-p2">Eligibility rules differ by program. We check them for INNOVA before we commit to an application.</p>
-        <p class="body au-p2">
-          How INNOVA runs research questions, prototypes and commercialization is on the
-          <a class="ulink au-a" href="/innovation">Innovation &amp; R&amp;D</a> page.
-        </p>
-      </div>
-      <ul class="au">{audiences.map((a) => <li>{a}</li>)}</ul>
+      <p class="st-more t-mute">
+        How INNOVA runs research questions, prototypes and commercialization is on the
+        <a class="lnk" href="/innovation">Innovation &amp; R&amp;D page <span class="ar" aria-hidden="true">→</span></a>
+      </p>
     </div>
   </section>
 </BaseLayout>
 
-<style>
-  .pa-aside {
-    margin-top: 26px;
+<script>
+  // Model index: the last sheet whose top has passed the middle of the screen marks its name in the sticky index.
+  const links = document.querySelectorAll<HTMLElement>('[data-pm-link]');
+  const sheets = Array.from(document.querySelectorAll<HTMLElement>('[data-pm]'));
+  let ticking = false;
+  const mark = () => {
+    ticking = false;
+    const mid = innerHeight * 0.5;
+    let on = 0;
+    sheets.forEach((s, i) => {
+      if (s.getBoundingClientRect().top < mid) on = i;
+    });
+    links.forEach((l, j) => l.classList.toggle('on', j === on));
+  };
+  if (sheets.length) {
+    addEventListener('scroll', () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(mark);
+      }
+    }, { passive: true });
+    mark();
   }
+</script>
 
-  .brief {
-    padding-block: clamp(28px, 3vw, 44px);
-    border-bottom: 1px solid var(--rule);
-    background: var(--plate);
+<style>
+  /* ── band ── */
+  .band {
+    padding-top: var(--gut);
   }
-  .brief .grid12 {
-    align-items: baseline;
-    row-gap: 10px;
+  .band-f {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: clamp(64px, 9vw, 160px);
+    min-height: min(1040px, 116vh);
+    padding: clamp(28px, 4vw, 64px) clamp(16px, 2vw, 28px) clamp(16px, 2vw, 28px);
+    background: var(--reel);
+    animation: band-open 0.9s var(--e-out) both;
   }
-  .brief-h {
-    grid-column: 1 / span 4;
+  .band-crumb {
+    display: flex;
+    gap: 10px;
+    color: var(--ash);
+    margin-bottom: clamp(28px, 3vw, 48px);
+  }
+  .band-crumb a {
+    color: var(--print);
+    text-decoration: none;
+  }
+  .band-crumb a:hover {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+  .band-t {
+    font-size: clamp(44px, 5.8vw, 96px);
+    font-weight: 500;
+    letter-spacing: -0.045em;
+    line-height: 0.95;
+    max-width: 15ch;
+    text-wrap: balance;
+    text-shadow: 0 2px 30px rgb(13 12 11 / 0.5);
+    animation: band-rise 0.9s var(--e-out) 0.08s both;
+  }
+  .band-row {
+    margin-top: clamp(28px, 3vw, 44px);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 24px 48px;
+    animation: band-in 0.7s var(--e-out) 0.35s both;
+  }
+  .band-lede {
+    max-width: 38ch;
+    text-shadow: 0 1px 18px rgb(13 12 11 / 0.6);
+  }
+  @keyframes band-open {
+    from {
+      clip-path: inset(2.5% 2.5% 2.5% 2.5% round var(--r));
+    }
+    to {
+      clip-path: inset(0 0 0 0 round var(--r));
+    }
+  }
+  @keyframes band-rise {
+    from {
+      opacity: 0;
+      transform: translateY(32px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes band-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  .brief-k {
+    margin-bottom: 28px;
+  }
+  :global(.brief-lit) {
+    font-size: clamp(30px, 3.7vw, 62px);
+    max-width: 27ch;
+  }
+  .band-world {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    overflow: hidden;
+  }
+  .band-world img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 60%;
+    will-change: transform;
+  }
+  .band-f::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+      linear-gradient(90deg, rgb(13 12 11 / 0.5) 0%, rgb(13 12 11 / 0.28) 38%, rgb(13 12 11 / 0) 60%),
+      linear-gradient(180deg, rgb(13 12 11 / 0.78) 0%, rgb(13 12 11 / 0.5) 34%, rgb(13 12 11 / 0.14) 58%, rgb(13 12 11 / 0.6) 100%);
+  }
+  .band-top {
+    padding-inline: clamp(4px, 2vw, 36px);
+  }
+  .band-b {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--col-gap);
+    row-gap: 36px;
+    padding: clamp(24px, 3vw, 48px) clamp(20px, 2.4vw, 40px);
+    background: var(--film);
+    border-radius: var(--r);
+  }
+  .au-l {
+    grid-column: 1 / span 7;
+  }
+  .au-l h3 {
+    margin-bottom: 18px;
+  }
+  .au {
+    list-style: none;
     margin: 0;
-    color: var(--lichen);
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 0;
+  }
+  .au li {
+    font-size: clamp(22px, 2vw, 32px);
+    font-weight: 500;
+    letter-spacing: -0.025em;
+    line-height: 1.22;
+  }
+  .au li:not(:last-child)::after {
+    content: '/';
+    margin: 0 0.42em;
+    color: var(--ash);
     font-weight: 400;
   }
-  .brief-p {
-    grid-column: 5 / span 8;
-    margin: 0;
-    max-width: 64ch;
-    color: var(--frost);
-    text-wrap: pretty;
+  .au-r {
+    grid-column: 9 / span 4;
+    align-self: end;
+    display: grid;
+    gap: 14px;
+    font-size: 17px;
+    line-height: 1.5;
+  }
+  .band-credit {
+    position: absolute;
+    top: 14px;
+    right: 16px;
+    font-size: 13px;
+    color: rgb(238 234 226 / 0.78);
   }
 
-  .pm-line {
-    margin-top: 10px;
+  /* ── models ── */
+  .pm {
+    padding-block: var(--sec);
   }
-  .pm-exw {
-    margin: 12px 0 0;
-    font-size: 0.92rem;
-    line-height: 1.45;
-    max-width: 40ch;
-    text-wrap: balance;
+  .pm-g {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--col-gap);
+    align-items: start;
   }
-  .pm-ex {
-    line-height: 1.45;
-    color: var(--frost);
-    text-decoration: underline;
-    text-decoration-color: var(--rule-strong);
-    text-underline-offset: 4px;
-    transition: text-decoration-color var(--t-micro) var(--ease-out);
+  .pm-idx {
+    grid-column: 1 / span 5;
+    position: sticky;
+    top: calc(var(--hdr) + 40px);
   }
-  .pm-ex:hover {
-    text-decoration-color: currentColor;
-  }
-  .pm-arr {
-    display: inline-block;
-    margin-left: 6px;
-    transition: transform var(--t-micro) var(--ease-out);
-  }
-  .pm-ex:hover .pm-arr {
-    transform: translateX(4px);
-  }
-  .pm-dl {
+  .pm-idx ol {
+    list-style: none;
     margin: 0;
+    padding: 0;
+  }
+  .pm-idx a {
+    display: flex;
+    align-items: baseline;
+    gap: 0;
+    padding: 5px 0;
+    font-size: clamp(22px, 1.9vw, 30px);
+    font-weight: 500;
+    letter-spacing: -0.022em;
+    line-height: 1.15;
+    color: var(--ink-soft);
+    text-decoration: none;
+    transition: color 0.3s var(--e-out);
+  }
+  .pm-idx a .ar {
+    display: inline-block;
+    width: 0;
+    overflow: hidden;
+    color: var(--flare-ink);
+    transition:
+      width 0.4s var(--e-out),
+      margin 0.4s var(--e-out);
+  }
+  .pm-idx a:hover {
+    color: var(--ink);
+  }
+  .pm-idx a.on {
+    color: var(--ink);
+  }
+  .pm-idx a.on .ar {
+    width: 1.1em;
+    margin-right: 0.15em;
+  }
+  .pm-list {
+    grid-column: 6 / span 7;
     display: grid;
     gap: 14px;
   }
-  .pm-dl dt {
-    color: var(--lichen);
-    margin-bottom: 4px;
+  .pm-card {
+    background: var(--print);
+    padding: clamp(24px, 2.8vw, 44px);
+    scroll-margin-top: calc(var(--hdr) + 24px);
+    box-shadow: 0 24px 50px -40px rgb(20 19 16 / 0.5);
   }
-  .pm-dl dd {
-    margin: 0;
+  .pm-cov {
+    color: var(--ink-soft);
   }
-
-  .st-l {
-    grid-column: 1 / span 5;
-  }
-  .st-p {
-    margin-top: 20px;
-  }
-  .steps {
-    grid-column: 7 / span 6;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    border-bottom: 1px solid var(--rule);
-  }
-  .steps li {
-    display: grid;
-    grid-template-columns: 56px minmax(0, 1fr);
-    gap: 16px;
-    padding: 20px 0;
-    border-top: 1px solid var(--rule);
-  }
-  .st-n {
-    color: var(--lichen);
-    padding-top: 0.35em;
-  }
-  .steps p {
-    margin: 0;
-    max-width: 52ch;
-  }
-
-  .au-l {
-    grid-column: 1 / span 6;
-  }
-  .au-p {
-    margin-top: 20px;
-  }
-  .au-p2 {
+  .pm-n {
     margin-top: 14px;
   }
-  .au-a {
-    color: var(--frost);
-    background-size: 100% 1px;
+  .pm-line {
+    margin-top: 14px;
+    font-size: clamp(19px, 1.45vw, 22px);
+    line-height: 1.42;
+    max-width: 40ch;
   }
-  .au-a:hover {
-    color: var(--signal);
+  .pm-dl {
+    margin: clamp(24px, 2.6vw, 36px) 0 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px var(--col-gap);
   }
-  .au {
-    grid-column: 8 / span 5;
+  .pm-dl > div {
+    border-top: 2px solid var(--ink);
+    padding-top: 12px;
+  }
+  .pm-dl dt {
+    color: var(--ink-soft);
+  }
+  .pm-dl dd {
+    margin: 6px 0 0;
+    font-size: 17px;
+    line-height: 1.45;
+  }
+  .pm-ex {
+    margin-top: 24px;
+    color: var(--ink);
+    font-size: 16px;
+  }
+
+  /* ── example ── */
+  .ex :global(.pc-hl) {
+    max-width: 13ch;
+  }
+
+  /* ── steps ── */
+  .st {
+    padding-bottom: var(--sec);
+  }
+  .steps {
     list-style: none;
     margin: 0;
     padding: 0;
-    border-bottom: 1px solid var(--rule);
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 40px var(--col-gap);
   }
-  .au li {
-    padding: 14px 0;
-    border-top: 1px solid var(--rule);
-    font-family: var(--font-display);
-    font-stretch: 108%;
-    font-size: clamp(1.1rem, 1rem + 0.4vw, 1.4rem);
-    letter-spacing: -0.015em;
-    line-height: 1.25;
-    text-wrap: balance;
+  .steps li {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
   }
-  @media (max-width: 980px) {
+  .st-n {
+    font-size: clamp(64px, 7vw, 120px);
+    font-weight: 500;
+    letter-spacing: -0.05em;
+    line-height: 0.8;
+  }
+  .steps p {
+    font-size: clamp(18px, 1.35vw, 21px);
+    line-height: 1.45;
+    max-width: 30ch;
+  }
+  .st-more {
+    margin-top: clamp(48px, 5vw, 80px);
+    font-size: 17px;
+  }
+  .st-more .lnk {
+    color: var(--print);
+  }
+
+  @media (max-width: 1100px) {
+    .steps {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 900px) {
+    .band-f {
+      min-height: 0;
+    }
     .au-l,
-    .au,
-    .st-l,
-    .steps,
-    .brief-h,
-    .brief-p {
+    .au-r {
       grid-column: 1 / -1;
     }
-    .au,
-    .steps {
-      margin-top: 28px;
+    .pm-idx {
+      display: none;
+    }
+    .pm-list {
+      grid-column: 1 / -1;
     }
   }
-  @media (max-width: 600px) {
+  @media (max-width: 560px) {
+    .pm-dl,
+    .steps {
+      grid-template-columns: 1fr;
+    }
     .steps li {
-      grid-template-columns: 40px minmax(0, 1fr);
-      gap: 10px;
+      flex-direction: row;
+      gap: 18px;
+    }
+    .st-n {
+      font-size: 56px;
+      flex: none;
+      width: 44px;
     }
   }
 </style>

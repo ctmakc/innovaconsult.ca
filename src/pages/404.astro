@@ -1,230 +1,148 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { STAGES } from '../data/stages';
+import FitText from '../components/FitText.astro';
+import MediaFrame from '../components/MediaFrame.astro';
+
+const credits = [
+  'Photos via Wikimedia Commons: Parliament Hill at dawn by joiseyshowaa, CC BY-SA 2.0 (colour graded)',
+  'Rideau Canal at night by Dylandamic0, CC BY-SA 3.0'
+];
 ---
 
-<BaseLayout title="Page not found | INNOVA" description="This page does not exist on innovaconsult.ca." path="/404" noindex footerCta={false}>
-  <section class="nf">
-    <div class="wrap grid12">
-      <div class="nf-head">
-        <p class="kicker">404 · off the line</p>
-        <h1 class="d-xl">This page is not on the line.</h1>
-      </div>
-
-      <div class="nf-line" data-draw role="img" aria-label="The stage line from Opportunity to Impact, with this page marked off the line between Prototype and Build.">
-        <ol class="nf-st" aria-hidden="true">
-          {
-            STAGES.map((s, i) => (
-              <li style={`--i:${i}`}>
-                <span class="nf-dot" />
-                <span class="nf-l">{s.label}</span>
-              </li>
-            ))
-          }
-        </ol>
-        <span class="nf-here" aria-hidden="true">
-          <span class="mark" data-s="exploring"></span>
-          <span class="nf-here-l">You are here · 404</span>
-        </span>
-      </div>
-
-      <div class="nf-body">
-        <p class="lede nf-p">The address may be old or mistyped. These will get you back on track.</p>
-        <ul class="nf-links">
-          <li><a class="arrow-link" href="/"><span>Home</span><span aria-hidden="true">→</span></a></li>
-          <li><a class="arrow-link" href="/projects"><span>Projects</span><span aria-hidden="true">→</span></a></li>
-          <li><a class="arrow-link" href="/contact"><span>Contact</span><span aria-hidden="true">→</span></a></li>
-        </ul>
+<BaseLayout title="Page not found | INNOVA" description="This page does not exist on innovaconsult.ca." path="/404" noindex footerCta={false} credits={credits}>
+  <section class="nf shell" aria-labelledby="nf-h">
+    <div class="inset nf-g">
+      <FitText as="p" class="nf-num" text="Error 404" lines={['404']} />
+      <div class="nf-r">
+        <h1 id="nf-h" class="t-h2 nf-h">Page not found.</h1>
+        <p class="t-lede nf-p">The address may be old or mistyped. These will get you back on track.</p>
       </div>
     </div>
+
+    <nav class="nf-go" aria-label="Where to go instead">
+      <MediaFrame
+        href="/"
+        size="stage"
+        aspect="4 / 3.4"
+        aspectM="16 / 9"
+        world={{ src: '/img/ottawa-dawn-1440.webp', w: 1440, h: 1079, pos: '50% 40%' }}
+      >
+        <p class="nf-n">Home <span class="ar" aria-hidden="true">→</span></p>
+        <p class="nf-d">Applied AI and software, Ottawa</p>
+      </MediaFrame>
+      <MediaFrame
+        href="/projects"
+        size="stage"
+        aspect="4 / 3.4"
+        aspectM="16 / 9"
+        world={{ src: '/img/uafest-dance.webp', src800: '/img/uafest-dance-800.webp', w: 1280, h: 818, pos: '30% 50%' }}
+        screens={[
+          {
+            src: '/proof/uafest-applications-1440-1600.webp',
+            src800: '/proof/uafest-applications-1440-800.webp',
+            w: 1600,
+            h: 1000,
+            alt: 'UAFest 2027 sign-up page on uafest.ca: one form with participation types for guests, volunteers, vendors, performers, sponsors and the organizing team.',
+            l: '13%',
+            t: '7%',
+            width: '62%',
+            lm: '20%',
+            tm: '9%',
+            wm: '56%'
+          }
+        ]}
+      >
+        <p class="nf-n">Projects <span class="ar" aria-hidden="true">→</span></p>
+        <p class="nf-d">Each one at its real stage</p>
+      </MediaFrame>
+      <MediaFrame
+        href="/contact"
+        size="stage"
+        aspect="4 / 3.4"
+        aspectM="16 / 9"
+        world={{ src: '/img/rideau-night-1200.webp', w: 1200, h: 800, pos: '58% 55%' }}
+      >
+        <p class="nf-n">Contact <span class="ar" aria-hidden="true">→</span></p>
+        <p class="nf-d">Tell us what you are looking for</p>
+      </MediaFrame>
+    </nav>
   </section>
 </BaseLayout>
 
 <style>
   .nf {
-    padding-block: clamp(72px, 9vw, 144px);
+    padding-top: clamp(40px, 6vw, 96px);
+    padding-bottom: var(--sec);
   }
-  .nf-head,
-  .nf-body {
-    grid-column: 1 / -1;
-  }
-  .nf-head :global(.d-xl) {
-    max-width: 16ch;
-  }
-
-  /* The stage line, columns 1–8, with one station-less marker hanging below it */
-  .nf-line {
-    --cell: calc(100% / 6);
-    --ly: 36px; /* line centre: station labels sit above it, the marker hangs below */
-    grid-column: 1 / span 8;
-    position: relative;
-    margin: clamp(48px, 5vw, 72px) 0 0;
-    padding-bottom: 104px;
-  }
-  .nf-st {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    position: relative;
+  .nf-g {
     display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--col-gap);
+    row-gap: 32px;
+    align-items: end;
   }
-  .nf-st::before {
-    content: '';
-    position: absolute;
-    top: calc(var(--ly) - 1px);
-    left: 6px;
-    right: calc(var(--cell) - 6px);
-    height: 2px;
-    background: var(--signal);
-    transform-origin: left center;
-    transition: transform var(--t-draw) var(--ease-in-out);
+  :global(.nf-num) {
+    grid-column: 1 / span 7;
+    color: var(--print);
+    animation: nf-rise 0.9s var(--e-out) both;
   }
-  :global(.js) .nf-line:not(.is-in) .nf-st::before {
-    transform: scaleX(0);
+  .nf-r {
+    grid-column: 9 / span 4;
+    padding-bottom: 0.4em;
+    animation: nf-in 0.7s var(--e-out) 0.25s both;
   }
-  .nf-st li {
-    display: grid;
-    justify-items: start;
-    gap: 14px;
-  }
-  .nf-dot {
-    order: 2;
-    position: relative;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    border: 2px solid var(--signal);
-    background: var(--ground);
-  }
-  .nf-l {
-    font-family: var(--font-mono);
-    font-size: 12px;
-    line-height: 16px;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--lichen);
-  }
-  .nf-here {
-    position: absolute;
-    /* between stations 3 and 4, 24px below the line (station and line centres sit at 6px) */
-    left: calc(var(--cell) * 2.5 + 6px);
-    top: calc(var(--ly) + 24px);
-    translate: -50% 0;
-    display: grid;
-    justify-items: center;
-    gap: 12px;
-    opacity: 1;
-    transition:
-      opacity 360ms var(--ease-out),
-      translate 360ms var(--ease-out);
-    transition-delay: 1100ms;
-  }
-  :global(.js) .nf-line:not(.is-in) .nf-here {
-    opacity: 0;
-    translate: -50% -8px;
-  }
-  .nf-here .mark {
-    --sz: 14px;
-  }
-  .nf-here-l {
-    font-family: var(--font-mono);
-    font-size: 12px;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--frost);
-    white-space: nowrap;
-  }
-  .nf-here::before {
-    content: '';
-    position: absolute;
-    top: -24px;
-    left: 50%;
-    width: 1px;
-    height: 20px;
-    background: repeating-linear-gradient(to bottom, var(--lichen) 0 3px, transparent 3px 6px);
-  }
-
   .nf-p {
-    margin: 8px 0 32px;
-    max-width: 40ch;
+    margin-top: 20px;
   }
-  .nf-links {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16px 36px;
+  .nf-go {
+    margin-top: clamp(56px, 6vw, 104px);
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--gut);
   }
-  .nf-links a {
-    min-height: 44px;
+  .nf-n {
+    font-size: clamp(30px, 2.6vw, 44px);
+    font-weight: 500;
+    letter-spacing: -0.035em;
+    line-height: 1;
   }
-
-  @media (max-width: 980px) {
-    .nf-line {
+  .nf-n .ar {
+    display: inline-block;
+    transition: transform 0.35s var(--e-out);
+  }
+  .nf-go :global(a.mf:hover) .nf-n .ar {
+    transform: translateX(8px);
+  }
+  .nf-d {
+    margin-top: 10px;
+    font-size: 17px;
+    color: var(--print);
+  }
+  @keyframes nf-rise {
+    from {
+      opacity: 0;
+      transform: translateY(6%);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes nf-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @media (max-width: 900px) {
+    :global(.nf-num),
+    .nf-r {
       grid-column: 1 / -1;
     }
-  }
-
-  /* Phones: the line turns vertical, the marker sits 24px beside it, between stations 3 and 4 */
-  @media (max-width: 700px) {
-    .nf-line {
-      --row: 18px;
-      --gap: 22px;
-      --extra: 44px;
-      padding-bottom: 40px;
-    }
-    .nf-st {
+    .nf-go {
       grid-template-columns: 1fr;
-      row-gap: var(--gap);
-    }
-    .nf-st::before {
-      top: 6px;
-      bottom: 6px;
-      left: 5px;
-      right: auto;
-      width: 2px;
-      height: auto;
-      transform-origin: center top;
-    }
-    :global(.js) .nf-line:not(.is-in) .nf-st::before {
-      transform: scaleY(0);
-    }
-    .nf-dot {
-      order: 0;
-    }
-    .nf-st li {
-      grid-template-columns: 12px 1fr;
-      justify-items: start;
-      align-items: center;
-      text-align: left;
-      gap: 16px;
-      min-height: var(--row);
-    }
-    .nf-l {
-      line-height: var(--row);
-    }
-    .nf-st li:nth-child(4) {
-      margin-top: var(--extra);
-    }
-    .nf-here {
-      left: calc(6px + 24px);
-      top: calc(3 * (var(--row) + var(--gap)) - var(--gap) + (var(--gap) + var(--extra)) / 2 - 7px);
-      translate: 0 0;
-      grid-auto-flow: column;
-      align-items: center;
-      gap: 12px;
-    }
-    :global(.js) .nf-line:not(.is-in) .nf-here {
-      translate: -8px 0;
-    }
-    .nf-here::before {
-      top: 50%;
-      left: -24px;
-      width: 20px;
-      height: 1px;
-      background: repeating-linear-gradient(to right, var(--lichen) 0 3px, transparent 3px 6px);
     }
   }
 </style>

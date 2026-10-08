@@ -1,0 +1,44 @@
+---
+// PageHead for the capability pages: a wider two-line title and a tighter head, so the media
+// (the page's main picture) starts inside the first screen. Same props and media slot as PageHead.
+import PageHead from '../PageHead.astro';
+interface Props {
+  crumb: string;
+  crumbHref?: string;
+  title: string;
+  lede?: string;
+}
+const props = Astro.props;
+---
+
+<div class="caphead">
+  <PageHead {...props}>
+    {Astro.slots.has('media') && <slot name="media" slot="media" />}
+  </PageHead>
+</div>
+
+<style>
+  .caphead :global(.ph) {
+    padding-block: clamp(28px, 3.6vw, 60px) clamp(40px, 4vw, 64px);
+  }
+  .caphead :global(.ph-t) {
+    grid-column: 1 / span 9;
+    font-size: clamp(44px, 6vw, 100px);
+    max-width: 18ch;
+  }
+  .caphead :global(.ph-r) {
+    grid-column: 10 / span 3;
+  }
+  .caphead :global(.ph-r .t-lede) {
+    font-size: clamp(17px, 1.3vw, 20px);
+  }
+  .caphead :global(.ph-media) {
+    margin-top: clamp(28px, 3vw, 48px);
+  }
+  @media (max-width: 900px) {
+    .caphead :global(.ph-t),
+    .caphead :global(.ph-r) {
+      grid-column: 1 / -1;
+    }
+  }
+</style>

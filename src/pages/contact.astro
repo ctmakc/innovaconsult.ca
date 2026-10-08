@@ -1,19 +1,9 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import PageHead from '../components/PageHead.astro';
+import ContactForm from '../components/ContactForm.astro';
 import { SITE } from '../data/site';
 
-const topics = [
-  ['product', 'Build a technology product'],
-  ['automation', 'Automate business processes'],
-  ['ai', 'Explore an AI initiative'],
-  ['workflow-os', 'See AI Workflow OS'],
-  ['rd', 'Discuss an R&D project'],
-  ['commercialize', 'Commercialize technology'],
-  ['partnership', 'Explore a partnership'],
-  ['public-sector', 'Discuss a public-sector project'],
-  ['other', 'Other']
-];
+const credits = ['Photo via Wikimedia Commons: Rideau Canal at night by Dylandamic0, CC BY-SA 3.0'];
 
 const jsonLd = [
   {
@@ -35,393 +25,221 @@ const jsonLd = [
   path="/contact"
   footerCta={false}
   jsonLd={jsonLd}
+  credits={credits}
   breadcrumbs={[
     { name: 'Home', path: '/' },
     { name: 'Contact', path: '/contact' }
   ]}
 >
-  <PageHead
-    crumb="Contact"
-    title="Start a conversation."
-    lede="Tell us what you are working on. Every message is read by a person, and we reply by email."
-  />
+  <section class="ct shell" aria-labelledby="ct-h">
+    <div class="ct-g">
+      <!-- The city at night, the statement over it; it stays in view while the form scrolls -->
+      <div class="ct-l">
+        <div class="ct-f frame">
+          <div class="ct-world" aria-hidden="true">
+            <img
+              src="/img/rideau-night-1200.webp"
+              srcset="/img/rideau-night-1200.webp 1200w, /img/rideau-night.webp 2400w"
+              sizes="(max-width: 900px) 100vw, 46vw"
+              alt=""
+              width="1200"
+              height="800"
+              fetchpriority="high"
+              decoding="async"
+            />
+          </div>
+          <p class="t-label ct-crumb"><a href="/">INNOVA</a><span aria-hidden="true">/</span><span>Contact</span></p>
+          <div class="ct-head">
+            <h1 id="ct-h" class="t-display ct-t">Start a conversation.</h1>
+            <p class="t-lede ct-lede">Tell us what you are working on. Every message is read by a person, and we reply by email.</p>
+          </div>
+          <span class="ct-credit">Rideau Canal, Ottawa</span>
+        </div>
+      </div>
 
-  <section class="section">
-    <div class="wrap grid12">
-      <form class="cf" data-cf novalidate>
-        <fieldset class="cf-topics">
-          <legend class="mono">I want to</legend>
-          <div class="cf-opts">
-            {
-              topics.map(([v, l], i) => (
-                <label class="cf-opt">
-                  <input type="radio" name="topic" value={v} checked={i === 0} />
-                  <span>{l}</span>
-                </label>
-              ))
-            }
-          </div>
-        </fieldset>
+      <div class="ct-r">
+        <ContactForm idPrefix="cf" tone="film" submitLabel="Start a conversation" rows={6} />
 
-        <div class="cf-grid">
-          <div class="cf-f">
-            <label class="mono" for="cf-name">Name</label>
-            <input id="cf-name" name="name" autocomplete="name" required maxlength="120" />
-            <p class="cf-err" id="cf-name-err" hidden></p>
+        <aside class="ca" aria-label="Other ways to reach INNOVA">
+          <div class="ca-mail">
+            <p class="t-label t-mute">Email</p>
+            <a class="ca-big" href={`mailto:${SITE.email}`}>{SITE.email}</a>
           </div>
-          <div class="cf-f">
-            <label class="mono" for="cf-org">Organization (optional)</label>
-            <input id="cf-org" name="organization" autocomplete="organization" maxlength="160" />
+          <div>
+            <p class="t-label t-mute">Location</p>
+            <p class="ca-v">{SITE.city}, {SITE.region}, {SITE.country}</p>
           </div>
-          <div class="cf-f cf-wide">
-            <label class="mono" for="cf-email">Email</label>
-            <input id="cf-email" name="email" type="email" autocomplete="email" required maxlength="200" inputmode="email" />
-            <p class="cf-err" id="cf-email-err" hidden></p>
+          <div>
+            <p class="t-label t-mute">What happens next</p>
+            <p class="ca-v">You get a written reply: a short scope proposal, or a clear answer on why it is not a fit.</p>
           </div>
-          <div class="cf-f cf-wide">
-            <label class="mono" for="cf-message">What are you working on?</label>
-            <textarea id="cf-message" name="message" rows="6" required maxlength="4000"></textarea>
-            <p class="cf-err" id="cf-message-err" hidden></p>
-          </div>
-          <label class="cf-hp" aria-hidden="true">
-            Website <input name="website" tabindex="-1" autocomplete="off" />
-          </label>
-        </div>
-
-        <div class="cf-foot">
-          <button class="btn btn-primary" type="submit">Start a conversation <span class="arr" aria-hidden="true">→</span></button>
-          <p class="cf-note">We use your details only to reply to this message. <a class="cf-note-a" href="/privacy">How we handle them</a></p>
-        </div>
-        <p class="cf-status" role="status" aria-live="polite" data-cf-status></p>
-      </form>
-
-      <aside class="ca" aria-label="Other ways to reach INNOVA">
-        <div>
-          <p class="mono ca-h">Email</p>
-          <a class="ulink ca-v" href={`mailto:${SITE.email}`}>{SITE.email}</a>
-        </div>
-        <div>
-          <p class="mono ca-h">Location</p>
-          <p class="ca-v">{SITE.city}, {SITE.region}, {SITE.country}</p>
-        </div>
-        <div class="ca-next">
-          <p class="mono ca-h">What happens next</p>
-          <p class="ca-v ca-note">You get a written reply: a short scope proposal, or a clear answer on why it is not a fit.</p>
-        </div>
-      </aside>
+        </aside>
+      </div>
     </div>
   </section>
 </BaseLayout>
 
-<script>
-  const form = document.querySelector<HTMLFormElement>('[data-cf]');
-  const status = document.querySelector<HTMLElement>('[data-cf-status]');
-  const started = Date.now();
-
-  const topic = new URLSearchParams(location.search).get('topic');
-  if (form && topic) {
-    const r = form.querySelector<HTMLInputElement>(`input[name="topic"][value="${CSS.escape(topic)}"]`);
-    if (r) r.checked = true;
-  }
-
-  type Field = 'name' | 'email' | 'message';
-  const fields: Field[] = ['name', 'email', 'message'];
-
-  const check = (k: Field, v: string): string => {
-    const t = v.trim();
-    if (k === 'name') return t.length < 2 ? 'Add your name.' : '';
-    if (k === 'email') {
-      if (!t) return 'Add an email address so we can reply.';
-      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(t) ? '' : 'Check the email address, for example name@company.ca.';
-    }
-    return t.length < 2 ? 'Add a few words about what you are working on.' : '';
-  };
-
-  const setError = (k: Field, msg: string) => {
-    const input = form?.querySelector<HTMLInputElement | HTMLTextAreaElement>(`[name="${k}"]`);
-    const err = document.getElementById(`cf-${k}-err`);
-    if (!input || !err) return;
-    if (msg) {
-      err.textContent = msg;
-      err.hidden = false;
-      input.setAttribute('aria-invalid', 'true');
-      input.setAttribute('aria-describedby', err.id);
-    } else {
-      err.textContent = '';
-      err.hidden = true;
-      input.removeAttribute('aria-invalid');
-      input.removeAttribute('aria-describedby');
-    }
-  };
-
-  fields.forEach((k) => {
-    form?.querySelector(`[name="${k}"]`)?.addEventListener('input', () => setError(k, ''));
-  });
-
-  form?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    if (!form || !status) return;
-    const fd = new FormData(form);
-    const data = Object.fromEntries(fd.entries()) as Record<string, string>;
-
-    const bad = fields.filter((k) => {
-      const msg = check(k, String(data[k] || ''));
-      setError(k, msg);
-      return Boolean(msg);
-    });
-    if (bad.length) {
-      status.dataset.state = 'error';
-      status.textContent = bad.length === 1 ? 'One field needs attention.' : `${bad.length} fields need attention.`;
-      form.querySelector<HTMLElement>(`[name="${bad[0]}"]`)?.focus();
-      return;
-    }
-
-    const btn = form.querySelector<HTMLButtonElement>('button[type="submit"]');
-    if (btn) btn.disabled = true;
-    status.dataset.state = 'sending';
-    status.textContent = 'Sending…';
-    try {
-      const res = await fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ ...data, page: location.href, elapsed: Date.now() - started })
-      });
-      if (!res.ok) throw new Error(String(res.status));
-      form.reset();
-      status.dataset.state = 'ok';
-      status.textContent = 'Thank you. Your message is with us, and we will reply by email.';
-    } catch {
-      status.dataset.state = 'error';
-      status.innerHTML = 'The message did not go through. Please email <a href="mailto:info@innovaconsult.ca">info@innovaconsult.ca</a>.';
-    } finally {
-      if (btn) btn.disabled = false;
-    }
-  });
-</script>
-
 <style>
-  .cf {
-    --field-rule: var(--rule-field, rgb(150 210 205 / 0.5));
-    --err: #f2a7a0;
-    grid-column: 1 / span 8;
+  .ct {
+    padding-top: var(--gut);
+    padding-bottom: var(--sec);
   }
-  .ca {
-    grid-column: 10 / span 3;
+  .ct-g {
     display: grid;
-    gap: 26px;
-    align-content: start;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--col-gap);
+    align-items: start;
   }
-  .ca-h {
-    color: var(--lichen);
-    margin: 0 0 6px;
+  .ct-l {
+    grid-column: 1 / span 6;
+    position: sticky;
+    top: calc(var(--hdr) + var(--gut));
   }
-  .ca-v {
-    margin: 0;
-    text-decoration: none;
-  }
-  .ca-next {
-    padding-top: 22px;
-    border-top: 1px solid var(--rule);
-  }
-  .ca-note {
-    color: var(--lichen);
-    font-size: 0.95rem;
-    line-height: 1.55;
-    text-wrap: pretty;
-  }
-  .cf-topics {
-    border: 0;
-    margin: 0 0 36px;
-    padding: 0;
-  }
-  .cf-topics legend {
-    color: var(--lichen);
-    margin-bottom: 14px;
-    padding: 0;
-  }
-  .cf-opts {
+  .ct-f {
+    height: calc(100svh - var(--hdr) - 2 * var(--gut));
+    min-height: 560px;
+    max-height: 980px;
     display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: clamp(20px, 2.6vw, 40px);
+    background: var(--reel);
+    animation: ct-open 0.9s var(--e-out) both;
   }
-  .cf-opt {
-    position: relative;
-    cursor: pointer;
-  }
-  .cf-opt input {
+  .ct-world {
     position: absolute;
-    opacity: 0;
     inset: 0;
-    margin: 0;
-    cursor: pointer;
-  }
-  .cf-opt span {
-    display: inline-flex;
-    align-items: center;
-    min-height: 44px;
-    padding: 0 16px;
-    border: 1px solid var(--rule-strong);
-    color: var(--lichen);
-    transition:
-      border-color var(--t-micro) var(--ease-out),
-      color var(--t-micro) var(--ease-out),
-      background-color var(--t-micro) var(--ease-out);
-  }
-  .cf-opt:hover span {
-    border-color: var(--frost);
-    color: var(--frost);
-  }
-  .cf-opt input:checked + span {
-    background: var(--frost);
-    border-color: var(--frost);
-    color: var(--ground);
-    font-weight: 600;
-  }
-  .cf-opt input:focus-visible + span {
-    outline: 2px solid var(--signal);
-    outline-offset: 3px;
-  }
-  .cf-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 22px 24px;
-  }
-  .cf-wide {
-    grid-column: 1 / -1;
-  }
-  .cf-f {
-    display: grid;
-    gap: 8px;
-    align-content: start;
-  }
-  .cf-f label {
-    color: var(--lichen);
-  }
-  .cf-f input,
-  .cf-f textarea {
-    width: 100%;
-    font: inherit;
-    color: var(--frost);
-    background: var(--plate);
-    border: 1px solid var(--field-rule);
-    border-radius: 0;
-    padding: 13px 14px;
-    min-height: 50px;
-    transition: border-color var(--t-micro) var(--ease-out);
-  }
-  .cf-f textarea {
-    resize: vertical;
-    min-height: 160px;
-  }
-  .cf-f input:hover,
-  .cf-f textarea:hover {
-    border-color: var(--lichen);
-  }
-  .cf-f input:focus,
-  .cf-f textarea:focus {
-    outline: none;
-    border-color: var(--signal);
-    box-shadow: 0 0 0 1px var(--signal);
-  }
-  .cf-f [aria-invalid='true'],
-  .cf-f [aria-invalid='true']:hover {
-    border-color: var(--err);
-  }
-  .cf-f [aria-invalid='true']:focus {
-    border-color: var(--err);
-    box-shadow: 0 0 0 1px var(--err);
-  }
-  .cf-err {
-    margin: 0;
-    color: var(--err);
-    font-size: 0.92rem;
-    line-height: 1.45;
-    display: flex;
-    gap: 8px;
-    align-items: baseline;
-  }
-  .cf-err::before {
-    content: '';
-    flex: none;
-    width: 8px;
-    height: 8px;
-    border: 1.5px solid currentColor;
-    transform: rotate(45deg) translateY(-1px);
-  }
-  .cf-hp {
-    position: absolute;
-    left: -9999px;
-    width: 1px;
-    height: 1px;
+    z-index: -2;
     overflow: hidden;
   }
-  .cf-foot {
+  .ct-world img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 58% 55%;
+    animation: ct-settle 1.2s var(--e-out) both;
+  }
+  .ct-f::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(180deg, rgb(13 12 11 / 0.55) 0%, rgb(13 12 11 / 0) 22%, rgb(13 12 11 / 0.1) 42%, rgb(13 12 11 / 0.7) 70%, rgb(13 12 11 / 0.92) 100%);
+  }
+  .ct-crumb {
     display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 16px 24px;
-    margin-top: 28px;
+    gap: 10px;
+    color: var(--ash);
+    text-shadow: 0 1px 12px rgb(13 12 11 / 0.7);
   }
-  .cf-foot .btn[disabled] {
-    opacity: 0.6;
-    cursor: progress;
+  .ct-crumb a {
+    color: var(--print);
+    text-decoration: none;
   }
-  .cf-note {
-    margin: 0;
-    color: var(--lichen);
-    font-size: 0.9rem;
-  }
-  .cf-note-a {
-    color: var(--frost);
-    white-space: nowrap;
+  .ct-crumb a:hover {
     text-decoration: underline;
-    text-decoration-color: var(--rule-strong);
     text-underline-offset: 4px;
   }
-  .cf-note-a:hover {
-    text-decoration-color: currentColor;
+  .ct-t {
+    font-size: clamp(52px, 6.4vw, 112px);
+    max-width: 8ch;
   }
-  .cf-status {
-    margin: 18px 0 0;
-    min-height: 1.6em;
+  .ct-lede {
+    margin-top: 24px;
+    max-width: 30ch;
   }
-  .cf-status[data-state='ok'] {
-    color: var(--live);
+  .ct-credit {
+    position: absolute;
+    right: 14px;
+    top: 14px;
+    font-size: 13px;
+    color: rgb(238 234 226 / 0.78);
   }
-  .cf-status[data-state='error'] {
-    color: var(--err);
+  .ct-r {
+    grid-column: 8 / span 5;
+    padding-top: clamp(24px, 4vw, 72px);
   }
-  .cf-status a {
-    color: inherit;
+  /* the form's privacy link sits in ash text: underline it so it never relies on colour alone */
+  .ct-r :global(.cform-note a) {
+    text-decoration: underline;
+    text-underline-offset: 4px;
   }
-  @media (max-width: 980px) {
-    .cf,
-    .ca {
+  .ca {
+    margin-top: clamp(56px, 6vw, 96px);
+    padding-top: 32px;
+    border-top: 1px solid var(--rule-film);
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 32px var(--col-gap);
+  }
+  .ca .t-label {
+    margin-bottom: 8px;
+  }
+  .ca-mail {
+    grid-column: 1 / -1;
+  }
+  .ca-big {
+    font-size: clamp(26px, 2.4vw, 40px);
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+    background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
+    padding-bottom: 4px;
+    transition: background-size 0.35s var(--e-out);
+  }
+  .ca-big:hover {
+    background-size: 100% 1px;
+  }
+  .ca-v {
+    font-size: 17px;
+    line-height: 1.5;
+    max-width: 34ch;
+  }
+  @keyframes ct-open {
+    from {
+      clip-path: inset(3% 3% 3% 3% round var(--r));
+    }
+    to {
+      clip-path: inset(0 0 0 0 round var(--r));
+    }
+  }
+  @keyframes ct-settle {
+    from {
+      transform: scale(1.1);
+    }
+    to {
+      transform: scale(1.02);
+    }
+  }
+
+  @media (max-width: 1100px) {
+    .ct-l {
+      grid-column: 1 / span 6;
+    }
+    .ct-r {
+      grid-column: 7 / span 6;
+    }
+  }
+  @media (max-width: 900px) {
+    .ct-l,
+    .ct-r {
       grid-column: 1 / -1;
     }
+    .ct-l {
+      position: static;
+    }
+    .ct-f {
+      height: auto;
+      min-height: 0;
+      aspect-ratio: 4 / 4.4;
+    }
+    .ct-r {
+      padding-top: 40px;
+    }
     .ca {
-      margin-top: 48px;
-    }
-  }
-  @media (max-width: 640px) {
-    .cf-grid {
       grid-template-columns: 1fr;
-    }
-  }
-  @media (max-width: 600px) {
-    .cf-opts {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 8px;
-    }
-    .cf-opt span {
-      display: flex;
-      width: 100%;
-      height: 100%;
-      min-height: 52px;
-      padding: 8px 12px;
-      font-size: 15px;
-      line-height: 1.3;
     }
   }
 </style>

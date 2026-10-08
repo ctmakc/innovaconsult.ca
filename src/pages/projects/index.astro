@@ -1,15 +1,13 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageHead from '../../components/PageHead.astro';
-import StatusChip from '../../components/StatusChip.astro';
-import StageTrack from '../../components/StageTrack.astro';
-import PipelineBoard from '../../components/PipelineBoard.astro';
-import { visibleProjects, STATUS_STAGE, STATUS_LABEL, DOMAINS, projectHref, type ProjectStatus } from '../../data/projects';
+import StatusTag from '../../components/StatusTag.astro';
+import ProjectTile from '../../components/projects/ProjectTile.astro';
+import { visibleProjects, STATUS_LABEL, projectHref, type ProjectStatus } from '../../data/projects';
 import { SITE } from '../../data/site';
 
 const order: ProjectStatus[] = ['live', 'built', 'in-development', 'prototype', 'research', 'exploring'];
 const projects = [...visibleProjects].sort((a, b) => order.indexOf(a.status) - order.indexOf(b.status));
-const domainLabel = (k: string) => DOMAINS.find((d) => d.key === k)?.label ?? k;
 const entityId = (p: (typeof projects)[number]) =>
   `${SITE.url}${projectHref(p)}#${p.domain === 'dual-use' ? 'project' : 'app'}`;
 
@@ -22,6 +20,24 @@ const LEGEND: Record<ProjectStatus, string> = {
   exploring: 'Early scouting and program research; nothing delivered yet.',
   'partner-opportunity': ''
 };
+const TONE: Record<ProjectStatus, string> = {
+  live: 'live',
+  built: 'build',
+  'in-development': 'build',
+  prototype: 'proto',
+  research: 'proto',
+  exploring: 'explore',
+  'partner-opportunity': 'explore'
+};
+const WORDS = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
+const count = (n: number) => `${WORDS[n] ?? n} project${n === 1 ? '' : 's'}`;
+
+/* One chapter per status that has projects; an odd chapter opens with one full-width frame. */
+const chapters = order
+  .map((s) => ({ s, items: projects.filter((p) => p.status === s) }))
+  .filter((c) => c.items.length > 0);
+/* A lone typographic frame stays short so the page keeps moving. */
+const SHORT: Record<string, string> = { aicrmius: '16 / 6', 'dual-use': '16 / 5' };
 
 const itemList = {
   '@context': 'https://schema.org',
@@ -50,182 +66,153 @@ const itemList = {
   <PageHead
     crumb="Projects"
     title="Real work, with its real status."
-    lede="Every project carries exactly one status. Live is open to the public today; Built is complete and rolling out; Prototype works and is being tested; R&D is testing feasibility; Exploring is early scouting with nothing delivered yet."
-  />
+    lede={`${WORDS[projects.length] ? WORDS[projects.length][0].toUpperCase() + WORDS[projects.length].slice(1) : projects.length} projects across applied AI, software and AgriTech. Every project carries exactly one status.`}
+  >
+    <nav slot="aside" class="px-idx" aria-label="Projects by status">
+      {
+        chapters.map((c) => (
+          <a href={`#${c.s}`} class="px-ii">
+            <StatusTag status={c.s} />
+            <span class="px-ic tnum">{c.items.length}</span>
+          </a>
+        ))
+      }
+    </nav>
+  </PageHead>
 
-  <section class="section">
-    <div class="wrap pr-board">
-      <PipelineBoard />
-    </div>
-  </section>
-
-  <section class="section pr-list" aria-labelledby="pr-list-h">
-    <div class="wrap">
-      <h2 id="pr-list-h" class="sr-only">All projects</h2>
-      <div class="rows">
-        {
-          projects.map((p) => {
-            const shot = p.images?.find((im) => im.w > im.h);
-            return (
-              <a
-                class:list={['row prow', { 'has-shot': !!shot }]}
-                href={projectHref(p)}
-                id={p.slug}
-              >
-                <div class="row-title">
-                  <p class="mono prow-code">
-                    {p.code} · {domainLabel(p.domain)}
-                  </p>
-                  <h2 id={`${p.slug}-t`} class="d-m">
-                    {p.name}
-                  </h2>
-                  {p.tagline && <p class="prow-tag">{p.tagline}</p>}
-                  {shot && (
-                    <span class="prow-shot" aria-hidden="true">
-                      <span class="prow-win">
-                        <img src={shot.src800} width="800" height={Math.round((800 * shot.h) / shot.w)} alt="" loading="lazy" decoding="async" />
-                      </span>
-                    </span>
-                  )}
-                </div>
-                <div>
-                  <p id={`${p.slug}-d`} class="body">
-                    {p.summary}
-                  </p>
-                  <p class="body prow-out">
-                    <strong>Where it stands:</strong> {p.outcome}
-                  </p>
-                </div>
-                <div class="prow-meta" id={`${p.slug}-s`}>
-                  <StatusChip status={p.status} />
-                  <StageTrack at={STATUS_STAGE[p.status]} status={p.status} />
-                </div>
-              </a>
-            );
-          })
-        }
-      </div>
-    </div>
-  </section>
-
-  <section class="section pr-legend">
-    <div class="wrap grid12 sec-head">
-      <div class="sh-l">
-        <h2 class="d-l">How we label status</h2>
-      </div>
-      <dl class="sh-r legend">
-        {
-          order.map((s) => (
-            <div>
-              <dt>
-                <span class="status">
-                  <span class="mark" data-s={s} aria-hidden="true" />
-                  {STATUS_LABEL[s]}
-                </span>
-              </dt>
-              <dd>{LEGEND[s]}</dd>
-            </div>
-          ))
-        }
-      </dl>
-    </div>
-  </section>
+  {
+    chapters.map((c, ci) => (
+      <section class:list={['px-ch shell', { 'px-ch--first': ci === 0 }]} id={c.s} aria-labelledby={`${c.s}-h`}>
+        <div class="inset px-hd">
+          <h2 id={`${c.s}-h`} class:list={['px-t', ci === 0 ? 't-h2' : 't-h3']} data-rise>
+            <span class="px-g" data-tone={TONE[c.s]} aria-hidden="true" />
+            <span class="px-k">{STATUS_LABEL[c.s]}.</span> <span class="px-d">{LEGEND[c.s]}</span>
+          </h2>
+          <p class="px-n t-label t-mute">{count(c.items.length)}</p>
+        </div>
+        <div class="px-grid">
+          {c.items.map((p, i) => {
+            const full = c.items.length % 2 === 1 && i === 0;
+            return <ProjectTile project={p} size={full ? 'full' : 'half'} aspect={full && c.items.length === 1 ? SHORT[p.slug] : undefined} id={p.slug} />;
+          })}
+        </div>
+      </section>
+    ))
+  }
 </BaseLayout>
 
 <style>
-  /* The rows carry their own top rule; the board section above already gives the space. */
-  .section.pr-list {
-    border-top: 0;
+  /* ── head aside: the status index ── */
+  .px-idx {
+    display: grid;
+    gap: 2px;
+    max-width: 22rem;
+  }
+  .px-ii {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    min-height: 44px;
+    padding: 6px 0;
+    text-decoration: none;
+    border-bottom: 1px solid var(--rule-film);
+  }
+  .px-ii :global(.tag) {
+    font-size: 17px;
+  }
+  .px-ic {
+    font-size: 17px;
+    font-weight: 500;
+    color: var(--ash);
+    transition: transform 0.3s var(--e-out), color 0.3s var(--e-out);
+  }
+  .px-ii:hover .px-ic {
+    color: var(--print);
+    transform: translateX(-4px);
+  }
+
+  /* ── chapters ── */
+  .px-ch {
+    padding-top: calc(var(--sec) * 0.72);
+  }
+  .px-ch--first {
     padding-top: 0;
   }
-  .prow-code {
-    color: var(--lichen);
-    margin: 0 0 8px;
-  }
-  .prow h2 {
-    margin: 0;
-  }
-  .prow-tag {
-    margin: 8px 0 0;
-    font-family: var(--font-mono);
-    font-size: 0.8125rem;
-    color: var(--lichen);
-  }
-  .prow-out {
-    margin-top: 12px;
-    font-size: 0.95rem;
-  }
-  .prow-meta {
+  .px-hd {
     display: grid;
-    gap: 12px;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--col-gap);
+    row-gap: 14px;
+    align-items: end;
+    margin-bottom: clamp(24px, 3vw, 44px);
+  }
+  .px-t {
+    grid-column: 1 / span 10;
+    max-width: 30ch;
+  }
+  .px-ch--first .px-t {
+    max-width: 22ch;
+  }
+  .px-k {
+    white-space: nowrap;
+  }
+  .px-d {
+    color: var(--ash);
+  }
+  .px-n {
+    grid-column: 11 / span 2;
+    justify-self: end;
+    padding-bottom: 0.4em;
+    white-space: nowrap;
+  }
+  /* status by form, at heading scale */
+  .px-g {
+    display: inline-block;
+    width: 0.36em;
+    height: 0.36em;
+    margin: 0 0.2em 0.12em 0;
+    border-radius: 50%;
+    vertical-align: middle;
+  }
+  .px-g[data-tone='live'] {
+    background: var(--flare);
+    box-shadow: 0 0 0 0.09em rgb(255 91 34 / 0.22);
+  }
+  .px-g[data-tone='build'] {
+    background: var(--print);
+  }
+  .px-g[data-tone='proto'] {
+    border: 0.06em solid var(--print);
+  }
+  .px-g[data-tone='explore'] {
+    border: 0.06em dashed var(--print);
+  }
+  .px-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(10px, 1.2vw, 18px);
+  }
+  .px-grid > :global(.mf--full),
+  .px-grid > :global(.tf--full) {
+    grid-column: 1 / -1;
   }
 
-  /* Screenshot: a dimmed window on the plate under the subtitle; it brightens and leans in on hover or focus. */
-  .prow-shot {
-    display: block;
-    width: 100%;
-    max-width: 360px;
-    margin-top: 20px;
-    padding: 10px;
-    background: var(--plate);
-    border: 1px solid var(--rule);
-    transition: border-color var(--t-micro) var(--ease-out);
-  }
-  .prow-win {
-    display: block;
-    aspect-ratio: 16 / 10;
-    overflow: hidden;
-  }
-  .prow-win img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: top center;
-    filter: brightness(0.9) saturate(0.95);
-    transform-origin: top center;
-    transition:
-      transform 300ms cubic-bezier(0.16, 1, 0.3, 1),
-      filter 300ms cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  a.prow:hover .prow-shot,
-  a.prow:focus-visible .prow-shot {
-    border-color: var(--rule-strong);
-  }
-  a.prow:hover .prow-win img,
-  a.prow:focus-visible .prow-win img {
-    filter: none;
-    transform: scale(1.03);
-  }
-
-  .pr-legend {
-    padding-bottom: 72px;
-  }
-  .legend {
-    margin: 0;
-    grid-column: 6 / span 7 !important;
-  }
-  .legend div {
-    display: grid;
-    grid-template-columns: 200px 1fr;
-    gap: 16px;
-    padding: 14px 0;
-    border-top: 1px solid var(--rule);
-  }
-  .legend dd {
-    margin: 0;
-    color: var(--lichen);
-  }
-  @media (max-width: 860px) {
-    .prow-shot {
-      margin: 16px 0 4px;
+  @media (max-width: 900px) {
+    .px-t {
+      grid-column: 1 / -1;
     }
-    .legend {
-      grid-column: 1 / -1 !important;
+    .px-n {
+      grid-column: 1 / -1;
+      justify-self: start;
+      padding-bottom: 0;
+      order: -1;
     }
-    .legend div {
+    .px-grid {
       grid-template-columns: 1fr;
-      gap: 6px;
+    }
+    .px-idx {
+      max-width: none;
     }
   }
 </style>

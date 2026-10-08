@@ -1,10 +1,14 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import RiseHeading from '../../components/RiseHeading.astro';
-import StatusChip from '../../components/StatusChip.astro';
-import StageTrack from '../../components/StageTrack.astro';
-import { visibleProjects, STATUS_STAGE, STATUS_LABEL, projectHref, type Project, type ProofImage } from '../../data/projects';
-import { STAGES } from '../../data/stages';
+import MediaFrame from '../../components/MediaFrame.astro';
+import StatusTag from '../../components/StatusTag.astro';
+import Screen from '../../components/Screen.astro';
+import Button from '../../components/Button.astro';
+import SectionHead from '../../components/SectionHead.astro';
+import TypeFrame from '../../components/projects/TypeFrame.astro';
+import ProjectTile from '../../components/projects/ProjectTile.astro';
+import { PRESETS } from '../../components/projects/presets';
+import { visibleProjects, STATUS_LABEL, DOMAINS, projectHref, type Project, type ProofImage } from '../../data/projects';
 import { SITE } from '../../data/site';
 
 export function getStaticPaths() {
@@ -12,25 +16,31 @@ export function getStaticPaths() {
   return visibleProjects.filter((p) => !p.internal).map((p) => ({ params: { slug: p.slug }, props: { p } }));
 }
 const { p } = Astro.props as { p: Project };
-const stage = STATUS_STAGE[p.status];
 const path = `/projects/${p.slug}`;
-
-/* Evidence: the first screenshot leads the page, the rest sit in a row lower down. */
-const [lead, ...more] = p.images ?? [];
+const pr = PRESETS[p.slug] ?? { fact: p.summary, material: 'reel' as const };
+const lead = p.images?.[0];
 const isPhone = (im: ProofImage) => im.h > im.w;
-const srcset = (im: ProofImage) => `${im.src800} ${isPhone(im) ? 400 : 800}w, ${im.src} ${isPhone(im) ? 800 : 1600}w`;
-const leadFits = lead ? Math.abs(lead.w / lead.h - 1.6) < 0.02 : false;
 
-/* Related: same domain first, then same capability, then the next project in the list. */
+/* Gallery: every real screenshot of the project, readable, with its data caption. */
+const gallery = [...(p.images ?? []), ...(pr.extra ?? [])];
+const hasVisual = gallery.length > 0 || p.slug === 'aicrmius';
+
+/* Related: same domain first, then same capability, then the next projects in the list. */
 const others = visibleProjects.filter((x) => x.slug !== p.slug);
 const related: Project[] = [];
 for (const x of others) if (related.length < 2 && x.domain === p.domain) related.push(x);
 for (const x of others)
   if (related.length < 2 && !related.includes(x) && p.capability && x.capability?.href === p.capability.href) related.push(x);
-if (related.length === 0) {
+{
   const idx = visibleProjects.findIndex((x) => x.slug === p.slug);
-  related.push(visibleProjects[(idx + 1) % visibleProjects.length]);
+  for (let k = 1; related.length < 2 && k < visibleProjects.length; k++) {
+    const x = visibleProjects[(idx + k) % visibleProjects.length];
+    if (!related.includes(x)) related.push(x);
+  }
 }
+
+const domain = DOMAINS.find((d) => d.key === p.domain)?.label ?? p.domain;
+const problemWords = p.problem.split(' ');
 
 const isProject = p.domain === 'dual-use';
 const ld = isProject
@@ -80,188 +90,188 @@ const CYCLE = [
   jsonLd={[ld]}
   breadcrumbs={breadcrumbs}
 >
-  <section class="pj-hero">
-    <div class="wrap grid12">
-      <div class="pj-hl">
-        <p class="kicker pj-crumb">
-          <a href="/" class="ulink">INNOVA</a><span aria-hidden="true">/</span><a href="/projects" class="ulink">Projects</a>
-        </p>
-        <RiseHeading text={p.name} class="d-page" delay={60} />
-        <div class="pj-meta">
-          <p class="pj-rec">{p.code}{p.tagline && <> · {p.tagline}</>}</p>
-          <div class="pj-stage">
-            <StatusChip status={p.status} />
-            <StageTrack at={stage} status={p.status} />
-          </div>
-          {
-            p.url && (
-              <a class="arrow-link" href={p.url} target="_blank" rel="noopener">
-                <span>{p.urlLabel}<span class="sr-only"> (opens in a new tab)</span></span>
-                <span aria-hidden="true">↗</span>
-              </a>
-            )
-          }
-        </div>
-      </div>
-      <div class="pj-hr">
-        <p class="lede">{p.summary}</p>
-      </div>
-    </div>
+  <Fragment slot="head">
+    {
+      pr.world && (
+        <link
+          rel="preload"
+          as="image"
+          href={pr.world.src}
+          imagesrcset={pr.world.src800 ? `${pr.world.src800} 800w, ${pr.world.src} ${pr.world.w}w` : undefined}
+          imagesizes={pr.world.src800 ? '100vw' : undefined}
+          fetchpriority="high"
+        />
+      )
+    }
+  </Fragment>
+
+  <!-- ═══ HERO: the project in its world, name on the frame ═══ -->
+  <section class="pj-top shell" aria-labelledby="pj-h">
+    <p class="inset t-label pj-crumb">
+      <a href="/">INNOVA</a><span aria-hidden="true">/</span><a href="/projects">Projects</a><span aria-hidden="true">/</span><span>{p.short}</span>
+    </p>
+    {
+      pr.words ? (
+        <TypeFrame class="pj-hf" words={pr.words} label={pr.wordsLabel} material={pr.material} size="full" aspect="16 / 6.2" rise={false} cycle={p.slug !== 'dual-use'}>
+          <StatusTag status={p.status} label={pr.statusLabel} class="pj-tag" />
+          <h1 id="pj-h" class="pj-h">{p.name}</h1>
+          {p.tagline && <p class="pj-tl">{p.tagline}</p>}
+        </TypeFrame>
+      ) : (
+        <MediaFrame class="pj-hf" size="full" aspect="16 / 8" aspectM={pr.aspectM} world={pr.world} material={pr.material} screens={pr.full} credit={pr.credit} scrim="left">
+          <StatusTag status={p.status} label={pr.statusLabel} class="pj-tag" />
+          <h1 id="pj-h" class="pj-h">{p.name}</h1>
+          {p.tagline && <p class="pj-tl">{p.tagline}</p>}
+        </MediaFrame>
+      )
+    }
   </section>
 
-  {
-    lead && (
-      <div class="wrap pj-lead">
-        <figure class:list={['proof', 'pj-fig1', { 'proof-mat': !leadFits }]}>
-          <a class="proof-frame" href={lead.src}>
-            <img
-              src={lead.src}
-              srcset={srcset(lead)}
-              sizes="(max-width: 860px) 94vw, (max-width: 1440px) 78vw, 1100px"
-              width={lead.w}
-              height={lead.h}
-              alt={lead.alt}
-              loading="eager"
-              fetchpriority="high"
-              decoding="async"
-            />
-            <span class="sr-only"> (open full-size screenshot)</span>
-          </a>
-          <figcaption>
-            <span class="proof-n">Fig. 1</span>
-            <span>{lead.caption}</span>
-          </figcaption>
-        </figure>
-      </div>
-    )
-  }
-
-  {
-    p.slug === 'aicrmius' && (
-      <div class="wrap pj-lead">
-        <figure class="proof cyc" data-draw aria-labelledby="cyc-cap">
-          <div class="cyc-board">
-            <svg class="cyc-h" viewBox="0 0 1000 96" aria-hidden="true" focusable="false">
-              <line class="cyc-base" x1="100" y1="40" x2="900" y2="40" />
-              <line class="cyc-line" x1="100" y1="40" x2="900" y2="40" pathLength="1" />
-              {CYCLE.map((c, i) => (
-                <g class="cyc-st" style={`--i:${i}`}>
-                  <circle cx={100 + i * 200} cy="40" r="10" class:list={['cyc-ring', { last: i === CYCLE.length - 1 }]} />
-                  <text x={100 + i * 200} y="84" text-anchor="middle" class="cyc-k">
-                    {c.k.toUpperCase()}
-                  </text>
-                </g>
-              ))}
-            </svg>
-            <ol class="cyc-list">
-              {CYCLE.map((c, i) => (
-                <li style={`--i:${i}`}>
-                  <strong class="cyc-lk">{c.k}</strong>
-                  <span>{c.d}</span>
-                </li>
-              ))}
-            </ol>
-          </div>
-          <figcaption id="cyc-cap">
-            <span class="proof-n">Fig. 1</span>
-            <span>The one cycle every agent change goes through in the working build.</span>
-          </figcaption>
-        </figure>
-      </div>
-    )
-  }
-
-  <section class="section pj-body">
-    <div class="wrap">
-      <div class="rows">
-        <div class="row pj-row">
-          <h2 class="d-m">Problem</h2>
-          <p class="body pj-t">{p.problem}</p>
-        </div>
-        <div class="row pj-row">
-          <h2 class="d-m">Solution</h2>
-          <p class="body pj-t">{p.solution}</p>
-        </div>
-      </div>
-
-      {
-        more.length > 0 && (
-          <div class:list={['pj-more', { 'has-phone': more.some(isPhone), solo: more.length === 1, pair: more.length === 2 && isPhone(more[1]) && !isPhone(more[0]) }]}>
-            {more.map((im, i) => (
-              <figure class:list={['proof', { 'proof-phone': isPhone(im) }]}>
-                <a class="proof-frame" href={im.src}>
-                  <img
-                    src={im.src}
-                    srcset={srcset(im)}
-                    sizes={isPhone(im) ? '(max-width: 860px) 70vw, 320px' : '(max-width: 860px) 94vw, 900px'}
-                    width={im.w}
-                    height={im.h}
-                    alt={im.alt}
-                    loading="lazy"
-                    decoding="async"
-                  />
-                  <span class="sr-only"> (open full-size screenshot)</span>
-                </a>
-                <figcaption>
-                  <span class="proof-n">Fig. {i + 2}</span>
-                  <span>{im.caption}</span>
-                </figcaption>
-              </figure>
-            ))}
-          </div>
-        )
-      }
-
-      <div class="rows pj-rows2">
-        <div class="row pj-row">
-          <h2 class="d-m">Technology</h2>
-          <p class="pj-tech">{p.technology.join('\u00a0· ')}</p>
-        </div>
-        <div class="row pj-row">
-          <h2 class="d-m">Where it stands</h2>
-          <div>
-            <p class="body pj-t">{p.outcome}</p>
-            <p class="mono pj-st">
-              {p.code} · stage {String(stage + 1).padStart(2, '0')} {STAGES[stage].label}
-              {STATUS_LABEL[p.status] !== STAGES[stage].label && <> · {STATUS_LABEL[p.status]}</>}
-            </p>
-          </div>
+  <!-- ═══ SUMMARY + RECORD ═══ -->
+  <section class="pj-in shell" aria-label="Summary">
+    <div class="inset pj-in-g">
+      <p class="pj-sum">{p.summary}</p>
+      <dl class="pj-facts">
+        <div>
+          <dt>Field</dt>
+          <dd>{domain}</dd>
         </div>
         {
-          (p.role || p.client) && (
-            <div class="row pj-row">
-              <h2 class="d-m">INNOVA’s role</h2>
-              <div>
-                {p.role && <p class="body pj-t">{p.role}</p>}
-                {p.client && <p class="body pj-client">{p.client}</p>}
-              </div>
-            </div>
-          )
-        }
-        {
-          p.lookingFor && (
-            <div class="row pj-row">
-              <h2 class="d-m">Looking for</h2>
-              <div>
-                <p class="body pj-t">{p.lookingFor}</p>
-                <a class="arrow-link pj-ask" href="/contact">
-                  <span>Write to INNOVA</span>
-                  <span aria-hidden="true">→</span>
+          p.url && (
+            <div>
+              <dt>Live at</dt>
+              <dd>
+                <a class="lnk" href={p.url} target="_blank" rel="noopener">
+                  {p.urlLabel}
+                  <span class="ar" aria-hidden="true">↗</span>
+                  <span class="sr-only"> (opens in a new tab)</span>
                 </a>
-              </div>
+              </dd>
             </div>
           )
         }
         {
           p.capability && (
-            <div class="row pj-row">
-              <h2 class="d-m">Capability</h2>
-              <div>
-                <a class="arrow-link" href={p.capability.href}>
-                  <span>{p.capability.label}</span>
-                  <span aria-hidden="true">→</span>
+            <div>
+              <dt>Capability</dt>
+              <dd>
+                <a class="lnk" href={p.capability.href}>
+                  {p.capability.label} <span class="ar" aria-hidden="true">→</span>
                 </a>
+              </dd>
+            </div>
+          )
+        }
+      </dl>
+    </div>
+  </section>
+
+  <!-- ═══ THE PROBLEM: one paragraph that lights up ═══ -->
+  <section class="pj-pb shell" aria-labelledby="pb-h">
+    <div class="inset">
+      <h2 id="pb-h" class="t-label t-mute pj-k">The problem</h2>
+      <p class="pj-pbt" data-light>
+        {problemWords.map((w) => <><span class="lw">{w}</span>{' '}</>)}
+      </p>
+    </div>
+  </section>
+
+  <!-- ═══ WHAT WE BUILT: on bone, text beside the real screens ═══ -->
+  <section class:list={['pj-sol tone-bone', { 'pj-sol--vis': hasVisual }]} aria-labelledby="sol-h">
+    <div class="shell">
+      <div class="inset pj-sol-g">
+        <div class="pj-sol-l">
+          <h2 id="sol-h" class="t-label t-mute pj-k">What we built</h2>
+          <p class="pj-solt" data-rise>{p.solution}</p>
+          {
+            hasVisual && (
+              <div class="tech tech--s">
+                <h3 class="t-label t-mute">Built with</h3>
+                <ul>
+                  {p.technology.map((t) => <li>{t}</li>)}
+                </ul>
               </div>
+            )
+          }
+        </div>
+        <div class="pj-sol-r">
+          {
+            p.slug === 'aicrmius' && (
+              <ol class="cyc" aria-label="The cycle every agent change goes through in the working build">
+                {CYCLE.map((c, i) => (
+                  <li>
+                    <span class="cyc-n tnum">{i + 1}</span>
+                    <b class="cyc-k">{c.k}</b>
+                    <span class="cyc-d">{c.d}</span>
+                  </li>
+                ))}
+              </ol>
+            )
+          }
+          {
+            gallery.length > 0 && (
+              <div class="gal">
+                {gallery.map((im, i) => (
+                  <Screen
+                    img={im}
+                    kind={isPhone(im) ? 'phone' : 'desktop'}
+                    class:list={['gal-i', { 'gal-ph': isPhone(im) }]}
+                    sizes={isPhone(im) ? '(max-width: 900px) 70vw, 300px' : '(max-width: 900px) 100vw, 56vw'}
+                    data-rise={i > 0 ? '' : undefined}
+                  />
+                ))}
+              </div>
+            )
+          }
+          {
+            !hasVisual && (
+              <div class="tech">
+                <h3 class="t-label t-mute pj-k">Built with</h3>
+                <ul>
+                  {p.technology.map((t) => <li>{t}</li>)}
+                </ul>
+              </div>
+            )
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ WHERE IT STANDS ═══ -->
+  <section class="pj-st shell pad-lg" aria-labelledby="st-h">
+    <div class="inset pj-st-g">
+      <div class="pj-st-l">
+        <h2 id="st-h" class="t-label t-mute pj-k">Where it stands</h2>
+        <StatusTag status={p.status} label={pr.statusLabel} class="pj-st-tag" />
+        <p class="pj-out" data-rise>{p.outcome}</p>
+      </div>
+      <div class="pj-st-r">
+        {
+          (p.role || p.client) && (
+            <div class="pj-blk">
+              <h3 class="t-label t-mute">INNOVA’s role</h3>
+              {p.role && <p>{p.role}</p>}
+              {p.client && <p class="pj-client">{p.client}</p>}
+            </div>
+          )
+        }
+        {
+          p.lookingFor && (
+            <div class="pj-blk pj-ask">
+              <h3 class="t-label t-mute">Looking for</h3>
+              <p>{p.lookingFor}</p>
+              <Button openContact variant="flare" size="sm">Write to INNOVA</Button>
+            </div>
+          )
+        }
+        {
+          !p.role && !p.client && !p.lookingFor && p.capability && (
+            <div class="pj-blk">
+              <h3 class="t-label t-mute">Part of</h3>
+              <a class="lnk" href={p.capability.href}>
+                {p.capability.label} <span class="ar" aria-hidden="true">→</span>
+              </a>
             </div>
           )
         }
@@ -269,538 +279,353 @@ const CYCLE = [
     </div>
   </section>
 
-  <section class="section pj-rel" aria-labelledby="rel-h">
-    <div class="wrap">
-      <div class="pj-rel-head">
-        <h2 id="rel-h" class="d-m">Related work</h2>
-        <a class="arrow-link" href="/projects"><span>All projects</span><span aria-hidden="true">→</span></a>
-      </div>
-      <div class="rows">
-        {
-          related.map((r) => (
-            <a class="row pj-relrow" href={projectHref(r)}>
-              <div class="row-title">
-                <p class="mono pj-relcode">{r.code}{r.tagline && <> · {r.tagline}</>}</p>
-                <h3 id={`rel-${r.slug}`} class="d-m">{r.name}</h3>
-              </div>
-              <p id={`rel-${r.slug}-d`} class="body">{r.summary}</p>
-              <div class="pj-relmeta">
-                <StatusChip status={r.status} />
-                <StageTrack at={STATUS_STAGE[r.status]} status={r.status} caption={false} />
-              </div>
-            </a>
-          ))
-        }
-      </div>
+  <!-- ═══ RELATED ═══ -->
+  <section class="pj-rel shell" aria-labelledby="rel-h">
+    <div class="inset">
+      <SectionHead id="rel-h" title="Related work" size="h2" link={{ href: '/projects', label: 'All projects' }} />
+    </div>
+    <div class="rel-g">
+      {related.map((r) => <ProjectTile project={r} size="half" />)}
     </div>
   </section>
 </BaseLayout>
 
 <style>
-  /* ── Hero: name and record on the left, the description level with the H1 cap line ── */
-  .pj-hero {
-    padding-block: clamp(48px, 5vw, 88px) 64px;
-    border-bottom: 1px solid var(--rule);
+  /* ── hero ── */
+  .pj-top {
+    padding-top: clamp(20px, 2.4vw, 36px);
   }
-  .pj-hero .grid12 {
-    align-items: start;
-    row-gap: 28px;
-  }
-  .pj-hl {
-    grid-column: 1 / span 7;
-    min-width: 0;
-  }
-  .pj-hl :global(.d-page) {
-    max-width: 15ch;
+  .pj-crumb {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: clamp(16px, 1.8vw, 24px);
+    color: var(--ash);
   }
   .pj-crumb a {
-    color: var(--frost);
+    color: var(--print);
+    text-decoration: none;
   }
-  .pj-crumb span {
-    color: var(--rule-strong);
+  .pj-crumb a:hover {
+    text-decoration: underline;
+    text-underline-offset: 4px;
   }
-  /* Crumb line (13px × 1.3) + its 22px margin puts the lede's first line on the H1 cap line. */
-  .pj-hr {
-    grid-column: 9 / span 4;
-    padding-top: 46px;
-    animation: pj-in 800ms var(--ease-out) 380ms both;
+  :global(.pj-hf .pj-tag) {
+    margin-bottom: 16px;
   }
-  .pj-meta {
-    margin-top: 40px;
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    align-items: center;
-    column-gap: clamp(24px, 3vw, 48px);
-    row-gap: 18px;
-    justify-items: start;
-    max-width: 640px;
-    animation: pj-in 800ms var(--ease-out) 520ms both;
+  .pj-h {
+    font-size: clamp(40px, 4.6vw, 76px);
+    font-weight: 500;
+    letter-spacing: -0.045em;
+    line-height: 0.95;
+    text-wrap: balance;
   }
-  .pj-rec {
-    grid-column: 1 / -1;
-    margin: 0;
-    font-family: var(--font-mono);
-    font-size: 0.8125rem;
-    color: var(--lichen);
-    letter-spacing: 0.02em;
+  .pj-tl {
+    margin-top: 10px;
+    font-size: clamp(22px, 1.9vw, 30px);
+    letter-spacing: -0.022em;
+    line-height: 1.12;
+    color: var(--ash);
   }
-  .pj-stage {
-    display: grid;
-    gap: 12px;
-    width: 260px;
-    max-width: 100%;
+  @media (prefers-reduced-motion: no-preference) {
+    .pj-hf {
+      animation: pj-gate 0.95s var(--e-gate) both;
+    }
+    .pj-hf :global(.mf-world img) {
+      animation: pj-settle 1.8s var(--e-out) both;
+    }
+    .pj-h,
+    .pj-tl,
+    .pj-hf :global(.pj-tag) {
+      animation: pj-up 0.9s var(--e-out) 0.28s both;
+    }
+    .pj-tl {
+      animation-delay: 0.38s;
+    }
   }
-  /* The link's 44px touch box is centred on its text; pull it up so the text sits level with the status chip. */
-  .pj-meta .arrow-link {
-    align-self: start;
-    margin-top: -12px;
+  @keyframes pj-gate {
+    from {
+      clip-path: inset(5% 3% 5% 3% round 6px);
+    }
+    to {
+      clip-path: inset(0 0 0 0 round 6px);
+    }
   }
-  @keyframes pj-in {
+  @keyframes pj-settle {
+    from {
+      transform: scale(1.1);
+    }
+    to {
+      transform: scale(1);
+    }
+  }
+  @keyframes pj-up {
     from {
       opacity: 0;
-      translate: 0 8px;
+      transform: translateY(18px);
     }
     to {
       opacity: 1;
-      translate: 0 0;
+      transform: none;
     }
   }
 
-  /* ── Evidence frame: light screenshots sit dimmed on the plate ───────── */
-  .pj-lead {
-    padding-top: clamp(32px, 3.4vw, 56px);
+  /* ── summary + record ── */
+  .pj-in {
+    padding-block: clamp(48px, 6vw, 104px) 0;
   }
-  .proof {
-    margin: 0;
-    background: none;
-    border: 0;
-  }
-  .pj-fig1 {
-    width: calc((100% - 11 * var(--gap)) / 12 * 10 + 9 * var(--gap));
-  }
-  .pj-lead,
-  .pj-more {
-    --gap: clamp(16px, 2vw, 32px);
-  }
-  .proof-frame {
-    display: block;
-    position: relative;
-    background: var(--plate);
-    border: 1px solid var(--rule);
-    padding: 16px;
-  }
-  .proof-win {
-    display: block;
-    overflow: hidden;
-  }
-  .proof img {
-    display: block;
-    width: 100%;
-    height: auto;
-    max-height: 640px;
-    object-fit: cover;
-    object-position: top;
-    filter: brightness(0.9) saturate(0.95);
-    transition: filter 300ms var(--ease-out);
-  }
-  .pj-lead .proof img {
-    aspect-ratio: 16 / 10;
-  }
-  /* Screenshots that are not 16:10 keep their own proportion, centred on the plate. */
-  .pj-lead .proof-mat img {
-    aspect-ratio: auto;
-    width: auto;
-    max-width: 100%;
-    margin-inline: auto;
-    object-fit: contain;
-  }
-  a.proof-frame {
-    cursor: zoom-in;
-    transition: border-color var(--t-micro) var(--ease-out);
-  }
-  a.proof-frame:hover,
-  a.proof-frame:focus-visible {
-    border-color: var(--rule-strong);
-  }
-  a.proof-frame:hover img,
-  a.proof-frame:focus-visible img {
-    filter: none;
-  }
-  .proof figcaption {
+  .pj-in-g {
     display: grid;
-    grid-template-columns: 72px minmax(0, 1fr);
-    gap: 12px;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--col-gap);
+    row-gap: 40px;
+    align-items: start;
+  }
+  .pj-sum {
+    grid-column: 1 / span 7;
+    font-size: clamp(21px, 1.8vw, 28px);
+    line-height: 1.3;
+    letter-spacing: -0.02em;
+    text-wrap: pretty;
+  }
+  .pj-facts {
+    grid-column: 9 / span 4;
     margin: 0;
-    padding: 14px 0 0;
-    color: var(--lichen);
-    font-family: var(--font-text);
-    font-size: 0.95rem;
-    line-height: 1.5;
-    max-width: 80ch;
+    display: grid;
+    gap: 18px;
+    padding-top: 6px;
   }
-  .proof-n {
-    font-family: var(--font-mono);
-    font-size: 0.8125rem;
-    color: var(--frost);
-    padding-top: 2px;
-    white-space: nowrap;
+  .pj-facts dt {
+    font-size: 15px;
+    color: var(--ash);
   }
-  /* The lead screenshot opens like a shutter after the headline lands. */
-  :global(.js) .pj-lead .proof-frame {
-    animation: pj-shut 1000ms var(--ease-out) 420ms both;
+  .pj-facts dd {
+    margin: 4px 0 0;
+    font-size: 19px;
+    font-weight: 500;
   }
-  @keyframes pj-shut {
-    from {
-      clip-path: inset(0 0 100% 0);
-    }
-    to {
-      clip-path: inset(0 0 0 0);
-    }
+  .pj-facts dd :global(.tag) {
+    font-size: 19px;
   }
 
-  /* ── AICRMIUS cycle diagram ─────────────────────────────────────────── */
-  .cyc-board {
-    background: var(--plate);
-    border: 1px solid var(--rule);
-    padding: clamp(28px, 4vw, 56px) clamp(16px, 3vw, 48px) clamp(24px, 3vw, 40px);
+  /* ── problem ── */
+  .pj-pb {
+    padding-block: calc(var(--sec) * 0.8) var(--sec);
   }
-  .cyc svg {
-    width: 100%;
-    height: auto;
-    overflow: visible;
+  .pj-k {
+    margin-bottom: 24px;
   }
-  .cyc-base {
-    stroke: var(--rule-strong);
-    stroke-width: 1;
+  .pj-pbt {
+    font-size: clamp(28px, 3.1vw, 52px);
+    font-weight: 500;
+    letter-spacing: -0.035em;
+    line-height: 1.1;
+    max-width: 26ch;
   }
-  .cyc-line {
-    stroke: var(--signal);
-    stroke-width: 2;
-    stroke-dasharray: 1;
-    stroke-dashoffset: 0;
-    transition: stroke-dashoffset 1400ms var(--ease-out);
+  .light-ready .lw {
+    color: rgb(238 234 226 / 0.44); /* ≥3:1 for large text even before it lights up */
+    transition: color 0.4s var(--e-out);
   }
-  .cyc-ring {
-    fill: var(--plate);
-    stroke: var(--signal);
-    stroke-width: 2;
-    transition: opacity 360ms var(--ease-out) calc(var(--i) * 120ms + 200ms);
+  .light-ready .lw.lit {
+    color: var(--print);
   }
-  .cyc-ring.last {
-    fill: var(--signal);
+
+  /* ── what we built (bone) ── */
+  .pj-sol {
+    padding-block: var(--sec);
   }
-  .cyc-k {
-    font-family: var(--font-mono);
-    font-size: 12px;
-    letter-spacing: 0.06em;
-    fill: var(--frost);
+  .pj-sol-g {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--col-gap);
+    row-gap: 48px;
+    align-items: start;
   }
-  .js .cyc[data-draw]:not(.is-in) .cyc-line {
-    stroke-dashoffset: 1;
+  .pj-sol-l {
+    grid-column: 1 / span 5;
   }
-  .js .cyc[data-draw]:not(.is-in) .cyc-ring {
-    opacity: 0.25;
+  .pj-sol--vis .pj-sol-l {
+    position: sticky;
+    top: calc(var(--hdr) + 40px);
   }
-  .cyc-list {
+  .pj-sol-r {
+    grid-column: 7 / span 6;
+  }
+  .pj-solt {
+    font-size: clamp(22px, 1.9vw, 30px);
+    line-height: 1.32;
+    letter-spacing: -0.02em;
+    text-wrap: pretty;
+  }
+  .gal {
+    display: grid;
+    gap: clamp(40px, 4vw, 64px);
+  }
+  .gal :global(.gal-ph) {
+    max-width: 300px;
+  }
+  /* Softer plate shadow on bone so it never reads as a tinted box behind the caption. */
+  .gal :global(.scr-img) {
+    box-shadow:
+      0 0 0 1px var(--rule-ink),
+      0 28px 44px -34px rgb(20 19 16 / 0.45);
+  }
+  .cyc {
     list-style: none;
-    margin: clamp(8px, 1vw, 16px) 0 0;
+    margin: 0;
     padding: 0;
     display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    color: var(--lichen);
-    font-size: 0.95rem;
-    line-height: 1.5;
-    text-align: center;
+    gap: 10px;
+    counter-reset: c;
   }
-  .cyc-list li {
-    padding-inline: clamp(6px, 1vw, 16px);
-    text-wrap: balance;
+  .cyc li {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr);
+    gap: 6px 16px;
+    align-items: baseline;
+    padding: clamp(20px, 2vw, 30px) clamp(20px, 2.2vw, 34px);
+    background: var(--print);
+    border-radius: var(--r);
+    box-shadow: 0 24px 50px -40px rgb(20 19 16 / 0.5);
   }
-  /* Desktop: the SVG carries the station names; the list keeps them for screen readers. */
-  .cyc-lk {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
+  .cyc li:last-child {
+    background: var(--ink);
+    color: var(--print);
+  }
+  .cyc-n {
+    grid-row: 1 / span 2;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--flare-ink);
+  }
+  .cyc li:last-child .cyc-n {
+    color: var(--flare);
+  }
+  .cyc-k {
+    font-size: clamp(30px, 3vw, 50px);
+    font-weight: 500;
+    letter-spacing: -0.04em;
+    line-height: 1;
+  }
+  .cyc-d {
+    grid-column: 2;
+    font-size: 17px;
+    line-height: 1.45;
+    color: var(--ink-soft);
+  }
+  .cyc li:last-child .cyc-d {
+    color: var(--ash);
+  }
+  .tech ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .tech li {
+    padding: 12px 0 14px;
+    font-size: clamp(20px, 1.7vw, 26px);
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+    border-top: 1px solid var(--rule-ink);
+  }
+  .tech--s {
+    margin-top: clamp(36px, 3.4vw, 56px);
+  }
+  .tech--s h3 {
+    margin-bottom: 12px;
+  }
+  .tech--s li {
+    padding: 9px 0 10px;
+    font-size: 17px;
+    letter-spacing: 0;
   }
 
-  /* ── Rows: 4/8 prose split ──────────────────────────────────────────── */
-  .pj-body {
-    padding-bottom: 72px;
+  /* ── where it stands ── */
+  .pj-st-g {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--col-gap);
+    row-gap: 48px;
+    align-items: start;
   }
-  /* No lead figure: the hero's bottom rule is the first row's rule, no empty band. */
-  .pj-hero + .pj-body {
-    padding-top: 0;
-    border-top: 0;
+  .pj-st-l {
+    grid-column: 1 / span 7;
   }
-  .pj-hero + .pj-body .rows > .row:first-child {
-    border-top: 0;
+  :global(.pj-st-tag) {
+    font-size: 17px !important;
   }
-  .pj-row {
-    grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+  .pj-out {
+    margin-top: 22px;
+    font-size: clamp(28px, 2.9vw, 48px);
+    font-weight: 500;
+    letter-spacing: -0.035em;
+    line-height: 1.08;
+    text-wrap: pretty;
   }
-  .pj-t {
-    color: var(--frost);
+  .pj-st-r {
+    grid-column: 9 / span 4;
+    display: grid;
+    gap: 36px;
+    padding-top: 6px;
+  }
+  .pj-blk h3 {
+    margin-bottom: 10px;
+  }
+  .pj-blk p {
+    font-size: 18px;
+    line-height: 1.5;
   }
   .pj-client {
     margin-top: 10px;
+    color: var(--ash);
   }
-  .pj-tech {
-    margin: 0;
-    font-family: var(--font-mono);
-    font-size: 13px;
-    line-height: 1.75;
-    color: var(--lichen);
-    max-width: 72ch;
-    text-wrap: balance;
-  }
-  .pj-st {
-    color: var(--lichen);
-    margin: 14px 0 0;
-  }
-  .pj-ask {
-    margin-top: 14px;
+  .pj-ask :global(.btn) {
+    margin-top: 18px;
   }
 
-  /* ── Further screenshots ────────────────────────────────────────────── */
-  .pj-more {
-    container-type: inline-size;
-    display: grid;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    column-gap: var(--gap);
-    row-gap: 40px;
-    align-items: start;
-    padding-block: clamp(40px, 4.4vw, 72px);
-  }
-  .pj-more .proof {
-    grid-column: span 8;
-  }
-  .pj-more .proof-phone {
-    grid-column: 10 / span 3;
-  }
-  .pj-more.solo .proof {
-    grid-column: 5 / span 8;
-  }
-  .pj-more .proof-phone img {
-    max-height: 560px;
-  }
-  /* Desktop + phone pair (8 / 4): plates share one height and the captions share one baseline row. */
-  .pj-more.pair {
-    /* One column, and the desktop image height that an 8-column 16:10 shot gets (frame padding + border = 34px). */
-    --col: calc((100cqw - 11 * var(--gap)) / 12);
-    --dh: min(640px, calc((8 * var(--col) + 7 * var(--gap) - 34px) * 0.625));
-    grid-template-rows: auto auto;
-    row-gap: 0;
-    align-items: end;
-  }
-  .pj-more.pair .proof {
-    grid-column: 1 / span 8;
-    grid-row: 1 / span 2;
-    display: grid;
-    grid-template-rows: subgrid;
-  }
-  .pj-more.pair .proof-phone {
-    grid-column: 9 / span 4;
-  }
-  .pj-more.pair .proof img {
-    aspect-ratio: auto;
-    height: var(--dh);
-    max-height: none;
-  }
-  .pj-more.pair .proof-phone .proof-frame {
-    display: flex;
-    justify-content: center;
-  }
-  .pj-more.pair .proof-phone img {
-    width: auto;
-    max-width: 100%;
-  }
-  .pj-more.pair figcaption,
-  .pj-more.pair .proof-phone figcaption {
-    align-self: start;
-    grid-template-columns: 72px minmax(0, 1fr);
-    gap: 12px;
-  }
-  /* A lone phone shot keeps its caption beside it instead of leaving the row empty. */
-  .pj-more.solo .proof-phone {
-    grid-column: 5 / span 8;
-    display: grid;
-    grid-template-columns: minmax(0, 3fr) minmax(0, 5fr);
-    column-gap: var(--gap);
-    align-items: end;
-  }
-  .pj-more.solo .proof-phone figcaption {
-    padding-top: 0;
-  }
-  .pj-more .proof-phone figcaption {
-    grid-template-columns: 1fr;
-    gap: 4px;
-  }
-  .pj-rows2 {
-    border-top: 0;
-  }
-
-  /* ── Related ────────────────────────────────────────────────────────── */
+  /* ── related ── */
   .pj-rel {
-    padding-block: 72px;
+    padding-bottom: var(--sec);
   }
-  .pj-rel-head {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: 16px;
-    margin-bottom: 28px;
-  }
-  .pj-relcode {
-    color: var(--lichen);
-    margin: 0 0 8px;
-  }
-  .pj-relrow h3 {
-    margin: 0;
-  }
-  .pj-relmeta {
+  .rel-g {
     display: grid;
-    gap: 12px;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(10px, 1.2vw, 18px);
   }
 
-  @media (max-width: 980px) {
-    .pj-fig1 {
-      width: 100%;
-    }
-    .pj-more .proof,
-    .pj-more.solo .proof,
-    .pj-more.pair .proof {
+  @media (max-width: 900px) {
+    .pj-sum,
+    .pj-facts,
+    .pj-st-l,
+    .pj-st-r {
       grid-column: 1 / -1;
-      grid-row: auto;
-      display: block;
     }
-    .pj-more.pair {
-      row-gap: 40px;
+    .pj-facts {
+      gap: 18px;
     }
-    .pj-more.pair .proof img {
-      height: auto;
-      max-height: 640px;
-      aspect-ratio: 16 / 10;
+    /* Phones: solution, then the screens, then the stack list. */
+    .pj-sol-g {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
     }
-    .pj-more .proof-phone,
-    .pj-more.solo .proof-phone,
-    .pj-more.pair .proof-phone {
-      grid-column: 1 / span 7;
-    }
-    .pj-more.pair .proof-phone img {
-      aspect-ratio: auto;
-      max-height: 560px;
-    }
-  }
-  @media (max-width: 860px) {
-    .pj-hero {
-      padding-bottom: 48px;
-    }
-    /* Phone: name, description, then the record and its stage. */
-    .pj-hero .grid12 {
-      row-gap: 0;
-    }
-    .pj-hl {
+    .pj-sol-l {
       display: contents;
     }
-    .pj-hl > :global(*),
-    .pj-hr {
-      grid-column: 1 / -1;
+    .pj-sol-r {
+      order: 3;
+      margin-top: 40px;
     }
-    .pj-hr {
-      padding-top: 0;
-      margin-top: 24px;
-      grid-row: 3;
+    .tech--s {
+      order: 4;
+      margin-top: 48px;
     }
-    .pj-meta {
-      grid-row: 4;
-      margin-top: 32px;
-      grid-template-columns: minmax(0, 1fr);
-      row-gap: 14px;
+    .cyc li {
+      grid-template-columns: 32px minmax(0, 1fr);
     }
-    .pj-meta .arrow-link {
-      margin-top: 0;
-    }
-    .proof-frame {
-      padding: 10px;
-    }
-    .pj-row {
+    .rel-g {
       grid-template-columns: 1fr;
-    }
-    /* Phone: the same cycle drawn top to bottom in HTML, so labels stay readable. */
-    .cyc-h {
-      display: none !important;
-    }
-    .cyc-list {
-      grid-template-columns: 1fr;
-      text-align: left;
-      margin: 0;
-    }
-    .cyc-list li {
-      position: relative;
-      padding: 0 0 22px 40px;
-      display: grid;
-      gap: 2px;
-    }
-    .cyc-list li:last-child {
-      padding-bottom: 0;
-    }
-    .cyc-list li::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 2px;
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      border: 2px solid var(--signal);
-      background: var(--plate);
-      box-sizing: border-box;
-      z-index: 1;
-    }
-    .cyc-list li:last-child::before {
-      background: var(--signal);
-    }
-    .cyc-list li:not(:last-child)::after {
-      content: '';
-      position: absolute;
-      left: 9px;
-      top: 22px;
-      bottom: 2px;
-      width: 2px;
-      background: var(--signal);
-    }
-    .cyc-lk {
-      position: static;
-      width: auto;
-      height: auto;
-      overflow: visible;
-      clip: auto;
-      font-family: var(--font-mono);
-      font-size: 12px;
-      font-weight: 400;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: var(--frost);
-    }
-    .proof figcaption,
-    .pj-more.pair figcaption,
-    .pj-more.pair .proof-phone figcaption {
-      grid-template-columns: 1fr;
-      gap: 4px;
-    }
-    .pj-more .proof-phone,
-    .pj-more.solo .proof-phone,
-    .pj-more.pair .proof-phone {
-      grid-column: 1 / -1;
-      display: block;
-      max-width: 280px;
-    }
-    .pj-more.solo .proof-phone figcaption {
-      padding-top: 14px;
     }
   }
 </style>

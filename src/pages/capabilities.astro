@@ -1,19 +1,20 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import PageHead from '../components/PageHead.astro';
-import StageTrack from '../components/StageTrack.astro';
+import CapHead from '../components/cap/CapHead.astro';
+import Button from '../components/Button.astro';
+import Brief from '../components/cap/Brief.astro';
+import CapPanels from '../components/cap/CapPanels.astro';
+import Thumbs from '../components/cap/Thumbs.astro';
+import { type CapKey } from '../components/cap/media';
 import { CAPABILITIES } from '../data/capabilities';
 import { STAGES } from '../data/stages';
-import { PROJECTS } from '../data/projects';
+import { PROJECTS, type Project } from '../data/projects';
 
-// Brand spelling for names that come from shared project data.
-const brand = (s: string) => s.replace(/FinMozg/g, 'FINMOZG');
 const shownIn = (slugs: string[] = []) =>
-  slugs
-    .map((slug) => PROJECTS.find((p) => p.slug === slug && p.visible))
-    .filter((p): p is (typeof PROJECTS)[number] => Boolean(p))
-    .map((p) => ({ href: p.internal ?? `/projects/${p.slug}`, name: brand(p.short) }));
+  slugs.map((slug) => PROJECTS.find((p) => p.slug === slug && p.visible)).filter((p): p is Project => Boolean(p));
+const spanLabel = (s: readonly [number, number]) => (s[0] === s[1] ? STAGES[s[0]].label : `${STAGES[s[0]].label} → ${STAGES[s[1]].label}`);
 
+const caps = CAPABILITIES.map((c) => ({ ...c, k: c.key as CapKey, span: spanLabel(c.span), projects: shownIn(c.projects) }));
 ---
 
 <BaseLayout
@@ -25,173 +26,158 @@ const shownIn = (slugs: string[] = []) =>
     { name: 'Capabilities', path: '/capabilities' }
   ]}
 >
-  <PageHead
+  <CapHead
     crumb="Capabilities"
     title="Applied AI, software and R&D on one line."
     lede="Four capabilities on one line, each shown in real projects. One accountable lead stays with a project from discovery to measurement, with specialist partners where needed."
+  >
+    <CapPanels slot="media" items={caps.map((c) => ({ k: c.k, href: `#${c.key}`, name: c.name, line: c.line, span: c.span }))} />
+  </CapHead>
+
+  <Brief
+    text="INNOVA is an Ottawa technology company. It works across four connected capabilities: applied AI and automation, custom software, applied R&D and commercialization, and innovation partnerships. Each section below shows the stretch of the stage line it covers and the projects where it is in use."
   />
 
-  <section class="brief" aria-labelledby="brief-h">
-    <div class="wrap grid12">
-      <p class="brief-l" id="brief-h">In brief</p>
-      <p class="brief-t">
-        INNOVA is an Ottawa technology company. It works across four connected capabilities: applied AI and automation, custom software,
-        applied R&amp;D and commercialization, and innovation partnerships. Each row below shows the stretch of the stage line it covers and
-        the projects where it is in use.
-      </p>
-    </div>
-  </section>
-
   {
-    CAPABILITIES.map((c) => {
-      const projects = shownIn(c.projects);
-      const compact = c.key === 'rd';
-      const span = c.span[0] === c.span[1] ? STAGES[c.span[0]].label : `${STAGES[c.span[0]].label} → ${STAGES[c.span[1]].label}`;
-      return (
-        <section class="section cap" id={c.key}>
-          <div class="wrap grid12">
-            <div class="cap-l">
-              <p class="cap-meta">
-                {c.code} · {span}
-              </p>
-              <h2 class="d-l">{c.name}</h2>
-              <p class="lede cap-line">{c.line}</p>
-              <StageTrack span={c.span} caption={false} />
-            </div>
-            <div class="cap-r">
-              {!compact && (
-                <ul class="cap-scope">
-                  {c.scope.map((s) => (
-                    <li>{s}</li>
-                  ))}
-                </ul>
-              )}
-              <a class="arrow-link" href={c.href}>
-                <span>{c.linkLabel}</span>
-                <span aria-hidden="true">→</span>
-              </a>
-              {projects.length > 0 && (
-                <p class="cap-shown">
-                  <span class="cap-shown-l">{c.key === 'partnerships' ? 'Partnership-ready projects:' : 'Shown in:'}</span>
-                  {projects.map((p) => (
-                    <a class="cap-p" href={p.href}>{p.name}</a>
-                  ))}
+    caps.map((c, i) => (
+      <section class:list={['chap', c.key === 'partnerships' ? 'tone-bone chap--bone' : 'tone-film']} id={c.key} aria-labelledby={`${c.key}-h`}>
+        <div class="shell">
+          <div class="inset">
+            <div class="chap-top">
+              <div class="chap-t">
+                <p class="t-label t-mute chap-span">
+                  <span class="tnum">{String(i + 1).padStart(2, '0')}</span>
+                  <span>{c.span}</span>
                 </p>
+                <h2 class="chap-n" id={`${c.key}-h`} data-rise>
+                  {c.name}
+                </h2>
+              </div>
+              <div class="chap-a">
+                <p class="chap-line">{c.line}</p>
+                <Button href={c.href} variant={c.key === 'partnerships' ? 'ink' : 'ghost'} class="chap-go">
+                  {c.linkLabel}
+                </Button>
+              </div>
+            </div>
+            <div class="chap-g">
+              <ul class="chap-scope" aria-label={`${c.name}: scope`}>
+                {c.scope.map((s) => (
+                  <li>{s}</li>
+                ))}
+              </ul>
+              {c.projects.length > 0 && (
+                <Thumbs class="chap-th" projects={c.projects} label={c.key === 'partnerships' ? 'Partnership-ready projects' : 'Shown in'} />
               )}
             </div>
           </div>
-        </section>
-      );
-    })
+        </div>
+      </section>
+    ))
   }
 </BaseLayout>
 
 <style>
-  .brief {
-    padding-block: clamp(36px, 4vw, 60px);
-    border-bottom: 1px solid var(--rule);
+  /* chapters */
+  .chap {
+    padding-block: calc(var(--sec) * 0.62);
   }
-  .brief-l {
-    grid-column: 1 / span 3;
-    margin: 0;
-    padding-top: 5px;
-    font-family: var(--font-mono);
-    font-size: 0.8125rem;
-    color: var(--lichen);
+  .chap + .chap.tone-film {
+    padding-top: calc(var(--sec) * 0.4);
   }
-  .brief-t {
-    grid-column: 4 / span 7;
-    margin: 0;
-    max-width: 64ch;
-    color: var(--frost);
-    font-size: clamp(1.02rem, 0.96rem + 0.25vw, 1.15rem);
-    line-height: 1.6;
+  .chap--bone {
+    margin-top: calc(var(--sec) * 0.4);
+    padding-block: var(--sec);
   }
-  .cap-l {
+  .chap-top,
+  .chap-g {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--col-gap);
+    row-gap: 28px;
+  }
+  .chap-top {
+    align-items: end;
+  }
+  .chap-t {
+    grid-column: 1 / span 8;
+  }
+  .chap-a {
+    grid-column: 9 / span 4;
+  }
+  .chap-span {
+    display: flex;
+    gap: 18px;
+    margin-bottom: clamp(14px, 1.4vw, 22px);
+  }
+  .chap-n {
+    font-size: clamp(44px, 6.2vw, 104px);
+    font-weight: 500;
+    letter-spacing: -0.045em;
+    line-height: 0.94;
+    max-width: 15ch;
+    text-wrap: balance;
+  }
+  .chap-line {
+    font-size: clamp(18px, 1.4vw, 22px);
+    line-height: 1.42;
+    max-width: 34ch;
+  }
+  .chap-a :global(.chap-go) {
+    margin-top: 24px;
+  }
+  .chap-g {
+    margin-top: clamp(40px, 4.4vw, 72px);
+    align-items: start;
+  }
+  .chap-scope {
     grid-column: 1 / span 6;
-  }
-  .cap-r {
-    grid-column: 8 / span 5;
-    align-self: center;
-  }
-  .cap-meta {
-    margin: 0 0 18px;
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    letter-spacing: 0.02em;
-    color: var(--lichen);
-  }
-  .cap-line {
-    margin: 22px 0 28px;
-  }
-  .cap-scope {
     list-style: none;
-    margin: 0 0 30px;
+    margin: 0;
     padding: 0;
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px clamp(16px, 2vw, 28px);
+    gap: 0;
+    counter-reset: sc;
   }
-  .cap-scope li {
-    position: relative;
-    padding-left: 18px;
-    font-size: 0.9375rem;
-    line-height: 1.45;
-    color: var(--frost);
-  }
-  .cap-scope li::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0.5em;
-    width: 6px;
-    height: 6px;
-    background: var(--rule-strong);
-  }
-  .cap-shown {
-    margin: 22px 0 0;
-    padding-top: 16px;
-    border-top: 1px solid var(--rule);
-    font-size: 0.9375rem;
-    color: var(--frost);
-  }
-  .cap-shown {
+  .chap-scope li {
     display: flex;
-    flex-wrap: wrap;
-    gap: 6px 18px;
+    gap: 16px;
+    align-items: baseline;
+    padding: 10px 0;
+    font-size: clamp(20px, 2.15vw, 34px);
+    line-height: 1.12;
+    letter-spacing: -0.028em;
+    color: var(--print);
   }
-  .cap-shown-l {
-    color: var(--lichen);
+  .chap-scope li::before {
+    counter-increment: sc;
+    content: counter(sc);
+    flex: none;
+    width: 1.4em;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--ash);
+    font-variant-numeric: tabular-nums;
   }
-  .cap-p {
-    text-decoration: underline;
-    text-decoration-color: var(--rule-strong);
-    text-underline-offset: 4px;
-    transition: text-decoration-color var(--t-micro) var(--ease-out);
+  .chap--bone .chap-scope li {
+    color: var(--ink);
   }
-  .cap-p:hover {
-    text-decoration-color: var(--signal);
+  .chap--bone .chap-scope li::before {
+    color: var(--ink-soft);
   }
-  @media (max-width: 980px) {
-    .brief-l,
-    .brief-t {
+  .chap :global(.chap-th) {
+    grid-column: 7 / span 6;
+    padding-top: 12px;
+  }
+  @media (max-width: 900px) {
+    .chap-t,
+    .chap-a,
+    .chap-scope,
+    .chap :global(.chap-th) {
       grid-column: 1 / -1;
     }
-    .brief-l {
-      margin-bottom: 12px;
-      padding-top: 0;
-    }
-    .cap-l,
-    .cap-r {
-      grid-column: 1 / -1;
-    }
-    .cap-r {
-      margin-top: 36px;
-    }
-  }
-  @media (max-width: 480px) {
-    .cap-scope {
-      grid-template-columns: 1fr;
+    .chap :global(.chap-th .th-g) {
+      grid-template-columns: repeat(min(var(--cols), 2), minmax(0, 1fr));
     }
   }
 </style>

@@ -1,0 +1,90 @@
+---
+// One project as a tile: a «screen in its world» ProjectCard when the project has real
+// screenshots, otherwise a TypeFrame with its working words. Presets: ./presets.ts.
+import ProjectCard from '../ProjectCard.astro';
+import StatusTag from '../StatusTag.astro';
+import TypeFrame from './TypeFrame.astro';
+import { PRESETS } from './presets';
+import { projectHref, type Project } from '../../data/projects';
+interface Props {
+  project: Project;
+  size?: 'full' | 'half';
+  aspect?: string;
+  headingLevel?: 'h2' | 'h3';
+  class?: string;
+  [key: string]: unknown;
+}
+const { project: p, size = 'half', aspect, headingLevel: H = 'h3', class: cls, ...rest } = Astro.props;
+const pr = PRESETS[p.slug] ?? { fact: p.summary, material: 'reel' as const };
+---
+
+{
+  pr.words ? (
+    <TypeFrame {...rest} href={projectHref(p)} words={pr.words} label={pr.wordsLabel} material={pr.material} size={size} aspect={aspect} class:list={['pt-type', cls]}>
+      <StatusTag status={p.status} label={pr.statusLabel} class="pt-tag" />
+      <H class="pt-n two-tone">
+        {p.short}{' '}
+        <span class="d">{p.tagline}</span>
+      </H>
+      <p class="pt-f">{pr.fact}</p>
+      {size === 'full' && (
+        <span class="pt-go t-label">
+          Open the project <span class="ar" aria-hidden="true">→</span>
+        </span>
+      )}
+    </TypeFrame>
+  ) : (
+    <ProjectCard
+      {...rest}
+      project={p}
+      size={size}
+      aspect={aspect}
+      aspectM={pr.aspectM}
+      fact={pr.fact}
+      statusLabel={pr.statusLabel}
+      world={pr.world}
+      material={pr.material}
+      credit={pr.credit}
+      screens={size === 'full' ? pr.full : pr.half}
+      headingLevel={H}
+      class={cls}
+    />
+  )
+}
+
+<style>
+  :global(.pt-type .pt-tag) {
+    margin-bottom: 14px;
+  }
+  .pt-n {
+    font-size: clamp(30px, 2.6vw, 44px);
+    font-weight: 500;
+    letter-spacing: -0.035em;
+    line-height: 1;
+  }
+  .pt-f {
+    margin-top: 14px;
+    font-size: 17px;
+    line-height: 1.45;
+    max-width: 44ch;
+  }
+  .pt-go {
+    display: inline-flex;
+    gap: 8px;
+    margin-top: 16px;
+  }
+  .pt-go .ar {
+    transition: transform 0.3s var(--e-out);
+  }
+  :global(a.pt-type:hover) .pt-go .ar {
+    transform: translateX(6px);
+  }
+  @media (max-width: 900px) {
+    .pt-n {
+      font-size: 32px;
+    }
+    .pt-f {
+      font-size: 16px;
+    }
+  }
+</style>

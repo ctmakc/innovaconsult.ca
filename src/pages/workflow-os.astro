@@ -1,173 +1,16 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import RiseHeading from '../components/RiseHeading.astro';
+import SectionHead from '../components/SectionHead.astro';
+import WosHero from '../components/wos/WosHero.astro';
+import WosModules from '../components/wos/WosModules.astro';
+import { SHOTS, QA, RISK } from '../components/wos/data';
 import { SITE } from '../data/site';
 
 // Product facts are traceable to /data/projects/innova-workflow-os (README.md, docs/SCORING.md,
 // src/domain/types.ts, src/domain/patterns.ts; vitest run 2026-10-01: 226 passed) and to the
-// memory note innova-workflow-os.md (invite-only deployment, 1 October 2026).
+// memory note innova-workflow-os.md (invite-only deployment, 1 October 2026). Data: src/components/wos/data.ts.
 
 const PAGE = `${SITE.url}/workflow-os`;
-
-const shot = (name: string) => ({
-  src: `/proof/workflow-os-${name}-1440-1600.webp`,
-  srcset: `/proof/workflow-os-${name}-1440-800.webp 800w, /proof/workflow-os-${name}-1440-1600.webp 1600w`,
-  width: 1600,
-  height: 1000
-});
-
-// Alt and captions: .proof-staging/MANIFEST.json (captured 2026-10-01 from commit 94b14f3).
-const SHOTS = {
-  map: {
-    ...shot('opportunity-map'),
-    alt: 'Workflow OS Opportunity Map: 15 processes plotted by business value and implementation feasibility, with Client Onboarding ranked first at 88 and its score broken into value, feasibility, strategic fit and risk.',
-    caption: 'Opportunity Map for the demo company Northstar Professional Services (illustrative demo data). Every score shows its parts.'
-  },
-  overview: {
-    ...shot('overview'),
-    alt: 'Workflow OS overview for the demo company Northstar Professional Services: 30 people, 5 departments, 9 systems, 15 mapped workflows and the top-ranked automation opportunities.',
-    caption: 'Company overview with ranked opportunities (illustrative demo data).'
-  },
-  designer: {
-    ...shot('designer'),
-    alt: 'Workflow OS Automation Designer for Client Onboarding: effort per case from 100 to 40 minutes, current and proposed process flows with human, system and AI lanes.',
-    caption: 'Automation Designer: current state against proposed state, with the human approval gate kept. Illustrative demo data.'
-  },
-  impact: {
-    ...shot('impact'),
-    alt: 'Workflow OS business case for Client Onboarding: projected staff hours, payback and Year-1 ROI with every figure labelled calculated, assumption, estimated or projected.',
-    caption: 'Business case with each number tagged by origin (illustrative demo data).'
-  }
-};
-
-const technology = [
-  'React + TypeScript',
-  'Deterministic scoring engine (14 factors + risk penalty)',
-  'AI process discovery with rules-engine fallback',
-  'Architecture recommender (6 patterns, 5 human-control levels)',
-  'ROI model',
-  '226 automated tests'
-];
-
-const qa = [
-  {
-    q: 'What exactly should be automated?',
-    a: 'Module 2 scores every process on 14 factors in three groups (value, feasibility, strategic fit), subtracts a risk penalty, and shows the reason behind each number.',
-    m: 2
-  },
-  {
-    q: 'Which process comes first?',
-    a: 'Processes are ranked by priority score, and the plan starts with the top two or three.',
-    m: 2
-  },
-  {
-    q: 'Where is AI actually useful?',
-    a: 'Where drafting, classifying, summarizing or a bounded task with tools saves real time. Stable, rule-based work goes to deterministic software.',
-    m: 3
-  },
-  {
-    q: 'Does this need an agent, or ordinary automation?',
-    a: 'Module 3 recommends one of six patterns, from traditional automation to supervised agents, with one of five levels of human control.',
-    m: 3
-  },
-  {
-    q: 'What will implementation cost?',
-    a: 'Module 4 turns the design into tasks, owners, integrations and milestones, which is the basis of the estimate.',
-    m: 4
-  },
-  {
-    q: 'Did the automation produce measurable value?',
-    a: 'Module 5 projects the return from stated assumptions, then records actual results against the baseline after go-live.',
-    m: 5
-  }
-];
-
-const flow = [
-  { t: 'Company', m: 1 },
-  { t: 'Processes', m: 1 },
-  { t: 'Score', m: 2 },
-  { t: 'Select', m: 2 },
-  { t: 'Design', m: 3 },
-  { t: 'Implement', m: 4 },
-  { t: 'Measure', m: 5 }
-];
-
-type Group = { label: string; items: string[] };
-type Module = {
-  name: string;
-  line: string;
-  shot?: (typeof SHOTS)[keyof typeof SHOTS];
-  lazy?: boolean;
-  formula?: string;
-  fields?: string[];
-  groups?: Group[];
-  phases?: string[];
-};
-
-const modules: Module[] = [
-  {
-    name: 'Process discovery',
-    line: 'Capture departments, roles, systems and processes by hand, or paste a written company description and review the draft process model the AI proposes.',
-    fields: ['Company', 'Departments', 'Roles', 'Systems', 'Processes', 'Process steps', 'Pain points', 'Volume and minutes per case']
-  },
-  {
-    name: 'Automation opportunity map',
-    line: 'Score every process on 14 factors in three groups (value, feasibility, strategic fit), subtract a risk penalty, and show the reason and evidence source behind each number.',
-    shot: SHOTS.map,
-    formula: 'Priority = Value × 0.50 + Feasibility × 0.30 + Fit × 0.20 − Risk penalty',
-    groups: [
-      { label: 'Value', items: ['Time consumed', 'Volume', 'Rework', 'Waiting time', 'Client and revenue impact'] },
-      { label: 'Feasibility', items: ['Standardization', 'Data readiness', 'System readiness', 'Rule clarity', 'Exception predictability'] },
-      { label: 'Fit', items: ['Repeatability', 'Scalability', 'Employee pain', 'Management priority'] },
-      { label: 'Risk penalty', items: ['Privacy', 'Regulatory', 'Consequence', 'Change complexity'] }
-    ]
-  },
-  {
-    name: 'Automation designer',
-    line: 'Recommend one of six patterns for the selected process, draw its current and proposed flow, and set a level of human control for every component.',
-    shot: SHOTS.designer,
-    groups: [
-      {
-        label: 'Six patterns',
-        items: [
-          'Traditional workflow automation',
-          'AI assistant with human execution',
-          'Bounded AI agent',
-          'Multi-agent system',
-          'Human-in-the-loop AI support',
-          'Hybrid AI-assisted automation'
-        ]
-      },
-      {
-        label: 'Five levels of human control',
-        items: ['Fully automated', 'Review after execution', 'Approval before external action', 'Approval before critical action', 'Human only']
-      }
-    ]
-  },
-  {
-    name: 'Implementation workspace',
-    line: 'Turn the design into a delivery plan in five phases, with an owner, dependencies, effort, a target date and acceptance criteria for every task.',
-    phases: ['Validate', 'Prototype', 'Pilot', 'Production', 'Optimize'],
-    fields: ['Tasks', 'Owners', 'Dependencies', 'Systems touched', 'Milestones', 'Effort in days', 'Target dates', 'Acceptance criteria']
-  },
-  {
-    name: 'Impact & ROI',
-    line: 'Project the return from stated assumptions, then record actual results against the baseline after go-live.',
-    shot: SHOTS.impact,
-    fields: [
-      'Monthly case volume',
-      'Baseline minutes per case',
-      'Projected minutes per case',
-      'Loaded hourly cost',
-      'Implementation and operating cost',
-      'Payback and Year-1 ROI',
-      'Actual minutes after go-live',
-      'Actual volume after go-live'
-    ]
-  }
-];
-
-const risk = ['Privacy', 'Security', 'Regulatory', 'Financial', 'Legal', 'Reputational', 'Operational', 'Model hallucination', 'Unauthorized tool use'];
 
 const product = {
   '@context': 'https://schema.org',
@@ -188,7 +31,7 @@ const faq = {
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
   '@id': `${PAGE}#faq`,
-  mainEntity: qa.map((x) => ({
+  mainEntity: QA.map((x) => ({
     '@type': 'Question',
     name: x.q,
     acceptedAnswer: { '@type': 'Answer', text: x.a }
@@ -206,924 +49,290 @@ const faq = {
     { name: 'Workflow OS', path: '/workflow-os' }
   ]}
 >
-  <section class="wh">
-    <div class="wrap wh-grid">
-      <div class="wh-top">
-        <p class="kicker wh-crumb"><a href="/" class="ulink">INNOVA</a><span aria-hidden="true">/</span>Workflow OS</p>
-        <RiseHeading text="INNOVA AI Workflow OS" class="d-xl" delay={60} />
-        <p class="lede wh-lede">From business processes to measurable AI automation.</p>
-      </div>
+  <Fragment slot="head">
+    <link
+      rel="preload"
+      as="image"
+      imagesrcset={`${SHOTS.overview.src800} 800w, ${SHOTS.overview.src} 1600w`}
+      imagesizes="(max-width: 900px) 92vw, 62vw"
+      fetchpriority="high"
+    />
+  </Fragment>
 
-      <figure class="proof wh-fig">
-        <div class="proof-frame">
-        <img
-          src={SHOTS.overview.src}
-          srcset={SHOTS.overview.srcset}
-          sizes="(max-width: 980px) calc(100vw - 32px), (max-width: 1472px) 56vw, 800px"
-          width={SHOTS.overview.width}
-          height={SHOTS.overview.height}
-          alt={SHOTS.overview.alt}
-          loading="eager"
-          fetchpriority="high"
-          decoding="async"
-        />
-        </div>
-        <figcaption>Prototype · company overview of Northstar Professional Services, a fictional 30-person firm, with its automation opportunities ranked by score (illustrative demo data).</figcaption>
-      </figure>
+  <WosHero />
 
-      <div class="wh-act">
-        <p class="wh-status"><span class="mark" data-s="prototype" aria-hidden="true"></span>Working prototype. Invite-only demo online since 1 October 2026.</p>
-        <p class="wh-fit">Built for firms of 20 to 200 people.</p>
-        <a class="btn btn-primary" href="/contact?topic=workflow-os">Request a demo invite <span class="arr" aria-hidden="true">→</span></a>
-        <p class="wh-sub">You receive a personal link to the working prototype, preloaded with a fictional sample company. The walkthrough takes about two minutes.</p>
-      </div>
-    </div>
-
-    <div class="wrap">
-      <dl class="rec">
-        <div class="rec-id">
-          <dt class="sr-only">Record</dt>
-          <dd>INV-04 · Prototype</dd>
-        </div>
-        <div class="rec-tech">
-          <dt class="sr-only">Technology</dt>
-          <dd>{technology.join(' · ')}</dd>
-        </div>
-      </dl>
-    </div>
-  </section>
-
-  <section class="section" aria-labelledby="qa-h">
-    <div class="wrap">
-      <div class="grid12 sec-head">
-        <div class="sh-l"><h2 class="d-l" id="qa-h">Six questions every automation plan has to answer.</h2></div>
-        <p class="body sh-r">Workflow OS answers each one from the company’s own process data, and each answer links to the module that produces it.</p>
-      </div>
-      <div class="qa">
+  <!-- ═══ SIX QUESTIONS (film) ═══ -->
+  <section class="qa-sec shell pad-lg" aria-labelledby="qa-h">
+    <div class="inset">
+      <SectionHead
+        id="qa-h"
+        size="h2"
+        title="Six questions every automation plan has to answer."
+        lede="Workflow OS answers each one from the company’s own process data, and each answer links to the module that produces it."
+      />
+      <ol class="qa">
         {
-          qa.map((x) => (
-            <div class="qa-row">
-              <h3 class="qa-q">{x.q}</h3>
-              <p class="qa-a">{x.a}</p>
-              <a class="qa-m" href={`#module-${x.m}`}>
-                <span>Module {x.m}</span>
-                <span aria-hidden="true">↓</span>
-              </a>
-            </div>
-          ))
+          QA.map((x, i) => {
+            const sh = SHOTS[x.crop.shot];
+            const f = 1600 / x.crop.w;
+            const h = x.crop.w / 1.6;
+            const pos = `width:${(f * 100).toFixed(2)}%;left:${((-x.crop.x / x.crop.w) * 100).toFixed(2)}%;top:${((-x.crop.y / h) * 100).toFixed(2)}%`;
+            return (
+              <li class="qa-i">
+                <div class="qa-crop" aria-hidden="true">
+                  <img
+                    src={sh.src}
+                    srcset={`${sh.src800} 800w, ${sh.src} 1600w`}
+                    sizes={`(max-width: 640px) ${Math.round(f * 84)}vw, (max-width: 1100px) ${Math.round(f * 46)}vw, ${Math.round(f * 30)}vw`}
+                    width={sh.w}
+                    height={sh.h}
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                    style={pos}
+                  />
+                </div>
+                <p class="qa-n" aria-hidden="true">{String(i + 1).padStart(2, '0')}</p>
+                <h3 class="qa-q">{x.q}</h3>
+                <p class="qa-a">{x.a}</p>
+                <p class="sr-only">Screen: {x.crop.label}</p>
+                <a class="lnk qa-m" href={`#module-${x.m}`}>
+                  Module {x.m} <span class="ar" aria-hidden="true">↓</span>
+                </a>
+              </li>
+            );
+          })
         }
-      </div>
+      </ol>
     </div>
   </section>
 
-  <section class="section wf-sec" aria-labelledby="flow-h">
-    <div class="wrap">
-      <h2 class="sr-only" id="flow-h">Product flow</h2>
-      <p class="wf-cap">One path through the product, seven stations. Each station opens the module that handles it.</p>
-      <div class="wf" data-draw>
-        <span class="wf-track" aria-hidden="true"></span>
-        <span class="wf-rail trk-span" aria-hidden="true"></span>
-        <ol class="wf-ol">
-        {
-          flow.map((f, i) => (
-            <li style={`--i:${i};--c:${2 * i}`}>
-              <a href={`#module-${f.m}`} class="wf-a">
-                <span class="wf-dot" aria-hidden="true" />
-                <span class="wf-lab">
-                  <span class="wf-i">{String(i + 1).padStart(2, '0')}</span>
-                  <span class="wf-t">{f.t}</span>
-                </span>
-                <span class="sr-only">, module {f.m}</span>
-              </a>
-            </li>
-          ))
-        }
-        </ol>
-      </div>
-    </div>
-  </section>
+  <WosModules />
 
-  <section class="section" aria-labelledby="mods-h">
-    <div class="wrap">
-      <div class="grid12 sec-head">
-        <div class="sh-l"><h2 class="d-l" id="mods-h">Five modules.</h2></div>
-        <p class="body sh-r">Each module hands its output to the next. Risk controls run through all five.</p>
-      </div>
-
-      <div class="grid12 ms">
-        <nav class="ms-nav" aria-label="Workflow OS modules">
-          <ol>
-            {
-              modules.map((m, i) => (
-                <li>
-                  <a href={`#module-${i + 1}`} class:list={['d-m', 'ms-link', { 'is-active': i === 0 }]} data-mod={i + 1}>
-                    {m.name}
-                  </a>
-                </li>
-              ))
-            }
-          </ol>
-        </nav>
-
-        <div class="ms-body">
-          {
-            modules.map((m, i) => (
-              <article class:list={['mod', { 'is-active': i === 0 }]} id={`module-${i + 1}`} data-mod={i + 1} aria-labelledby={`module-${i + 1}-h`}>
-                <p class="mod-n">Module {i + 1} of 5</p>
-                <h3 class="mod-h" id={`module-${i + 1}-h`}>
-                  {m.name}
-                </h3>
-
-                {m.shot && (
-                  <figure class="proof mod-fig">
-                    <div class="proof-frame">
-                    <img
-                      src={m.shot.src}
-                      srcset={m.shot.srcset}
-                      sizes="(max-width: 980px) calc(100vw - 32px), (max-width: 1472px) 62vw, 900px"
-                      width={m.shot.width}
-                      height={m.shot.height}
-                      alt={m.shot.alt}
-                      loading="lazy"
-                      decoding="async"
-                    />
-                    </div>
-                    <figcaption>{m.shot.caption}</figcaption>
-                  </figure>
-                )}
-
-                {m.phases && (
-                  <ol class="ph5" aria-label="Five delivery phases">
-                    {m.phases.map((p, k) => (
-                      <li style={`--k:${k}`}>
-                        <span class="ph5-dot" aria-hidden="true" />
-                        <span class="ph5-t">{p}</span>
-                      </li>
-                    ))}
-                  </ol>
-                )}
-
-                <p class="mod-l">{m.line}</p>
-
-                {m.formula && <p class="formula">{m.formula}</p>}
-
-                {m.groups && (
-                  <div class="grp">
-                    {m.groups.map((g) => (
-                      <div class="grp-c">
-                        <h4 class="grp-h">{g.label}</h4>
-                        <ul class="ruled">
-                          {g.items.map((x) => (
-                            <li>{x}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {m.fields && (
-                  <ul class="ruled ruled-2" aria-label={`${m.name}: fields`}>
-                    {m.fields.map((x) => (
-                      <li>{x}</li>
-                    ))}
-                  </ul>
-                )}
-              </article>
-            ))
-          }
-        </div>
-      </div>
-
-      <div class="riskrow">
-        <p class="riskrow-l">Risk and governance · every module</p>
-        <ul class="riskrow-r">
-          {risk.map((r) => <li>{r}</li>)}
+  <!-- ═══ GOVERNANCE + BOUNDARY (film) ═══ -->
+  <section class="gov shell pad-lg" aria-labelledby="gov-h">
+    <div class="inset">
+      <div class="gov-g">
+        <h2 id="gov-h" class="t-label t-mute gov-k">Risk and governance, in every module</h2>
+        <ul class="risk">
+          {RISK.map((r) => <li>{r}</li>)}
         </ul>
       </div>
-    </div>
-  </section>
 
-  <section class="section">
-    <div class="wrap grid12">
-      <div class="b-l">
-        <h2 class="d-l">Where Workflow OS ends.</h2>
-      </div>
-      <div class="b-r">
-        <p class="lede">
-          Workflow OS decides what to automate and how. The automations themselves run in the client’s existing platforms or in INNOVA products such as <a class="ulink b-link" href="/projects/aicrmius">AICRMIUS</a>.
-        </p>
-        <p class="body b-p">That boundary keeps the planning tool independent of any single vendor, including us.</p>
-        <p class="body b-p2">The demo runs on fictional data. Scoring, design and ROI are calculated without AI. Optional AI discovery sends the description you paste to an external AI model hosted outside Canada; when it is off or slow, a rules engine drafts the process model instead.</p>
-        <a class="arrow-link" href="/ai-transformation"><span>Our AI transformation method</span><span aria-hidden="true">→</span></a>
+      <div class="end">
+        <h2 class="t-display end-h" data-rise>Where Workflow OS ends.</h2>
+        <div class="end-r">
+          <p class="end-lede">
+            Workflow OS decides what to automate and how. The automations themselves run in the client’s existing platforms or in INNOVA products such as <a class="end-link" href="/projects/aicrmius">AICRMIUS</a>.
+          </p>
+          <p class="end-p">That boundary keeps the planning tool independent of any single vendor, including us.</p>
+          <p class="end-p end-demo">
+            The demo runs on fictional data. Scoring, design and ROI are calculated without AI. Optional AI discovery sends the description you paste to an external AI model hosted outside Canada; when it is off or slow, a rules engine drafts the process model instead.
+          </p>
+          <a class="lnk end-k" href="/ai-transformation">Our AI transformation method <span class="ar" aria-hidden="true">→</span></a>
+        </div>
       </div>
     </div>
   </section>
 </BaseLayout>
 
-<script>
-  // Sticky module list: the module crossing the middle of the viewport becomes active.
-  const links = document.querySelectorAll<HTMLAnchorElement>('.ms-link');
-  const mods = document.querySelectorAll<HTMLElement>('.mod');
-  if (links.length && 'IntersectionObserver' in window) {
-    const setActive = (n: string) => {
-      links.forEach((l) => {
-        const on = l.dataset.mod === n;
-        l.classList.toggle('is-active', on);
-        if (on) l.setAttribute('aria-current', 'true');
-        else l.removeAttribute('aria-current');
-      });
-      mods.forEach((m) => m.classList.toggle('is-active', m.dataset.mod === n));
-    };
-    const io = new IntersectionObserver(
-      (entries) => {
-        for (const e of entries) {
-          if (e.isIntersecting) setActive((e.target as HTMLElement).dataset.mod || '1');
-        }
-      },
-      { rootMargin: '-45% 0px -50% 0px' }
-    );
-    mods.forEach((m) => io.observe(m));
-  }
-</script>
-
 <style>
-  /* ── Proof plate (mirrors the shared .proof contract; scoped so the page stands alone) ── */
-  .proof {
-    margin: 0;
-    border: 0;
-    background: none;
+  /* ── six questions ── */
+  .qa-sec {
+    padding-bottom: calc(var(--sec) * 0.72);
   }
-  .proof-frame {
-    background: var(--plate);
-    border: 1px solid var(--rule-strong);
-    aspect-ratio: 16 / 10;
-    overflow: hidden;
-  }
-  .proof img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: top left;
-  }
-  .proof figcaption {
-    margin-top: 10px;
-    font-family: var(--font-mono);
-    font-size: 12px;
-    line-height: 1.5;
-    letter-spacing: 0;
-    text-transform: none;
-    color: var(--lichen);
-    max-width: 72ch;
-  }
-
-  /* ── Hero: 5 / 7 split ── */
-  .wh {
-    padding-block: clamp(40px, 4.5vw, 80px) 0;
-  }
-  .wh-grid {
-    display: grid;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    grid-template-rows: auto 1fr;
-    column-gap: clamp(16px, 2vw, 32px);
-    row-gap: 32px;
-  }
-  .wh-top {
-    grid-column: 1 / span 5;
-    grid-row: 1;
-  }
-  .wh-act {
-    grid-column: 1 / span 5;
-    grid-row: 2;
-    align-self: end;
-    display: grid;
-    justify-items: start;
-    gap: 16px;
-  }
-  .wh-fig {
-    grid-column: 6 / span 7;
-    grid-row: 1 / span 2;
-    align-self: start;
-    margin-top: 6px;
-  }
-  .wh-crumb a {
-    color: var(--frost);
-  }
-  .wh-crumb span {
-    color: var(--rule-strong);
-  }
-  .wh-top :global(.d-xl) {
-    font-size: clamp(2.4rem, 1.4rem + 2.6vw, 4.1rem);
-    max-width: 11ch;
-  }
-  .wh-lede {
-    margin-top: 24px;
-    max-width: 28ch;
-  }
-  .wh-status {
-    display: flex;
-    align-items: baseline;
-    gap: 12px;
-    margin: 0;
-    color: var(--frost);
-    font-size: 1rem;
-    line-height: 1.5;
-  }
-  .wh-status .mark {
-    flex: none;
-    translate: 0 1px;
-  }
-  .wh-fit {
-    margin: 0 0 6px;
-    color: var(--lichen);
-    font-size: 1rem;
-  }
-  .wh-sub {
-    margin: 0;
-    color: var(--lichen);
-    font-size: 0.94rem;
-    line-height: 1.55;
-    max-width: 46ch;
-  }
-
-  /* Record bar */
-  .rec {
-    margin: clamp(40px, 4vw, 64px) 0 0;
-    padding: 18px 0;
-    border-top: 1px solid var(--rule);
-    display: grid;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    column-gap: clamp(16px, 2vw, 32px);
-    row-gap: 8px;
-    font-family: var(--font-mono);
-    font-size: 13px;
-    line-height: 1.6;
-  }
-  .rec dd {
-    margin: 0;
-  }
-  .rec-id {
-    grid-column: 1 / span 3;
-    color: var(--frost);
-  }
-  .rec-tech {
-    grid-column: 4 / span 9;
-    color: var(--lichen);
-  }
-
-  /* ── Q&A: ruled rows (question · answer · module link) ── */
   .qa {
-    border-bottom: 1px solid var(--rule);
-  }
-  .qa-row {
-    display: grid;
-    grid-template-columns: minmax(0, 5fr) minmax(0, 5fr) minmax(0, 2fr);
-    column-gap: clamp(16px, 2vw, 32px);
-    row-gap: 10px;
-    padding-block: clamp(20px, 2.2vw, 30px);
-    border-top: 1px solid var(--rule);
-    align-items: baseline;
-  }
-  .qa-q {
-    margin: 0;
-    font-family: var(--font-display);
-    font-stretch: 108%;
-    font-weight: 500;
-    font-size: clamp(1.2rem, 1.02rem + 0.55vw, 1.6rem);
-    line-height: 1.15;
-    letter-spacing: -0.015em;
-    text-wrap: balance;
-  }
-  .qa-a {
-    margin: 0;
-    color: var(--lichen);
-    font-size: 1rem;
-    line-height: 1.6;
-    max-width: 58ch;
-  }
-  .qa-m {
-    justify-self: end;
-    display: inline-flex;
-    gap: 8px;
-    font-family: var(--font-mono);
-    font-size: 12px;
-    color: var(--lichen);
-    text-decoration: none;
-    padding-block: 4px;
-    transition: color var(--t-micro) var(--ease-out);
-  }
-  .qa-m:hover,
-  .qa-m:focus-visible {
-    color: var(--frost);
-  }
-  .qa-m span:last-child {
-    transition: transform var(--t-micro) var(--ease-out);
-  }
-  .qa-m:hover span:last-child {
-    transform: translateY(3px);
-  }
-
-  /* ── Product flow: seven stations spread evenly over the full 12 columns ── */
-  .wf-sec {
-    padding-block: clamp(56px, 7vw, 96px);
-  }
-  .wf-cap {
-    margin: 0 0 clamp(28px, 3vw, 44px);
-    color: var(--lichen);
-    font-size: 1rem;
-    max-width: 52ch;
-  }
-  .wf {
-    --dot: 10px;
-    position: relative;
-  }
-  /* Twelve equal tracks with no gap: station k sits on the boundary k × 2, so the stations are 1/6 apart,
-     the first starts on the left grid edge and the last ends on the right one. */
-  .wf-ol {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-  }
-  .wf-track,
-  .wf-rail {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: calc(var(--dot) / 2 - 1px);
-    height: 2px;
-  }
-  .wf-track {
-    background: var(--rule-strong);
-  }
-  .wf-rail {
-    background: var(--signal);
-    transform-origin: left;
-    transition: transform var(--t-draw) var(--ease-in-out);
-  }
-  .wf li {
-    position: relative;
-    grid-column: var(--c) / span 2;
-    text-align: center;
-  }
-  .wf li:first-child {
-    grid-column: 1 / span 1;
-    text-align: left;
-  }
-  .wf li:last-child {
-    grid-column: 12 / span 1;
-    text-align: right;
-  }
-  .wf-a {
-    display: block;
-    padding-top: 30px;
-    color: var(--frost);
-    text-decoration: none;
-  }
-  .wf-lab {
-    display: inline-block;
-    white-space: nowrap;
-    transition: transform 320ms var(--ease-out);
-  }
-  .wf-a:hover .wf-lab,
-  .wf-a:focus-visible .wf-lab {
-    transform: translateX(6px);
-  }
-  .wf-dot {
-    position: absolute;
-    top: 0;
-    left: 50%;
-    width: var(--dot);
-    height: var(--dot);
-    margin-left: calc(var(--dot) / -2);
-    border-radius: 50%;
-    background: var(--ground);
-    border: 2px solid var(--signal);
-    transition:
-      transform var(--t-micro) var(--ease-out),
-      background-color var(--t-micro) var(--ease-out);
-  }
-  .wf li:first-child .wf-dot {
-    left: 0;
-    margin-left: 0;
-  }
-  .wf li:last-child .wf-dot {
-    left: auto;
-    right: 0;
-    margin-left: 0;
-    background: var(--signal);
-  }
-  .wf-i {
-    display: block;
-    font-family: var(--font-mono);
-    font-size: 12px;
-    color: var(--lichen);
-    margin-bottom: 8px;
-  }
-  .wf-t {
-    font-family: var(--font-display);
-    font-stretch: 112%;
-    font-weight: 480;
-    font-size: clamp(1.1rem, 0.5rem + 1vw, 1.75rem);
-    letter-spacing: -0.02em;
-    background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
-    transition: background-size var(--t-micro) var(--ease-out);
-    padding-bottom: 2px;
-  }
-  .wf-a:hover .wf-t,
-  .wf-a:focus-visible .wf-t {
-    background-size: 100% 1px;
-  }
-  .wf-a:hover .wf-dot,
-  .wf-a:focus-visible .wf-dot {
-    transform: scale(1.3);
-  }
-  @media (prefers-reduced-motion: no-preference) {
-    /* Stations ignite in sequence once the line has been drawn into view. */
-    :global(.js) .wf:not(.is-in) .wf-dot {
-      border-color: var(--rule-strong);
-    }
-    :global(.js) .wf.is-in .wf-dot {
-      transition:
-        border-color 300ms var(--ease-out) calc(200ms + var(--i) * 160ms),
-        transform var(--t-micro) var(--ease-out);
-    }
-  }
-
-  /* ── Five modules: sticky split ── */
-  .ms {
-    align-items: start;
-  }
-  .ms-nav {
-    grid-column: 1 / span 4;
-    position: sticky;
-    top: 120px;
-  }
-  .ms-nav ol {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    border-left: 1px solid var(--rule);
-  }
-  .ms-link {
-    position: relative;
-    display: block;
-    padding: 10px 0 10px 24px;
-    color: var(--lichen);
-    text-decoration: none;
-    transition: color 300ms var(--ease-out);
-  }
-  .ms-link::before {
-    content: '';
-    position: absolute;
-    left: -1px;
-    top: 10px;
-    bottom: 10px;
-    width: 2px;
-    background: var(--signal);
-    transform: scaleY(0);
-    transition: transform 300ms var(--ease-out);
-  }
-  .ms-link:hover {
-    color: var(--frost);
-  }
-  .ms-link.is-active {
-    color: var(--frost);
-  }
-  .ms-link.is-active::before {
-    transform: none;
-  }
-
-  .ms-body {
-    grid-column: 5 / span 8;
-  }
-  .mod {
-    padding-bottom: clamp(56px, 6vw, 96px);
-    scroll-margin-top: 100px;
-  }
-  .mod + .mod {
-    padding-top: clamp(28px, 3vw, 40px);
-    border-top: 1px solid var(--rule);
-  }
-  .mod-n {
-    margin: 0 0 6px;
-    font-family: var(--font-mono);
-    font-size: 12px;
-    color: var(--lichen);
-  }
-  .mod-h {
-    margin: 0 0 22px;
-    font-family: var(--font-text);
-    font-weight: 600;
-    font-size: 1.2rem;
-    line-height: 1.3;
-    color: var(--frost);
-  }
-  .mod-fig img {
-    transition: opacity 300ms var(--ease-out);
-  }
-  @media (prefers-reduced-motion: no-preference) and (min-width: 981px) {
-    :global(.js) .mod:not(.is-active) .mod-fig img {
-      opacity: 0.5;
-    }
-  }
-  .mod-l {
-    margin: 26px 0 0;
-    font-size: 1rem;
-    line-height: 1.6;
-    color: var(--frost);
-    max-width: 62ch;
-  }
-  .formula {
-    margin: 22px 0 0;
-    padding: 14px 0;
-    border-block: 1px solid var(--rule);
-    font-family: var(--font-mono);
-    font-size: 13px;
-    line-height: 1.6;
-    color: var(--frost);
-  }
-
-  .ruled {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    font-size: 15px;
-    line-height: 1.45;
-    color: var(--lichen);
-  }
-  .ruled li {
-    padding: 9px 0;
-    border-top: 1px solid var(--rule);
-  }
-  .ruled-2 {
-    margin-top: 24px;
-    border-bottom: 1px solid var(--rule);
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    column-gap: clamp(16px, 2vw, 32px);
-  }
-  .grp {
-    margin-top: 24px;
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 24px clamp(16px, 2vw, 32px);
-  }
-  .grp-h {
-    margin: 0 0 8px;
-    font-family: var(--font-mono);
-    font-size: 12px;
-    font-weight: 400;
-    color: var(--frost);
-  }
-
-  /* Implementation: five phases on the line */
-  .ph5 {
-    --dot: 10px;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    position: relative;
-    display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    padding-block: 28px 30px;
-    border-block: 1px solid var(--rule);
-  }
-  .ph5::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: calc(100% / 5 - var(--dot) / 2);
-    top: calc(28px + var(--dot) / 2 - 1px);
-    height: 2px;
-    background: var(--signal);
-  }
-  .ph5 li {
-    position: relative;
-    padding-top: 26px;
-  }
-  .ph5-dot {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: var(--dot);
-    height: var(--dot);
-    border-radius: 50%;
-    background: var(--ground);
-    border: 2px solid var(--signal);
-  }
-  .ph5 li:last-child .ph5-dot {
-    background: var(--signal);
-  }
-  .ph5-t {
-    font-family: var(--font-display);
-    font-stretch: 110%;
-    font-weight: 480;
-    font-size: clamp(1rem, 0.9rem + 0.4vw, 1.25rem);
-    letter-spacing: -0.01em;
-  }
-
-  /* Risk & governance: full-width ruled row */
-  .riskrow {
-    display: grid;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    column-gap: clamp(16px, 2vw, 32px);
-    row-gap: 14px;
-    padding-block: 22px 12px;
-    border-block: 1px solid var(--rule);
-    align-items: baseline;
-  }
-  .riskrow-l {
-    grid-column: 1 / span 3;
-    margin: 0;
-    font-family: var(--font-mono);
-    font-size: 12px;
-    color: var(--lichen);
-  }
-  .riskrow-r {
-    grid-column: 4 / span 9;
     list-style: none;
     margin: 0;
     padding: 0;
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    column-gap: clamp(16px, 2vw, 32px);
-    color: var(--frost);
+    gap: clamp(56px, 5vw, 88px) var(--col-gap);
+  }
+  .qa-i {
+    position: relative; /* keeps the sr-only caption inside the phone rail's clip */
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    min-width: 0;
+  }
+  /* a window onto the panel of the real screen that answers the question */
+  .qa-crop {
+    position: relative;
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    border-radius: var(--r);
+    background: var(--reel);
+    box-shadow: var(--shadow-screen);
+  }
+  .qa-crop img {
+    position: absolute;
+    max-width: none;
+    height: auto;
+    transform-origin: 50% 40%;
+    transition: transform 0.9s var(--e-out);
+  }
+  .qa-i:hover .qa-crop img {
+    transform: scale(1.04);
+  }
+  .qa-n {
+    margin-top: 26px;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--flare);
+    font-variant-numeric: tabular-nums;
+  }
+  .qa-q {
+    margin-top: 10px;
+    font-size: clamp(26px, 2.3vw, 38px);
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    line-height: 1.06;
+    text-wrap: balance;
+    max-width: 16ch;
+  }
+  .qa-a {
+    margin-top: 16px;
+    font-size: 17px;
+    line-height: 1.5;
+    color: var(--ash);
+    max-width: 40ch;
+  }
+  .qa-m {
+    margin-top: 22px;
     font-size: 16px;
-    line-height: 1.4;
   }
-  .riskrow-r li {
-    padding: 10px 0;
-    border-top: 1px solid var(--rule);
+  .qa-m:hover .ar {
+    transform: translateY(3px);
   }
-  .riskrow-r li:nth-child(-n + 3) {
-    border-top: 0;
-    padding-top: 0;
+  /* second row steps down: the grid reads as a sequence */
+  @media (min-width: 1101px) {
+    .qa-i:nth-child(3n + 2) {
+      margin-top: clamp(32px, 3.6vw, 64px);
+    }
+    .qa-i:nth-child(3n + 3) {
+      margin-top: clamp(64px, 7.2vw, 128px);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .qa-crop img {
+      transition: none;
+    }
+    .qa-i:hover .qa-crop img {
+      transform: none;
+    }
   }
 
-  /* Where it ends */
-  .b-l {
-    grid-column: 1 / span 5;
+  /* ── governance ── */
+  .gov-g {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--col-gap);
+    row-gap: 22px;
+    align-items: start;
   }
-  .b-r {
-    grid-column: 7 / span 6;
+  .gov-k {
+    grid-column: 1 / span 3;
+    padding-top: 0.5em;
   }
-  .b-link {
-    color: var(--frost);
-    background-size: 100% 1px;
+  .risk {
+    grid-column: 4 / span 9;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.05em 0;
+    font-size: clamp(32px, 4vw, 66px);
+    font-weight: 500;
+    letter-spacing: -0.04em;
+    line-height: 1.04;
   }
-  .b-link:hover {
-    color: var(--signal);
+  .risk li:not(:last-child)::after {
+    content: '/';
+    margin-inline: 0.28em;
+    color: var(--ash);
+    font-weight: 300;
   }
-  .b-p {
-    margin: 18px 0 0;
+
+  .end {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--col-gap);
+    row-gap: 32px;
+    margin-top: var(--sec);
+    padding-top: clamp(40px, 4vw, 64px);
+    border-top: 1px solid var(--rule-film);
   }
-  .b-p2 {
-    margin: 12px 0 26px;
+  .end-h {
+    grid-column: 1 / span 6;
+    max-width: 9ch;
+  }
+  .end-r {
+    grid-column: 8 / span 5;
+    padding-top: 0.6em;
+  }
+  .end-lede {
+    font-size: clamp(20px, 1.6vw, 25px);
+    line-height: 1.4;
+  }
+  .end-link {
+    font-weight: 500;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 5px;
+  }
+  .end-link:hover {
+    color: var(--flare-hi);
+  }
+  .end-p {
+    margin-top: 18px;
+    max-width: 52ch;
+    color: var(--ash);
+  }
+  .end-demo {
+    font-size: 16px;
+  }
+  .end-k {
+    margin-top: 26px;
   }
 
   @media (max-width: 1100px) {
-    .qa-row {
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    }
-    .qa-m {
-      grid-column: 2;
-      justify-self: start;
+    .qa {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
-  @media (max-width: 980px) {
-    .wh-top,
-    .wh-act,
-    .wh-fig,
-    .b-l,
-    .b-r {
-      grid-column: 1 / -1;
-      grid-row: auto;
-    }
-    .wh-fig {
-      margin-top: 0;
-    }
-    .b-r {
-      margin-top: 28px;
-    }
-    .rec-id,
-    .rec-tech {
+  @media (max-width: 900px) {
+    .gov-k,
+    .risk,
+    .end-h,
+    .end-r {
       grid-column: 1 / -1;
     }
-    .ms-nav {
+    .end-r {
+      padding-top: 0;
+    }
+  }
+  /* phones: a swipe rail, the next card peeks in */
+  @media (max-width: 640px) {
+    .qa {
+      display: flex;
+      gap: 16px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+      margin-inline: calc(var(--in) * -1 - var(--gut));
+      padding: 4px calc(var(--in) + var(--gut)) 40px;
+      scroll-padding-inline: calc(var(--in) + var(--gut));
+    }
+    .qa::-webkit-scrollbar {
       display: none;
     }
-    .ms-body {
-      grid-column: 1 / -1;
-    }
-    .riskrow-l,
-    .riskrow-r {
-      grid-column: 1 / -1;
-    }
-  }
-  @media (max-width: 980px) {
-    .wf-ol {
-      grid-template-columns: 1fr;
-      padding-left: 30px;
-    }
-    .wf li,
-    .wf li:first-child,
-    .wf li:last-child {
-      grid-column: 1;
-      text-align: left;
-    }
-    .wf-track,
-    .wf-rail {
-      left: calc(var(--dot) / 2 - 1px);
-      right: auto;
-      top: 6px;
-      bottom: 38px;
-      width: 2px;
-      height: auto;
-      transform-origin: top;
-    }
-    @media (prefers-reduced-motion: no-preference) {
-      :global(.js) .wf:not(.is-in) .wf-rail {
-        transform: scaleY(0) !important;
-      }
-      :global(.js) .wf.is-in .wf-rail {
-        transform: none !important;
-      }
-    }
-    .wf-a {
-      padding: 0 0 18px;
-      min-height: 44px;
-    }
-    .wf-lab {
-      display: flex;
-      align-items: baseline;
-      gap: 14px;
-    }
-    .wf-dot,
-    .wf li:first-child .wf-dot,
-    .wf li:last-child .wf-dot {
-      left: -30px;
-      right: auto;
-      top: 6px;
-      margin-left: 0;
-    }
-    .wf-i {
-      margin: 0;
-    }
-  }
-  @media (max-width: 760px) {
-    .qa-row {
-      grid-template-columns: 1fr;
-    }
-    .qa-m {
-      grid-column: 1;
-    }
-    .grp {
-      grid-template-columns: 1fr;
-    }
-    /* Factor and field lists stay two-up on a phone, so the page does not run to single-item rows. */
-    .grp .ruled,
-    .ruled-2 {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      column-gap: 16px;
-      row-gap: 10px;
-      font-size: 15px;
-    }
-    .grp .ruled li,
-    .ruled-2 li {
-      padding: 9px 0 0;
-    }
-    .ruled-2 {
-      padding-bottom: 10px;
-    }
-    .ph5 {
-      grid-template-columns: 1fr;
-      padding: 18px 0 8px 30px;
-    }
-    .ph5::before {
-      left: calc(var(--dot) / 2 - 1px);
-      right: auto;
-      top: 24px;
-      bottom: 30px;
-      width: 2px;
-      height: auto;
-    }
-    .ph5 li {
-      padding: 0 0 12px;
-    }
-    .ph5-dot {
-      left: -30px;
-      top: 6px;
-    }
-    .riskrow-r {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-    .riskrow-r li:nth-child(3) {
-      border-top: 1px solid var(--rule);
-      padding-top: 10px;
+    .qa-i {
+      flex: 0 0 84%;
+      scroll-snap-align: start;
     }
   }
 </style>
