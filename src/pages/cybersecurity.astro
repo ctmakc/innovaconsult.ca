@@ -1,0 +1,64 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+const requestUrl = 'mailto:canada@innovaconsult.ca?subject=INNOVA%20External%20Security%20Review';
+const phases = [
+  {n:'01',title:'Map external exposure',copy:'Use permitted public-source intelligence to identify internet-facing assets, potential risks and ownership confidence.'},
+  {n:'02',title:'Agree testing boundaries',copy:'Document the assets, allowed methods, testing windows and safeguards before conducting any active verification.'},
+  {n:'03',title:'Validate and prioritize',copy:'Review findings and evidence, distinguish observations from confirmed issues, and prioritize actual business risk.'},
+  {n:'04',title:'Fix and retest',copy:'Provide an engineering remediation plan; implement and retest agreed fixes under a separately approved scope.'}
+];
+---
+<BaseLayout title="External Security Review & Remediation | INNOVA CONSULT LTD."
+  description="A focused external security review for growth businesses: exposure intelligence, agreed-scope validation and prioritized remediation."
+  canonicalURL="https://innovaconsult.ca/cybersecurity">
+  <Header/>
+  <main class="cy">
+    <section class="cy-hero">
+      <div class="shell cy-hero-grid">
+        <div class="cy-lead">
+          <p class="cy-eyebrow">INNOVA / Cybersecurity Engineering</p>
+          <h1>Know your exposure.<br/><em>Know what to fix.</em></h1>
+          <p class="cy-intro">Your public attack surface changes every day. We turn observable security signals into a review your team can act on—without flooding you with unverified alerts.</p>
+          <div class="cy-actions"><a class="button button-primary" href={requestUrl}>Request a scoped review ↗</a><a class="cy-more" href="#method">How it works ↓</a></div>
+          <p class="cy-small">Written authorization before any active security testing. No scare tactics or unsupported claims.</p>
+        </div>
+        <aside class="cy-summary" aria-label="Pilot service overview">
+          <div class="cy-summary-top"><span>SECURITY BRIEF</span><span>01 / 04</span></div>
+          <div class="cy-price"><small>LIMITED PILOT OFFER</small><strong>CAD 990<sup>*</sup></strong><p>External Security Review<br/>Defined scope · Evidence-led findings</p></div>
+          <div class="cy-summary-bottom"><span>Asset exposure inventory</span><span>Risk triage</span><span>Remediation roadmap</span></div>
+          <small class="cy-disclaimer">* Indicative pilot pricing for a qualifying small scope, subject to written agreement. Not a full penetration test.</small>
+        </aside>
+      </div>
+    </section>
+    <section class="cy-ticker"><div class="shell"><span>PUBLIC EXPOSURE</span><span>VERIFIED EVIDENCE</span><span>PERMISSION-FIRST TESTING</span><span>PATCH + RETEST</span></div></section>
+    <section class="cy-section" id="method">
+      <div class="shell cy-method">
+        <div><p class="cy-eyebrow">Method / 01</p><h2>From observable risk to verified action.</h2><p class="cy-text">Automated scans are not a security program. We focus on evidence quality, defined boundaries and practical remediation.</p></div>
+        <div class="cy-steps">{phases.map(p=><article class="cy-step"><span>{p.n}</span><div><h3>{p.title}</h3><p>{p.copy}</p></div><span aria-hidden="true">↗</span></article>)}</div>
+      </div>
+    </section>
+    <section class="cy-section cy-dark">
+      <div class="shell">
+        <p class="cy-eyebrow">Deliverables / 02</p><h2 class="cy-narrow">A report engineering can actually use.</h2>
+        <div class="cy-cols">
+          <div><span>A</span><h3>Exposure register</h3><p>Assets observed in permitted data sources, linked to evidence and ownership confidence.</p></div>
+          <div><span>B</span><h3>Risk-backed findings</h3><p>Impact and confidence with suspected and confirmed issues identified separately.</p></div>
+          <div><span>C</span><h3>Remediation sequence</h3><p>Recommended fixes, dependencies, business priority and retest criteria.</p></div>
+        </div>
+      </div>
+    </section>
+    <section class="cy-section">
+      <div class="shell cy-bottom"><div><p class="cy-eyebrow">Engagement / 03</p><h2>Evidence first.<br/>Permission always.</h2></div><div>
+        <p>We may assess lawfully available public signals before an engagement. Intrusive checks, authenticated tests and penetration testing are undertaken only with documented authorization and a defined scope.</p>
+        <p>A fixed-fee external review does not claim to replace a comprehensive penetration test. Remediation, retesting and ongoing monitoring are separately scoped.</p>
+        <a class="button button-primary" href={requestUrl}>Discuss your environment ↗</a>
+      </div></div>
+    </section>
+  </main>
+  <Footer/>
+</BaseLayout>
+<style>
+.cy{background:#071214;color:#eef7f3}.cy-hero{padding:clamp(66px,8vw,126px) 0 110px;background:radial-gradient(ellipse at 80% 22%,rgba(42,210,180,.075),transparent 49%)}.cy-hero-grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(285px,.75fr);gap:clamp(40px,6vw,90px);align-items:center}.cy-eyebrow{text-transform:uppercase;letter-spacing:.17em;color:#5cf2d6;font-weight:750;font-size:11px;margin:0 0 22px}.cy h1{font-size:clamp(50px,6.4vw,97px);line-height:.94;letter-spacing:-.067em;font-weight:750;margin:0}.cy h1 em{font-style:normal;color:#5cf2d6}.cy-intro{font-size:clamp(17px,1.7vw,20px);line-height:1.6;color:#c2d1cd;max-width:610px;margin:28px 0}.cy-actions{display:flex;align-items:center;flex-wrap:wrap;gap:22px}.cy-more{border-bottom:1px solid #71817e;padding:6px 0;font-size:13px;font-weight:700}.cy-small{font-size:12px;line-height:1.7;color:#96aaa7;max-width:600px;margin:27px 0 0}.cy-summary{border:1px solid rgba(202,236,230,.26);background:linear-gradient(165deg,#11262a,#0b181a);padding:28px;min-height:480px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 26px 80px rgba(0,0,0,.18)}.cy-summary-top{display:flex;justify-content:space-between;font-size:10px;letter-spacing:.13em;color:#a9bcb7}.cy-price{border-top:1px solid rgba(202,236,230,.24);border-bottom:1px solid rgba(202,236,230,.24);padding:34px 0}.cy-price small{color:#5cf2d6;font-size:10px;letter-spacing:.14em}.cy-price strong{display:block;font-size:clamp(43px,5vw,68px);line-height:1.15;letter-spacing:-.05em}.cy-price sup{font-size:20px}.cy-price p{line-height:1.6;color:#c2d1cd;font-size:14px}.cy-summary-bottom{display:grid;gap:8px;font-size:12px}.cy-summary-bottom span:before{content:'↗';color:#5cf2d6;margin-right:10px}.cy-disclaimer{font-size:10px;line-height:1.55;color:#96aaa7;display:block;margin-top:15px}.cy-ticker{border-block:1px solid rgba(202,236,230,.16)}.cy-ticker>.shell{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;padding:23px 0}.cy-ticker span{font-size:10px;letter-spacing:.1em;color:#96aaa7;font-weight:700}.cy-section{padding:clamp(76px,9vw,125px) 0;border-bottom:1px solid rgba(202,236,230,.14)}.cy-method{display:grid;grid-template-columns:.78fr 1.22fr;gap:clamp(48px,8vw,150px)}.cy h2{font-size:clamp(38px,4.7vw,64px);letter-spacing:-.055em;line-height:1.03;font-weight:720;margin:0 0 24px}.cy-text,.cy-bottom p:not(.cy-eyebrow){font-size:15px;line-height:1.75;color:#96aaa7}.cy-step{display:grid;grid-template-columns:36px 1fr 18px;gap:22px;border-top:1px solid rgba(202,236,230,.22);padding:27px 0}.cy-step>span{color:#5cf2d6;font-size:12px}.cy-step h3{font-size:21px;margin:0 0 10px}.cy-step p{font-size:14px;line-height:1.7;color:#96aaa7;margin:0}.cy-dark{background:#0b191c}.cy-narrow{max-width:800px}.cy-cols{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;margin-top:56px}.cy-cols>div{padding-top:27px;border-top:1px solid rgba(202,236,230,.25)}.cy-cols span{color:#5cf2d6;font-size:13px;font-weight:800}.cy-cols h3{font-size:21px;margin:24px 0 10px}.cy-cols p{color:#96aaa7;font-size:15px;line-height:1.7}.cy-bottom{display:grid;grid-template-columns:1fr 1fr;gap:clamp(50px,9vw,150px)}.cy-bottom .button{margin-top:20px}@media(max-width:900px){.cy-hero-grid,.cy-method,.cy-bottom{grid-template-columns:1fr}.cy-summary{min-height:380px}.cy-cols{grid-template-columns:1fr}}@media(max-width:620px){.cy h1{font-size:clamp(42px,12vw,62px)}.cy-hero{padding:70px 0}.cy-actions{align-items:flex-start;flex-direction:column}.cy-ticker>.shell{grid-template-columns:1fr 1fr}.cy-step{grid-template-columns:26px 1fr 15px;gap:11px}.cy h2{font-size:clamp(34px,8vw,46px)}}
+</style>
