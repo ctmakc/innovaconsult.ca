@@ -1,0 +1,9 @@
+company,website,segment,product-exposure-rationale,stage,contact_verified,lawful_outreach_basis,notes,public_source
+Knak,https://knak.com/,marketing SaaS,Enterprise email and landing-page creation with marketing-platform integrations,research_seed,no,not_checked,No vulnerability or breach claim,https://knak.com/enterprise/
+TrueContext,https://truecontext.com/,field service SaaS,Field data workflows and enterprise integrations,research_seed,no,not_checked,No vulnerability or breach claim,https://truecontext.com/
+AlayaCare,https://alayacare.com/ca/,healthcare software,Home-care workflow and clinical data platform; complex procurement likely,research_seed,no,not_checked,No vulnerability or breach claim,https://alayacare.com/ca/
+Plooto,https://www.plooto.com/,fintech software,Business payments and approvals platform; high vendor-review threshold,research_seed,no,not_checked,No vulnerability or breach claim,https://www.plooto.com/
+Float Financial,https://floatfinancial.com/,finance platform,Spend management and business financial accounts; likely mature security review,research_seed,no,not_checked,No vulnerability or breach claim,https://floatfinancial.com/
+Rewind,https://rewind.com/,backup SaaS,SaaS data backup platform; likely existing security expertise,research_seed,no,not_checked,No vulnerability or breach claim,https://rewind.com/products/ecommerce/
+Solink,https://solink.com/,video SaaS,Cloud video analytics and business integrations; likely existing security expertise,research_seed,no,not_checked,No vulnerability or breach claim,https://solink.com/
+INNOVA CONSULT LTD.,https://innovaconsult.ca/,own asset,A read-only source-code review demo only; confirm live asset ownership and test authorization for active tests,internal_demo,yes,owned_repo,GitHub repo ctmakc/innovaconsult.ca is accessible to owner,https://github.com/ctmakc/innovaconsult.ca
